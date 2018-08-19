@@ -18,11 +18,13 @@ namespace SelectorForm
         public static MainForm Me;
         public SelectResult reSelect_;
         public BuyItem buyItem_;
+        public RegressResult regressingRe_;
         public bool isBusy_;
         public MainForm()
         {
             Me = this;
             InitializeComponent();
+            StartPosition = FormStartPosition.CenterScreen;
 
             progressBar.Minimum = 0;
             progressBar.Maximum = 100;
@@ -32,7 +34,7 @@ namespace SelectorForm
             tradedayText.Text = "";
 
             App.host_ = this;
-            MUtils.InitGrid(selectGrid_);
+            GUtils.InitGrid(selectGrid_);
 
             Dist.Setup();
         }
@@ -164,12 +166,12 @@ namespace SelectorForm
         }
         private void selectGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            MUtils.UpdateGridRowNum(selectGrid_);
+            GUtils.UpdateGridRowNum(selectGrid_);
         }
 
         private void selectGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
-            MUtils.UpdateGridRowNum(selectGrid_);
+            GUtils.UpdateGridRowNum(selectGrid_);
         }
 
         private void selectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -211,17 +213,13 @@ namespace SelectorForm
         {
             if (reSelect_ == null)
             {
-                selectGrid_.RowCount = 0;
+                GUtils.RemoveAllGridRow(selectGrid_);
             }
             else
             {
-                selectGrid_.RowCount = reSelect_.selItems_.Count;
+                GUtils.FillGridData(selectGrid_, reSelect_.selItems_);
             }
             showTabPage("TabSelect", null);
-        }
-        private void newRegressToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -231,6 +229,16 @@ namespace SelectorForm
                 MessageBox.Show("正忙，请稍微。");
                 return;
             }
+            NewRegressForm form = new NewRegressForm();
+            if (form.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            regressingRe_ = new RegressResult();
+            regressingRe_.name_ = form.name.Text;
+            regressingRe_.startDate_ = Utils.Date(form.startDate.Value);
+            regressingRe_.endDate_ = Utils.Date(form.endDate.Value);
+
             regressWorker.RunWorkerAsync();
         }
 
@@ -240,7 +248,8 @@ namespace SelectorForm
             try
             {
                 RegressManager regressManager = new RegressManager();
-                RegressResult re = regressManager.regress("test", 20050101, 20180817);
+                RegressResult re = regressManager.regress(regressingRe_.name_,
+                    regressingRe_.startDate_, regressingRe_.endDate_);
                 e.Result = re;
             }
             catch (Exception ex)
@@ -257,36 +266,25 @@ namespace SelectorForm
         {
             if (e.Result == null)
             {
-                RegressSelectForm selectform = (RegressSelectForm)queryForm("RegressSelect");
-                RegressBuyForm buyform = (RegressBuyForm)queryForm("RegressBuy");
-                if (selectform != null)
-                {
-                    selectform.re_ = null;
-                    selectform.selectItemGrid().RowCount = 0;
-                    selectform.daySelectGrid().RowCount = 0;
-                }
-                if (buyform != null)
-                {
-                    buyform.re_ = null;
-                    buyform.buyItemGrid().RowCount = 0;
-                    buyform.daySelectGrid().RowCount = 0;
-                }
-
+                regressingRe_ = null;
                 return;
             } else
             {
                 RegressResult re = (RegressResult)e.Result;
+                re.name_ = regressingRe_.name_;
                 RegressSelectForm selectform = (RegressSelectForm)showTabPage("RegressSelect", new RegressSelectForm());
                 RegressBuyForm buyform = (RegressBuyForm)showTabPage("RegressBuy", new RegressBuyForm());
                 selectform.re_ = buyform.re_ = re;
-                selectform.selectItemGrid().RowCount = re.selItems_.Count;
+                GUtils.FillGridData(selectform.selectItemGrid(), re.selItems_);
+                regressingRe_ = null;
+                App.regressList_.Add(re);
             }
 
         }
 
         private void selectGrid__CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            MUtils.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
+            GUtils.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
         }
 
 

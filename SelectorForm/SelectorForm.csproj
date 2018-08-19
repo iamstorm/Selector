@@ -109,7 +109,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB.cs" />
-    <Compile Include="MUtils.cs" />
+    <Compile Include="GUtils.cs" />
+    <Compile Include="NewRegressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewRegressForm.Designer.cs">
+      <DependentUpon>NewRegressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="RegressBuyForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -133,6 +139,9 @@
     </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewRegressForm.resx">
+      <DependentUpon>NewRegressForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

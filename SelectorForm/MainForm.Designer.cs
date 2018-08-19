@@ -36,7 +36,6 @@
             this.menu = new System.Windows.Forms.MenuStrip();
             this.basicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newRegressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.msgText = new System.Windows.Forms.Label();
@@ -86,7 +85,7 @@
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.selectGrid_.RowHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.selectGrid_.RowHeadersWidth = 50;
+            this.selectGrid_.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.selectGrid_.RowTemplate.Height = 23;
             this.selectGrid_.Size = new System.Drawing.Size(1023, 585);
             this.selectGrid_.TabIndex = 0;
@@ -99,7 +98,6 @@
             this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.basicToolStripMenuItem,
             this.selectToolStripMenuItem,
-            this.newRegressToolStripMenuItem,
             this.regressToolStripMenuItem});
             this.menu.Location = new System.Drawing.Point(0, 0);
             this.menu.Name = "menu";
@@ -119,13 +117,6 @@
             this.selectToolStripMenuItem.Size = new System.Drawing.Size(54, 21);
             this.selectToolStripMenuItem.Text = "Select";
             this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
-            // 
-            // newRegressToolStripMenuItem
-            // 
-            this.newRegressToolStripMenuItem.Name = "newRegressToolStripMenuItem";
-            this.newRegressToolStripMenuItem.Size = new System.Drawing.Size(93, 21);
-            this.newRegressToolStripMenuItem.Text = "NewRegress";
-            this.newRegressToolStripMenuItem.Click += new System.EventHandler(this.newRegressToolStripMenuItem_Click);
             // 
             // regressToolStripMenuItem
             // 
@@ -210,7 +201,6 @@
         private System.Windows.Forms.TabPage TabSelect;
         private System.Windows.Forms.MenuStrip menu;
         private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newRegressToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem basicToolStripMenuItem;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label msgText;
