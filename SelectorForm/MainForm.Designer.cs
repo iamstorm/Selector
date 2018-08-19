@@ -44,6 +44,7 @@
             this.tradedayText = new System.Windows.Forms.Label();
             this.endWorker = new System.ComponentModel.BackgroundWorker();
             this.regressWorker = new System.ComponentModel.BackgroundWorker();
+            this.regressLisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTab.SuspendLayout();
             this.TabSelect.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.selectGrid_)).BeginInit();
@@ -98,7 +99,8 @@
             this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.basicToolStripMenuItem,
             this.selectToolStripMenuItem,
-            this.regressToolStripMenuItem});
+            this.regressToolStripMenuItem,
+            this.regressLisToolStripMenuItem});
             this.menu.Location = new System.Drawing.Point(0, 0);
             this.menu.Name = "menu";
             this.menu.Size = new System.Drawing.Size(1028, 25);
@@ -169,6 +171,13 @@
             this.regressWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.regressWorker_DoWork);
             this.regressWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.regressWorker_RunWorkerCompleted);
             // 
+            // regressLisToolStripMenuItem
+            // 
+            this.regressLisToolStripMenuItem.Name = "regressLisToolStripMenuItem";
+            this.regressLisToolStripMenuItem.Size = new System.Drawing.Size(86, 21);
+            this.regressLisToolStripMenuItem.Text = "RegressList";
+            this.regressLisToolStripMenuItem.Click += new System.EventHandler(this.regressLisToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -182,6 +191,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menu;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Selector";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
@@ -211,6 +221,7 @@
         private System.ComponentModel.BackgroundWorker endWorker;
         private System.Windows.Forms.ToolStripMenuItem regressToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker regressWorker;
+        private System.Windows.Forms.ToolStripMenuItem regressLisToolStripMenuItem;
     }
 }
 

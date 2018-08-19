@@ -27,19 +27,31 @@ namespace SelectImpl
             rateItemKey_ = item.rateItemKey_;
             rate_ = item.rate_;
         }
-
+        public static SelectItem DontBuy(int date)
+        {
+            SelectItem dontBuy = new SelectItem();
+            dontBuy.date_ = date;
+            dontBuy.strategyName_ = "dontBuy";
+            return dontBuy;
+        }
+        public static SelectItem MissBuy(int date)
+        {
+            SelectItem missBuy = new SelectItem();
+            missBuy.date_ = date;
+            missBuy.strategyName_ = "miss";
+            return missBuy;
+        }
         public static String[] ShowColumnList()
         {
             return new String[] {
                 "date", "code", "name", "zf", "bonus", "close", "strategy", "rate", "hscount", "rateKey"
             };
         }
-        public Object getCellValue(DataGridViewRow row, String colName, Stock stock, StrategyData straData)
+        public String getColumnVal(String colName, Stock stock, StrategyData straData)
         {
-            DataGridViewCell cell = row.Cells[colName];
             if (colName == "date")
             {
-                return date_;
+                return date_.ToString();
             }
             else if (colName == "code")
             {
@@ -47,22 +59,22 @@ namespace SelectImpl
             }
             else if (colName == "name")
             {
-                return stock.name_;
+                return stock == null ? "" : stock.name_;
             }
             else if (colName == "zf")
             {
-                if (stock.zf(date_) > 0)
+                if (stock == null)
                 {
-                    row.DefaultCellStyle.ForeColor = Color.Red;
-                }
-                else
-                {
-                    row.DefaultCellStyle.ForeColor = Color.Green;
+                    return "";
                 }
                 return stock.zfSee(date_);
             }
             else if (colName == "bonus")
             {
+                if (stock == null)
+                {
+                    return "";
+                }
                 int nextDate = stock.nextDate(date_);
                 if (nextDate == -1)
                 {
@@ -70,22 +82,16 @@ namespace SelectImpl
                 }
                 else
                 {
-                    if (stock.zf(nextDate) > 0)
-                    {
-                        cell.Style.BackColor = Color.Red;
-                        cell.Style.ForeColor = Color.White;
-                    }
-                    else
-                    {
-                        cell.Style.BackColor = Color.Green;
-                        cell.Style.ForeColor = Color.White;
-                    }
                     return stock.zfSee(nextDate);
                 }
             }
             else if (colName == "close")
             {
-                return App.ds_.realVal(Info.C, code_, date_);
+                if (code_ == null)
+                {
+                    return "";
+                }
+                return App.ds_.realVal(Info.C, code_, date_).ToString();
             }
             else if (colName == "strategy")
             {
@@ -97,7 +103,7 @@ namespace SelectImpl
             }
             else if (colName == "hscount")
             {
-                return straData == null ? 0 : straData.selectCount_;
+                return straData == null ? "0" : straData.selectCount_.ToString();
             }
             else if (colName == "rateKey")
             {
@@ -108,10 +114,52 @@ namespace SelectImpl
                 throw new ArgumentException("想要显示无效的列值！");
             }
         }
-    }
-    public class BuyItem
-    {
-        public SelectItem bySelectItem_;
+        public String getColumnVal(String colName)
+        {
+            Stock stock = code_ == null ? null : App.ds_.sk(code_);
+            StrategyData straData = App.asset_.straData(strategyName_);
+            return getColumnVal(colName, stock, straData);
+        }
+        public Object getCellValue(DataGridViewRow row, String colName, Stock stock, StrategyData straData)
+        {
+            DataGridViewCell cell = row.Cells[colName];
+            String val = getColumnVal(colName, stock, straData);
+            if (colName == "zf")
+            {
+                if (stock != null)
+                {
+                    if (stock.zf(date_) > 0)
+                    {
+                        row.DefaultCellStyle.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        row.DefaultCellStyle.ForeColor = Color.Green;
+                    }
+                }
+            }
+            else if (colName == "bonus")
+            {
+                if (stock != null)
+                {
+                    int nextDate = stock.nextDate(date_);
+                    if (nextDate != -1)
+                    {
+                        if (stock.zf(nextDate) > 0)
+                        {
+                            cell.Style.BackColor = Color.Red;
+                            cell.Style.ForeColor = Color.White;
+                        }
+                        else
+                        {
+                            cell.Style.BackColor = Color.Green;
+                            cell.Style.ForeColor = Color.White;
+                        }
+                    }
+                }
+            }
+            return val;
+        }
     }
     public class SelectResult
     {

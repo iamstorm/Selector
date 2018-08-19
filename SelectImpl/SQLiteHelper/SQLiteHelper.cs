@@ -22,7 +22,7 @@ namespace System.Data.SQLite
 
     public class SQLiteHelper
     {
-        SQLiteCommand cmd = null;
+        public SQLiteCommand cmd = null;
 
         public SQLiteHelper(SQLiteCommand command)
         {
@@ -109,18 +109,18 @@ namespace System.Data.SQLite
             return dt;
         }
 
-        public void Execute(string sql)
+        public Int32 Execute(string sql)
         {
-            Execute(sql, new List<SQLiteParameter>());
+            return Execute(sql, new List<SQLiteParameter>());
         }
 
-        public void Execute(string sql, Dictionary<string, object> dicParameters = null)
+        public Int32 Execute(string sql, Dictionary<string, object> dicParameters = null)
         {
             List<SQLiteParameter> lst = GetParametersList(dicParameters);
-            Execute(sql, lst);
+            return Execute(sql, lst);
         }
 
-        public void Execute(string sql, IEnumerable<SQLiteParameter> parameters = null)
+        public Int32 Execute(string sql, IEnumerable<SQLiteParameter> parameters = null)
         {
             cmd.CommandText = sql;
             if (parameters != null)
@@ -130,7 +130,7 @@ namespace System.Data.SQLite
                     cmd.Parameters.Add(param);
                 }
             }
-            cmd.ExecuteNonQuery();
+            return cmd.ExecuteNonQuery();
         }
 
         public object ExecuteScalar(string sql)

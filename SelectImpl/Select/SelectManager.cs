@@ -77,8 +77,8 @@ namespace SelectImpl
         }
         public SelectResult selectNow()
         {
-            return null;
-          //  return select(Utils.Date(DateTime.Now));
+            DataStoreHelper dsh = new DataStoreHelper();
+            return select(dsh, Utils.Date(DateTime.Now));
         }
     }
 }

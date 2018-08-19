@@ -17,14 +17,14 @@ namespace SelectorForm
     {
         public static MainForm Me;
         public SelectResult reSelect_;
-        public BuyItem buyItem_;
+        public SelectItem buyItem_;
         public RegressResult regressingRe_;
         public bool isBusy_;
+        public List<TabPage> hideTabPages = new List<TabPage>(); 
         public MainForm()
         {
             Me = this;
             InitializeComponent();
-            StartPosition = FormStartPosition.CenterScreen;
 
             progressBar.Minimum = 0;
             progressBar.Maximum = 100;
@@ -89,27 +89,8 @@ namespace SelectorForm
                     tradedayText.Update();
                 });
         }
-        SQLiteHelper IHost.Global()
+        public Form createTabPage(string name, Form form)
         {
-            return DB.Global();
-        }
-        public Form showTabPage(string name, Form form)
-        {
-            for (int i = 0; i < mainTab.TabPages.Count; i++)
-            {
-                if (mainTab.TabPages[i].Name == name)
-                {
-                    mainTab.SelectedTab = mainTab.TabPages[i];
-                    if (name == "TabSelect")
-                    {
-                        return this;
-                    }
-                    else
-                    {
-                        return (Form)mainTab.TabPages[i].Controls[0];
-                    }
-                }
-            }
             TabPage page = new TabPage(name);
             page.Name = name;
             form.TopLevel = false;
@@ -133,6 +114,57 @@ namespace SelectorForm
                 }
             }
             return null;
+        }
+        public void removeForm(string name)
+        {
+            if (name == "TabSelect")
+            {
+                return;
+            }
+            for (int i = 0; i < mainTab.TabPages.Count; i++)
+            {
+                if (mainTab.TabPages[i].Name == name)
+                {
+                    mainTab.TabPages.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+        public void showForm(string name, bool bShow=true)
+        {
+            if (bShow)
+            {
+                for (int i = 0; i < hideTabPages.Count; i++)
+                {
+                    if (hideTabPages[i].Name == name)
+                    {
+                        hideTabPages[i].Parent = mainTab;
+                        mainTab.SelectedTab = hideTabPages[i];
+                        hideTabPages.RemoveAt(i);
+                        break;
+                    }
+                }
+                for (int i = 0; i < mainTab.TabPages.Count; i++)
+                {
+                    if (mainTab.TabPages[i].Name == name)
+                    {
+                        mainTab.SelectedTab = mainTab.TabPages[i];
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < mainTab.TabPages.Count; i++)
+                {
+                    if (mainTab.TabPages[i].Name == name)
+                    {
+                        hideTabPages.Add(mainTab.TabPages[i]);
+                        mainTab.TabPages[i].Parent = null;
+                        return;
+                    }
+                }
+            }
         }
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -219,7 +251,7 @@ namespace SelectorForm
             {
                 GUtils.FillGridData(selectGrid_, reSelect_.selItems_);
             }
-            showTabPage("TabSelect", null);
+            showForm("TabSelect");
         }
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -272,10 +304,11 @@ namespace SelectorForm
             {
                 RegressResult re = (RegressResult)e.Result;
                 re.name_ = regressingRe_.name_;
-                RegressSelectForm selectform = (RegressSelectForm)showTabPage("RegressSelect", new RegressSelectForm());
-                RegressBuyForm buyform = (RegressBuyForm)showTabPage("RegressBuy", new RegressBuyForm());
+                RegressSelectForm selectform = (RegressSelectForm)createTabPage(re.name_+"_Select", new RegressSelectForm());
+                RegressBuyForm buyform = (RegressBuyForm)createTabPage(re.name_ + "_Buy", new RegressBuyForm());
                 selectform.re_ = buyform.re_ = re;
                 GUtils.FillGridData(selectform.selectItemGrid(), re.selItems_);
+                GUtils.FillGridData(buyform.buyItemGrid(), re.buyItems_);
                 regressingRe_ = null;
                 App.regressList_.Add(re);
             }
@@ -285,6 +318,12 @@ namespace SelectorForm
         private void selectGrid__CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
             GUtils.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
+        }
+
+        private void regressLisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RegressListForm form = new RegressListForm();
+            form.ShowDialog();
         }
 
 

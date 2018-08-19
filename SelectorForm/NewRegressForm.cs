@@ -15,7 +15,17 @@ namespace SelectorForm
         public NewRegressForm()
         {
             InitializeComponent();
-            StartPosition = FormStartPosition.CenterParent;
+
+            string sDate = Utils.GetSysInfo(DB.Global(), "NewRegressForm.startDate");
+            if (sDate != "")
+            {
+                startDate.Value = DateTime.Parse(sDate);
+            }
+            sDate = Utils.GetSysInfo(DB.Global(), "NewRegressForm.endDate");
+            if (sDate != "")
+            {
+                endDate.Value = DateTime.Parse(sDate);
+            }
         }
 
         private void btnOk_Click(object sender, EventArgs e)
@@ -39,6 +49,8 @@ namespace SelectorForm
                     return;   
                 }
             }
+            Utils.SetSysInfo(DB.Global(), "NewRegressForm.startDate", startDate.Value.ToShortDateString());
+            Utils.SetSysInfo(DB.Global(), "NewRegressForm.endDate", endDate.Value.ToShortDateString());
             this.DialogResult = DialogResult.OK;
             Close();
         }

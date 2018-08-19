@@ -76,6 +76,7 @@
     <Compile Include="Asset\StrategyData.cs" />
     <Compile Include="BaseStrategy.cs" />
     <Compile Include="DataStore.cs" />
+    <Compile Include="DB.cs" />
     <Compile Include="Dist.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="IHost.cs" />

@@ -16,6 +16,7 @@ namespace SelectorForm
             {
                 grid.Rows[i].HeaderCell.Value = (i + 1).ToString();
             }
+            grid.TopLeftHeaderCell.Value = grid.Rows.Count.ToString() + "Rows";
         }
         public static void InitGrid(DataGridView grid)
         {
@@ -50,7 +51,6 @@ namespace SelectorForm
         public static void FillGridData(DataGridView grid, List<SelectItem> selItems)
         {
             RemoveAllGridRow(grid);
-            grid.TopLeftHeaderCell.Value = selItems.Count.ToString()+"Rows";
             if (selItems.Count > 300)
             {
                 grid.VirtualMode = true;
@@ -62,7 +62,7 @@ namespace SelectorForm
                 for (int i = 0; i < selItems.Count; i++)
                 {
                     SelectItem item = selItems[i];
-                    Stock stock = App.ds_.sk(item.code_);
+                    Stock stock = item.code_ == null ? null : App.ds_.sk(item.code_);
                     StrategyData straData = App.asset_.straData(item.strategyName_);
 
                     int iRowIndex = grid.Rows.Add();
@@ -80,7 +80,7 @@ namespace SelectorForm
                 return;
             string colName = grid.Columns[e.ColumnIndex].Name;
             SelectItem item = selItems[e.RowIndex];
-            Stock stock = App.ds_.sk(item.code_);
+            Stock stock = item.code_ == null ? null : App.ds_.sk(item.code_);
             StrategyData straData = App.asset_.straData(item.strategyName_);
 
             e.Value = item.getCellValue(grid.Rows[e.RowIndex], colName, stock, straData);

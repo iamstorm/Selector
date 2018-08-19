@@ -81,7 +81,7 @@ namespace SelectImpl
         public List<Data> szListData_ = new List<Data>();
         void readStocks()
         {
-            DataTable stocks = App.host_.Global().Select("Select * From Stock Order by symbol");
+            DataTable stocks = DB.Global().Select("Select * From Stock Order by symbol");
             foreach (DataRow row in stocks.Rows)
             {
                 Stock sk = new Stock();
@@ -133,7 +133,7 @@ namespace SelectImpl
         }
         void readSZData()
         {
-            DataTable datas = App.host_.Global().Select("Select * From [000001] Order by trade_date desc");
+            DataTable datas = DB.Global().Select("Select * From [000001] Order by trade_date desc");
             if (Utils.IsTradeDay())
             {
                 szListData_.Add(null);//代表今日
@@ -201,7 +201,7 @@ namespace SelectImpl
             if (!updateRuntime())
                 return false;
 
-            DataTable dt = App.host_.Global().Select("Select * From [runtime]");
+            DataTable dt = DB.Global().Select("Select * From [runtime]");
             int nowDate = Utils.Date(DateTime.Now);
             foreach (DataRow row in dt.Rows)
             {
@@ -216,7 +216,7 @@ namespace SelectImpl
                 d.amount_ = Utils.ToType<int>(row["amount"]);
                 listData(code)[0] = d;
             }
-            dt = App.host_.Global().Select("Select * From [000001runtime]");
+            dt = DB.Global().Select("Select * From [000001runtime]");
             foreach (DataRow row in dt.Rows)
             {
                 Data d = new Data();

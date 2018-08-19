@@ -22,6 +22,8 @@ namespace SelectImpl
             {
                 straDataDict_.Add(stra.name(), null);
             }
+            straDataDict_.Add("dontBuy", null);
+            straDataDict_.Add("miss", null);
         }
 
         public StrategyData straData(String straName)

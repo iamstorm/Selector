@@ -17,21 +17,47 @@ namespace SelectImpl
                 string name = stra.name();
             }
         }
-        public BuyItem makeDeside(List<SelectItem> selectItems)
+        public SelectItem makeDeside(List<SelectItem> selectItems)
         {
-            return null;
+            SelectItem buyItem = null;
+            if (selectItems.Count == 1)
+            {
+                buyItem = selectItems[0];
+            }
+            else 
+            {
+                int maxRate = 0;
+                SelectItem maxRateItem = null;
+                foreach (var item in selectItems)
+                {
+                    int rate = Utils.ToType<int>(item.rate_);
+                    if (rate > maxRate)
+                    {
+                        maxRateItem = item;
+                        maxRate = rate;
+                    }
+                }
+                buyItem = maxRateItem;
+            }
+            return buyItem == null ? SelectItem.DontBuy(selectItems[0].date_) : buyItem;
         }
-        public List<BuyItem> desideToBuy(RegressResult re)
+        public List<SelectItem> desideToBuy(RegressResult re)
         {
-            List<BuyItem> buyitems = new List<BuyItem>();
-            IList<int> dateList = Utils.TraverTimeDay(re.startDate_, re.endDate_);
+            List<SelectItem> buyitems = new List<SelectItem>();
+            List<int> dateList = Utils.TraverTimeDay(re.startDate_, re.endDate_);
+            dateList.Reverse();
             foreach (int date in dateList)
             {
-                BuyItem buy = makeDeside(re.ofDate(date));
-                if (buy != null)
+                List<SelectItem> items = re.ofDate(date);
+                if (items.Count == 0)
                 {
-                    buyitems.Add(buy);
+                    if (Utils.IsTradeDay(date))
+                    {
+                        buyitems.Add(makeDeside(items));
+                    }
+                    continue;
                 }
+                buyitems.Add(makeDeside(items));
             }
             return re.buyItems_ = buyitems;
         }

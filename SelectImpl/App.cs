@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace SelectImpl
 {
@@ -20,10 +21,20 @@ namespace SelectImpl
 
         }
 
+        public static void RemoveRegress(RegressResult re)
+        {
+            if (File.Exists(re.DBFilePath))
+            {
+                DB.UnRegConn(re.ConnKey);
+                File.Delete(re.DBFilePath);
+            }
+            App.regressList_.Remove(re);
+        }
+
         public static bool RunScript(string mode)
         {
             App.host_.uiSetMsg("执行脚本:"+mode);
-            Utils.SetSysInfo(App.host_.Global(), "pyrun", "0");
+            Utils.SetSysInfo(DB.Global(), "pyrun", "0");
             string scriptFilePath = Dist.scriptPath_ + "PromiseData\\PromiseData.py";
             string arguments = String.Format("\"{0}\" \"{1}\" -m {2}", scriptFilePath.Replace("\\", "\\\\"), Dist.binPath_.Replace("\\", "\\\\"), mode);
 
@@ -96,7 +107,7 @@ namespace SelectImpl
             p.WaitForExit();//等待程序执行完退出进程
             p.Close();
 
-            string sPyRun = Utils.GetSysInfo(App.host_.Global(), "pyrun");
+            string sPyRun = Utils.GetSysInfo(DB.Global(), "pyrun");
             if (sPyRun != "1")
             {
                 return false;

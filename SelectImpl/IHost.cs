@@ -13,6 +13,5 @@ namespace SelectImpl
         void uiFinishProcessBar();
         void uiSetMsg(string msgIn);
         void uiSetTradeDay();
-        SQLiteHelper Global();
     }
 }

@@ -12,7 +12,54 @@ namespace SelectImpl
         public int startDate_;
         public int endDate_;
         public List<SelectItem> selItems_ = new List<SelectItem>();
-        public List<BuyItem> buyItems_;
+        public List<SelectItem> buyItems_;
+        public String TotalBonus
+        {
+            get 
+            {
+                float totalBous = 0;
+                foreach (var item in buyItems_)
+                {
+                    totalBous += Utils.GetBonusValue(item.getColumnVal("bonus"));
+                }
+                return totalBous.ToString("F2") + "%";
+            }
+        }
+        public String DBFilePath
+        {
+            get
+            {
+                return Dist.regressPath_+ name_+".data";
+            }
+        }
+        public String ConnKey
+        {
+            get
+            {
+                return "re$" + name_;
+            }
+        }
+        public String SelectFormName
+        {
+            get
+            {
+                return name_ + "_Select";
+            }
+        }
+        public String BuyFormName
+        {
+            get
+            {
+                return name_ + "_Buy";
+            }
+        }
+        public String[] AllFormNames
+        {
+            get
+            {
+                return new String[] { SelectFormName, BuyFormName };
+            }
+        }
         public static RegressResult ReadFromDB(SQLiteHelper sh, String name)
         {
             RegressResult ret = new RegressResult();
