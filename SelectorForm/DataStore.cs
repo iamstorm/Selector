@@ -140,23 +140,23 @@ namespace SelectorForm
                 return false;
             }
 
-            MainForm.Me.setTradeDay();
+            MainForm.Me.uiSetTradeDay();
             readStocks();
             if (stockDict_.Count == 0)
             {
                 return false;
             }
             int nFinishCount = 0;
-            int totalCount = stockList_.Count + 1;
-            MainForm.Me.startProcessBar();
+            int nTotalCount = stockList_.Count + 1;
+            MainForm.Me.uiStartProcessBar();
             foreach (Stock sk in stockList_)
             {
                 readDayData(sk);
                 ++nFinishCount;
-                MainForm.Me.setProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / totalCount);
+                MainForm.Me.uiSetProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / nTotalCount);
             }
             readSZData();
-            MainForm.Me.finishProcessBar();
+            MainForm.Me.uiFinishProcessBar();
             return true;
         }
         public bool updateRuntime()
@@ -167,12 +167,13 @@ namespace SelectorForm
             }
             return true;
         }
-        public void end()
+        public bool end()
         {
             if (!App.RunScript("end"))
             {
-                MessageBox.Show("结束时运行脚本失败！");
+                return false;
             }
+            return true;
         }
         public bool prepareForSelect()
         {
@@ -230,13 +231,18 @@ namespace SelectorForm
         {
             return stockDict_[code].dataList_;
         }
-        public int index(Stock stock, int date)
+        public int index(Stock stock, int date, int iDateIndexHint = -1)
         {
-            for (int i = 0; i < stock.dataList_.Count; ++i )
+            int iStartIndex = iDateIndexHint == -1 ? 0 : iDateIndexHint;
+            for (int i = iStartIndex; i < stock.dataList_.Count; ++i)
             {
                 if (stock.dataList_[i].date_ == date)
                 {
                     return i;
+                }
+                if (stock.dataList_[i].date_ < date)
+                {
+                    return -1;
                 }
             }
             return -1;

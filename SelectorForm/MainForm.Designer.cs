@@ -31,43 +31,45 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.mainTab = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.TabSelect = new System.Windows.Forms.TabPage();
             this.selectGrid_ = new System.Windows.Forms.DataGridView();
             this.menu = new System.Windows.Forms.MenuStrip();
             this.basicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newRegressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.msgText = new System.Windows.Forms.Label();
-            this.initWorker = new System.ComponentModel.BackgroundWorker();
+            this.startWorker = new System.ComponentModel.BackgroundWorker();
             this.selectWorker = new System.ComponentModel.BackgroundWorker();
             this.tradedayText = new System.Windows.Forms.Label();
+            this.endWorker = new System.ComponentModel.BackgroundWorker();
+            this.regressWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTab.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.TabSelect.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.selectGrid_)).BeginInit();
             this.menu.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTab
             // 
-            this.mainTab.Controls.Add(this.tabPage1);
+            this.mainTab.Controls.Add(this.TabSelect);
             this.mainTab.Location = new System.Drawing.Point(0, 25);
             this.mainTab.Name = "mainTab";
             this.mainTab.SelectedIndex = 0;
             this.mainTab.Size = new System.Drawing.Size(1031, 607);
             this.mainTab.TabIndex = 0;
             // 
-            // tabPage1
+            // TabSelect
             // 
-            this.tabPage1.Controls.Add(this.selectGrid_);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1023, 581);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "SelectList";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.TabSelect.Controls.Add(this.selectGrid_);
+            this.TabSelect.Location = new System.Drawing.Point(4, 22);
+            this.TabSelect.Name = "TabSelect";
+            this.TabSelect.Padding = new System.Windows.Forms.Padding(3);
+            this.TabSelect.Size = new System.Drawing.Size(1023, 581);
+            this.TabSelect.TabIndex = 0;
+            this.TabSelect.Text = "SelectList";
+            this.TabSelect.UseVisualStyleBackColor = true;
             // 
             // selectGrid_
             // 
@@ -88,6 +90,7 @@
             this.selectGrid_.RowTemplate.Height = 23;
             this.selectGrid_.Size = new System.Drawing.Size(1023, 585);
             this.selectGrid_.TabIndex = 0;
+            this.selectGrid_.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.selectGrid__CellValueNeeded);
             this.selectGrid_.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.selectGrid__RowsAdded);
             this.selectGrid_.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.selectGrid__RowsRemoved);
             // 
@@ -96,6 +99,7 @@
             this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.basicToolStripMenuItem,
             this.selectToolStripMenuItem,
+            this.newRegressToolStripMenuItem,
             this.regressToolStripMenuItem});
             this.menu.Location = new System.Drawing.Point(0, 0);
             this.menu.Name = "menu";
@@ -116,20 +120,19 @@
             this.selectToolStripMenuItem.Text = "Select";
             this.selectToolStripMenuItem.Click += new System.EventHandler(this.selectToolStripMenuItem_Click);
             // 
-            // regressToolStripMenuItem
-            // 
-            this.regressToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newRegressToolStripMenuItem});
-            this.regressToolStripMenuItem.Name = "regressToolStripMenuItem";
-            this.regressToolStripMenuItem.Size = new System.Drawing.Size(67, 21);
-            this.regressToolStripMenuItem.Text = "Regress";
-            // 
             // newRegressToolStripMenuItem
             // 
             this.newRegressToolStripMenuItem.Name = "newRegressToolStripMenuItem";
-            this.newRegressToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
-            this.newRegressToolStripMenuItem.Text = "New Regress";
+            this.newRegressToolStripMenuItem.Size = new System.Drawing.Size(93, 21);
+            this.newRegressToolStripMenuItem.Text = "NewRegress";
             this.newRegressToolStripMenuItem.Click += new System.EventHandler(this.newRegressToolStripMenuItem_Click);
+            // 
+            // regressToolStripMenuItem
+            // 
+            this.regressToolStripMenuItem.Name = "regressToolStripMenuItem";
+            this.regressToolStripMenuItem.Size = new System.Drawing.Size(67, 21);
+            this.regressToolStripMenuItem.Text = "Regress";
+            this.regressToolStripMenuItem.Click += new System.EventHandler(this.regressToolStripMenuItem_Click);
             // 
             // progressBar
             // 
@@ -147,13 +150,14 @@
             this.msgText.TabIndex = 3;
             this.msgText.Text = "msg:";
             // 
-            // initWorker
+            // startWorker
             // 
-            this.initWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.initWorker_DoWork);
+            this.startWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.startWorker_DoWork);
             // 
             // selectWorker
             // 
             this.selectWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.selectWorker_DoWork);
+            this.selectWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.selectWorker_RunWorkerCompleted);
             // 
             // tradedayText
             // 
@@ -164,6 +168,15 @@
             this.tradedayText.TabIndex = 3;
             this.tradedayText.Text = "tradeday";
             this.tradedayText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // endWorker
+            // 
+            this.endWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.endWorker_DoWork);
+            // 
+            // regressWorker
+            // 
+            this.regressWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.regressWorker_DoWork);
+            this.regressWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.regressWorker_RunWorkerCompleted);
             // 
             // MainForm
             // 
@@ -179,9 +192,10 @@
             this.MainMenuStrip = this.menu;
             this.Name = "MainForm";
             this.Text = "Selector";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.mainTab.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.TabSelect.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.selectGrid_)).EndInit();
             this.menu.ResumeLayout(false);
             this.menu.PerformLayout();
@@ -193,18 +207,20 @@
         #endregion
 
         private System.Windows.Forms.TabControl mainTab;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage TabSelect;
         private System.Windows.Forms.MenuStrip menu;
         private System.Windows.Forms.ToolStripMenuItem selectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem regressToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newRegressToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem basicToolStripMenuItem;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label msgText;
-        private System.ComponentModel.BackgroundWorker initWorker;
+        private System.ComponentModel.BackgroundWorker startWorker;
         private System.Windows.Forms.DataGridView selectGrid_;
         private System.ComponentModel.BackgroundWorker selectWorker;
         private System.Windows.Forms.Label tradedayText;
+        private System.ComponentModel.BackgroundWorker endWorker;
+        private System.Windows.Forms.ToolStripMenuItem regressToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker regressWorker;
     }
 }
 

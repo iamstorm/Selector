@@ -23,15 +23,6 @@ namespace SelectorForm
             Me = this;
             InitializeComponent();
 
-//             string sTest = "\r正在创建000001的表总进度[                    ] 0.00%";
-//             Match m = Regex.Match(sTest, "^\\r(.*)总进度\\[.*\\](.*)$");
-//             if (m.Length > 0)
-//             {
-//                 string sMsg1 = m.Groups[1].Value;
-//                 string sMsg2 = m.Groups[2].Value;
-//             }
-//             return;
-
             progressBar.Minimum = 0;
             progressBar.Maximum = 100;
             progressBar.Value = 0;
@@ -39,25 +30,11 @@ namespace SelectorForm
             msgText.Text = "";
             tradedayText.Text = "";
 
-            selectGrid_.Columns.Add("code", "code");
-            selectGrid_.Columns.Add("name", "name");
-            selectGrid_.Columns.Add("zf", "zf");
-            selectGrid_.Columns.Add("close", "close");
-            selectGrid_.Columns.Add("strategy", "strategy");
-            selectGrid_.Columns.Add("rate", "rate");
-            selectGrid_.Columns.Add("hscount", "hscount");
-            selectGrid_.Columns.Add("rateKey", "rateKey");
-
-            foreach (DataGridViewColumn column in this.selectGrid_.Columns)
-            {
-                column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            }
-            selectGrid_.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            SelectResult.InitGrid(selectGrid_);
 
             Dist.Setup();
         }
-        public void startProcessBar()
+        public void uiStartProcessBar()
         {
             Action action;
             Invoke(action = () =>
@@ -66,7 +43,7 @@ namespace SelectorForm
                     progressBar.Visible = true;
                 });
         }
-        public void setProcessBar(String msgIn, float percentIn)
+        public void uiSetProcessBar(String msgIn, float percentIn)
         {
             Action<String, float> action;
             Invoke(action = (msg, percent) =>
@@ -78,7 +55,7 @@ namespace SelectorForm
                 msgText.Update();
             }, msgIn, percentIn);
         }
-        public void finishProcessBar()
+        public void uiFinishProcessBar()
         {
             Action action;
             Invoke(action = () =>
@@ -90,7 +67,7 @@ namespace SelectorForm
             });
 
         }
-        public void setMsg(string msgIn)
+        public void uiSetMsg(string msgIn)
         {
             Action<string> action;
             Invoke(action = (msg) =>
@@ -99,7 +76,7 @@ namespace SelectorForm
                 msgText.Update();
             }, msgIn);
         }
-        public void setTradeDay()
+        public void uiSetTradeDay()
         {
             Action action;
             Invoke(action = () =>
@@ -108,31 +85,53 @@ namespace SelectorForm
                     tradedayText.Update();
                 });
         }
-        private void newRegressToolStripMenuItem_Click(object sender, EventArgs e)
+        public Form showTabPage(string name, Form form)
         {
-            if (isBusy_)
+            for (int i = 0; i < mainTab.TabPages.Count; i++)
             {
-                MessageBox.Show("正忙，请稍微。");
-                return;
+                if (mainTab.TabPages[i].Name == name)
+                {
+                    mainTab.SelectedTab = mainTab.TabPages[i];
+                    if (name == "TabSelect")
+                    {
+                        return this;
+                    }
+                    else
+                    {
+                        return (Form)mainTab.TabPages[i].Controls[0];
+                    }
+                }
             }
+            TabPage page = new TabPage(name);
+            page.Name = name;
+            form.TopLevel = false;
+            page.Controls.Add(form);
+            mainTab.TabPages.Add((page));
+            mainTab.SelectedTab = page;
+            form.Show();
+            return form;
         }
-
-        private void selectToolStripMenuItem_Click(object sender, EventArgs e)
+        public Form queryForm(string name)
         {
-            if (isBusy_)
+            if (name == "TabSelect")
             {
-                MessageBox.Show("正忙，请稍微。");
-                return;
+                return this;
             }
-            selectWorker.RunWorkerAsync();
+            for (int i = 0; i < mainTab.TabPages.Count; i++)
+            {
+                if (mainTab.TabPages[i].Name == name)
+                {
+                    return (Form)mainTab.TabPages[i].Controls[0];
+                }
+            }
+            return null;
         }
-
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            initWorker.RunWorkerAsync();
+            startWorker.RunWorkerAsync();
         }
 
-        private void initWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void startWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             isBusy_ = true;
             if (!App.ds_.start())
@@ -144,6 +143,38 @@ namespace SelectorForm
             isBusy_ = false;
         }
 
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            endWorker.RunWorkerAsync();
+        }
+        private void endWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            isBusy_ = true;
+            if (!App.ds_.end())
+            {
+                MessageBox.Show("结束时做整理工作失败！");
+            }
+            isBusy_ = false;
+        }
+        private void selectGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            Utils.UpdateGridRowNum(selectGrid_);
+        }
+
+        private void selectGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            Utils.UpdateGridRowNum(selectGrid_);
+        }
+
+        private void selectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (isBusy_)
+            {
+                MessageBox.Show("正忙，请稍微。");
+                return;
+            }
+            selectWorker.RunWorkerAsync();
+        }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             isBusy_ = true;
@@ -156,53 +187,62 @@ namespace SelectorForm
             SelectManager manager = new SelectManager();
             reSelect_ = manager.selectNow();
             buyItem_ = App.grp_.makeDeside(reSelect_.selItems_);
-            Action action = () =>
-            {
-                selectGrid_.Rows.Clear();
-                foreach (SelectItem item in reSelect_.selItems_)
-                {
-                    List<Data> listData = App.ds_.listData(item.code_);
-                    Stock stock = App.ds_.sk(item.code_);
-                    StrategyData straData = App.asset_.straData(item.strategyName_);
-                    DataGridViewRow row = new DataGridViewRow();
-                    int rowIndex = selectGrid_.Rows.Add();
-                    selectGrid_.Rows[rowIndex].Cells[0].Value = item.code_;
-                    selectGrid_.Rows[rowIndex].Cells[1].Value = stock.name_;
-                    selectGrid_.Rows[rowIndex].Cells[2].Value = stock.zfSee(item.date_);
-                    selectGrid_.Rows[rowIndex].Cells[3].Value = App.ds_.realVal(Info.C, item.code_, item.date_);
-                    selectGrid_.Rows[rowIndex].Cells[4].Value = item.strategyName_;
-                    selectGrid_.Rows[rowIndex].Cells[5].Value = straData == null ? 0 : straData.selectCount_;
-                    selectGrid_.Rows[rowIndex].Cells[6].Value = item.rateItemKey_;
-                    if (stock.zf(item.date_) > 0)
-                    {
-                        selectGrid_.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Red;
-                    }
-                    else
-                    {
-                        selectGrid_.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Green;
-                    }
-                }
-            };
-            Invoke(action);
             isBusy_ = false;
         }
 
-        void updateSelectGridRowNum()
+        private void selectWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            for (int i = 0; i < selectGrid_.Rows.Count; i++)
+            selectGrid_.RowCount = reSelect_.selItems_.Count ;
+            showTabPage("TabSelect", null);
+        }
+        private void newRegressToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void regressToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (isBusy_)
             {
-                selectGrid_.Rows[i].HeaderCell.Value = (i+1).ToString();
+                MessageBox.Show("正忙，请稍微。");
+                return;
+            }
+            regressWorker.RunWorkerAsync();
+        }
+
+        private void regressWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                isBusy_ = true;
+                RegressManager regressManager = new RegressManager();
+                RegressResult re = regressManager.regress("test", 20050101, 20180817);
+                e.Result = re;
+                isBusy_ = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                throw;
             }
         }
 
-        private void selectGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        private void regressWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            updateSelectGridRowNum();
+            RegressSelectForm selectform = (RegressSelectForm)showTabPage("RegressSelect", new RegressSelectForm());
+            RegressBuyForm buyform = (RegressBuyForm)showTabPage("RegressBuy", new RegressBuyForm());
+            RegressResult re = (RegressResult)e.Result;
+            selectform.re_ = buyform.re_ = re;
+            selectform.selectItemGrid().RowCount = re.selItems_.Count;
+
         }
 
-        private void selectGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        private void selectGrid__CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            updateSelectGridRowNum();
+            SelectResult.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
         }
+
+
+
     }
 }

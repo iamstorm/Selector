@@ -11,7 +11,7 @@ namespace SelectorForm
         public String name_;
         public int startDate_;
         public int endDate_;
-        public List<SelectItem> selectItems_ = new List<SelectItem>();
+        public List<SelectItem> selItems_ = new List<SelectItem>();
         public List<BuyItem> buyItems_;
         public static RegressResult ReadFromDB(SQLiteHelper sh, String name)
         {
@@ -26,7 +26,7 @@ namespace SelectorForm
         public List<SelectItem> ofDate(int date)
         {
             List<SelectItem> retList = new List<SelectItem>();
-            foreach (SelectItem item in selectItems_)
+            foreach (SelectItem item in selItems_)
             {
                 if (item.date_ == date)
                 {

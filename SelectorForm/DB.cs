@@ -27,6 +27,21 @@ namespace SelectorForm
             connDict_[sKey] = sh;
             return sh;
         }
-
+        public static void SetSysInfo(SQLiteHelper sh, String sKey, String sVa)
+        {
+            sh.Execute(String.Format("Update SysInfo Set Val = '{0}' Where Key = '{1}'", sVa, sKey));
+        }
+        public static String GetSysInfo(SQLiteHelper sh, String sKey, String sDefVal = "")
+        {
+            object obj = sh.ExecuteScalar(String.Format("Select Val From SysInfo Where Key = '{0}'", sKey));
+            if (obj == null)
+            {
+                return sDefVal;
+            }
+            else
+            {
+                return obj.ToString();
+            }
+        }
     }
 }

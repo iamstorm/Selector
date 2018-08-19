@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace SelectorForm
 {
@@ -53,9 +54,9 @@ namespace SelectorForm
         {
             return date - Year(date) * 10000 - Month(date) * 100;
         }
-        public static IList<int> TraverTimeDay(int startDate, int endDate)
+        public static List<int> TraverTimeDay(int startDate, int endDate)
         {
-            IList<int> list = new List<int>();
+            List<int> list = new List<int>();
             DateTime start = new DateTime(Year(startDate), Month(startDate), Day(startDate));
             DateTime end = new DateTime(Year(endDate), Month(endDate), Day(endDate));
             for (DateTime date = start; date <= end; date = date.AddDays(1))
@@ -71,6 +72,13 @@ namespace SelectorForm
         public static T ToType<T>(object obj)
         {
             return (T)Convert.ChangeType(obj.ToString(), typeof(T));
+        }
+        public static void UpdateGridRowNum(DataGridView grid)
+        {
+            for (int i = 0; i < grid.Rows.Count; i++)
+            {
+                grid.Rows[i].HeaderCell.Value = (i + 1).ToString();
+            }
         }
     }
 }
