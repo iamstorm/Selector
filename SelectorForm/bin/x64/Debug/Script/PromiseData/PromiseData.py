@@ -19,10 +19,7 @@ for op, value in opts:
         usage()
         sys.exit()
 
-if mode.strip() == '':
-    usage()
-    sys.exit()
-
+mode = mode.strip()
 
 if mode == 'start':
     print("开始数据的准备工作...")

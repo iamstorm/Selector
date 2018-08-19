@@ -9,10 +9,11 @@ using System.Windows.Forms;
 using System.Data.SQLite;
 using System.IO;
 using System.Text.RegularExpressions;
+using SelectImpl;
 
 namespace SelectorForm
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IHost
     {
         public static MainForm Me;
         public SelectResult reSelect_;
@@ -30,11 +31,12 @@ namespace SelectorForm
             msgText.Text = "";
             tradedayText.Text = "";
 
-            SelectResult.InitGrid(selectGrid_);
+            App.host_ = this;
+            MUtils.InitGrid(selectGrid_);
 
             Dist.Setup();
         }
-        public void uiStartProcessBar()
+        void IHost.uiStartProcessBar()
         {
             Action action;
             Invoke(action = () =>
@@ -43,7 +45,7 @@ namespace SelectorForm
                     progressBar.Visible = true;
                 });
         }
-        public void uiSetProcessBar(String msgIn, float percentIn)
+        void IHost.uiSetProcessBar(String msgIn, float percentIn)
         {
             Action<String, float> action;
             Invoke(action = (msg, percent) =>
@@ -55,7 +57,7 @@ namespace SelectorForm
                 msgText.Update();
             }, msgIn, percentIn);
         }
-        public void uiFinishProcessBar()
+        void IHost.uiFinishProcessBar()
         {
             Action action;
             Invoke(action = () =>
@@ -67,7 +69,7 @@ namespace SelectorForm
             });
 
         }
-        public void uiSetMsg(string msgIn)
+        void IHost.uiSetMsg(string msgIn)
         {
             Action<string> action;
             Invoke(action = (msg) =>
@@ -76,7 +78,7 @@ namespace SelectorForm
                 msgText.Update();
             }, msgIn);
         }
-        public void uiSetTradeDay()
+        void IHost.uiSetTradeDay()
         {
             Action action;
             Invoke(action = () =>
@@ -84,6 +86,10 @@ namespace SelectorForm
                     tradedayText.Text = Utils.IsTradeDay() ? "is tradeday" : "not tradeday";
                     tradedayText.Update();
                 });
+        }
+        SQLiteHelper IHost.Global()
+        {
+            return DB.Global();
         }
         public Form showTabPage(string name, Form form)
         {
@@ -158,12 +164,12 @@ namespace SelectorForm
         }
         private void selectGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            Utils.UpdateGridRowNum(selectGrid_);
+            MUtils.UpdateGridRowNum(selectGrid_);
         }
 
         private void selectGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
-            Utils.UpdateGridRowNum(selectGrid_);
+            MUtils.UpdateGridRowNum(selectGrid_);
         }
 
         private void selectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -178,21 +184,39 @@ namespace SelectorForm
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             isBusy_ = true;
-            if (!App.ds_.prepareForSelect())
+            try
             {
-                MessageBox.Show("准备数据工作失败，无法继续执行！");
-                isBusy_ = false;
-                return;
+                if (!App.ds_.prepareForSelect())
+                {
+                    MessageBox.Show("准备数据工作失败，无法继续执行！");
+                    isBusy_ = false;
+                    return;
+                }
+                SelectManager manager = new SelectManager();
+                reSelect_ = manager.selectNow();
+                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_);
             }
-            SelectManager manager = new SelectManager();
-            reSelect_ = manager.selectNow();
-            buyItem_ = App.grp_.makeDeside(reSelect_.selItems_);
+            catch (Exception ex)
+            {
+                reSelect_ = null;
+                buyItem_ = null;
+                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                isBusy_ = false;
+                throw;
+            }
             isBusy_ = false;
         }
 
         private void selectWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            selectGrid_.RowCount = reSelect_.selItems_.Count ;
+            if (reSelect_ == null)
+            {
+                selectGrid_.RowCount = 0;
+            }
+            else
+            {
+                selectGrid_.RowCount = reSelect_.selItems_.Count;
+            }
             showTabPage("TabSelect", null);
         }
         private void newRegressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -212,34 +236,57 @@ namespace SelectorForm
 
         private void regressWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            isBusy_ = true;
             try
             {
-                isBusy_ = true;
                 RegressManager regressManager = new RegressManager();
                 RegressResult re = regressManager.regress("test", 20050101, 20180817);
                 e.Result = re;
-                isBusy_ = false;
             }
             catch (Exception ex)
             {
+                e.Result = null;
                 MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                isBusy_ = false;
                 throw;
             }
+            isBusy_ = false;
         }
 
         private void regressWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            RegressSelectForm selectform = (RegressSelectForm)showTabPage("RegressSelect", new RegressSelectForm());
-            RegressBuyForm buyform = (RegressBuyForm)showTabPage("RegressBuy", new RegressBuyForm());
-            RegressResult re = (RegressResult)e.Result;
-            selectform.re_ = buyform.re_ = re;
-            selectform.selectItemGrid().RowCount = re.selItems_.Count;
+            if (e.Result == null)
+            {
+                RegressSelectForm selectform = (RegressSelectForm)queryForm("RegressSelect");
+                RegressBuyForm buyform = (RegressBuyForm)queryForm("RegressBuy");
+                if (selectform != null)
+                {
+                    selectform.re_ = null;
+                    selectform.selectItemGrid().RowCount = 0;
+                    selectform.daySelectGrid().RowCount = 0;
+                }
+                if (buyform != null)
+                {
+                    buyform.re_ = null;
+                    buyform.buyItemGrid().RowCount = 0;
+                    buyform.daySelectGrid().RowCount = 0;
+                }
+
+                return;
+            } else
+            {
+                RegressResult re = (RegressResult)e.Result;
+                RegressSelectForm selectform = (RegressSelectForm)showTabPage("RegressSelect", new RegressSelectForm());
+                RegressBuyForm buyform = (RegressBuyForm)showTabPage("RegressBuy", new RegressBuyForm());
+                selectform.re_ = buyform.re_ = re;
+                selectform.selectItemGrid().RowCount = re.selItems_.Count;
+            }
 
         }
 
         private void selectGrid__CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            SelectResult.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
+            MUtils.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
         }
 
 

@@ -68,11 +68,35 @@
     <ApplicationIcon>data_analytic.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IronPython">
+      <HintPath>..\ThirdParty\PythonDLL\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\ThirdParty\PythonDLL\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPythonTest">
+      <HintPath>..\ThirdParty\PythonDLL\IronPythonTest.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\ThirdParty\PythonDLL\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\ThirdParty\PythonDLL\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Core">
+      <HintPath>..\ThirdParty\PythonDLL\Microsoft.Scripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Debugging">
+      <HintPath>..\ThirdParty\PythonDLL\Microsoft.Scripting.Debugging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.ExtensionAttribute">
+      <HintPath>..\ThirdParty\PythonDLL\Microsoft.Scripting.ExtensionAttribute.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.66.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+    <Reference Include="System.Data.SQLite, Version=1.0.109.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\ThirdParty\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -84,17 +108,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
-    <Compile Include="Asset\RateItemKeyData.cs" />
-    <Compile Include="Asset\StrategyAsset.cs" />
-    <Compile Include="Asset\StrategyData.cs" />
-    <Compile Include="BaseStrategy.cs" />
-    <Compile Include="DataStore.cs" />
-    <Compile Include="Dist.cs" />
     <Compile Include="DB.cs" />
-    <Compile Include="Exception.cs" />
-    <Compile Include="Global.cs" />
-    <Compile Include="KVPair.cs" />
+    <Compile Include="MUtils.cs" />
     <Compile Include="RegressBuyForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,8 +117,6 @@
       <DependentUpon>RegressBuyForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Setting.cs" />
-    <Compile Include="Strategy\StrategyGroup.cs" />
-    <Compile Include="Strategy\LStopUpStrategy.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -112,16 +125,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Strategy\IStrategy.cs" />
-    <Compile Include="Regress\RegressManager.cs" />
-    <Compile Include="Regress\RegressResult.cs" />
-    <Compile Include="Select\SelectManager.cs" />
-    <Compile Include="Select\SelectResult.cs" />
-    <Compile Include="SQLiteHelper\SQLiteColumn.cs" />
-    <Compile Include="SQLiteHelper\SQLiteColumnList.cs" />
-    <Compile Include="SQLiteHelper\SQLiteHelper.cs" />
-    <Compile Include="SQLiteHelper\SQLiteTable.cs" />
-    <Compile Include="Utils.cs" />
     <Compile Include="RegressSelectForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -158,6 +161,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data_analytic.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SelectImpl\SelectImpl.csproj">
+      <Project>{9175BE91-05BF-4606-99FC-2CAE29294893}</Project>
+      <Name>SelectImpl</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
