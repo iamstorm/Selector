@@ -52,7 +52,7 @@ namespace SelectImpl
             dateList.Reverse();
             foreach (int date in dateList)
             {
-                List<SelectItem> items = re.ofDate(date);
+                List<SelectItem> items = SelectResult.OfDate(date, re.selItems_);
                 if (items.Count == 0)
                 {
                     if (Utils.IsTradeDay(date))

@@ -20,7 +20,12 @@ namespace SelectImpl
                 float totalBous = 0;
                 foreach (var item in buyItems_)
                 {
-                    totalBous += Utils.GetBonusValue(item.getColumnVal("bonus"));
+                    var bonus = item.getColumnVal("bonus");
+                    if (bonus == "")
+                    {
+                        continue;
+                    }
+                    totalBous += Utils.GetBonusValue(bonus);
                 }
                 return totalBous.ToString("F2") + "%";
             }
@@ -69,18 +74,6 @@ namespace SelectImpl
         public void writeToDB(SQLiteHelper sh)
         {
             List<SelectItem> retList = SelectResult.SplitSelectItem(selItems_);
-        }
-        public List<SelectItem> ofDate(int date)
-        {
-            List<SelectItem> retList = new List<SelectItem>();
-            foreach (SelectItem item in selItems_)
-            {
-                if (item.date_ == date)
-                {
-                    retList.Add(item);
-                }
-            }
-            return retList;
         }
     }
 }

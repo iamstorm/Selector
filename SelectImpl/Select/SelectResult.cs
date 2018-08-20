@@ -14,6 +14,7 @@ namespace SelectImpl
         public String strategyName_;
         public String rateItemKey_;
         public String rate_;
+        public List<SelectItem> allSelectItems_;
 
         public SelectItem()
         {
@@ -53,6 +54,7 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
+                    new ColumnInfo() { name_ = "hrate", width_ = 60 },
                     new ColumnInfo() { name_ = "sellspan", width_ = 60 },
                     new ColumnInfo() { name_ = "close", width_ = 60 },
                     new ColumnInfo() { name_ = "strategy", width_ = 200 },
@@ -133,6 +135,18 @@ namespace SelectImpl
                 }
                 return Utils.ToBonus(stock.zf(sellDate));
             }
+            else if (colName == "hrate")
+            {
+                if (stock == null)
+                {
+                    return "";
+                }
+                List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
+                var plusItems =  from item in daySelectItems
+                          where Utils.GetBonusValue(item.getColumnVal("bonus")) > 0
+                                 select item;
+                return (plusItems.Count() * 1.0f / daySelectItems.Count).ToString("F2");
+            }
             else if (colName == "sellspan")
             {
                 if (stock == null)
@@ -186,47 +200,7 @@ namespace SelectImpl
             StrategyData straData = App.asset_.straData(strategyName_);
             return getColumnVal(colName, stock, straData);
         }
-        public Object getCellValue(DataGridViewRow row, String colName, Stock stock, StrategyData straData)
-        {
-            DataGridViewCell cell = row.Cells[colName];
-            String val = getColumnVal(colName, stock, straData);
-            if (colName == "zf")
-            {
-                if (stock != null)
-                {
-                    if (stock.zf(date_) > 0)
-                    {
-                        row.DefaultCellStyle.ForeColor = Color.Red;
-                    }
-                    else
-                    {
-                        row.DefaultCellStyle.ForeColor = Color.Green;
-                    }
-                }
-            }
-            else if (colName == "bonus")
-            {
-                if (stock != null)
-                {
-                    int nextDate = stock.nextTradeDate(date_);
-                    if (nextDate != -1)
-                    {
-                        if (stock.zf(nextDate) > 0)
-                        {
-                            cell.Style.BackColor = Color.Red;
-                            cell.Style.ForeColor = Color.White;
-                        }
-                        else
-                        {
-                            cell.Style.BackColor = Color.Green;
-                            cell.Style.ForeColor = Color.White;
-                        }
-                    }
-                }
-            }
-            return val;
-        }
-
+       
         public ListViewItem toListViewItem(ListView lv, int iItemIndex, int nCount)
         {
             Stock stock = code_ == null ? null : App.ds_.sk(code_);
@@ -250,21 +224,17 @@ namespace SelectImpl
                 ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
                 lvsi.Text = getColumnVal(colName, stock, straData);
                 lvsi.ForeColor = rowColor;
-                if (stock != null && colName == "bonus")
+                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc"))
                 {
-                    int nextDate = stock.nextTradeDate(date_);
-                    if (nextDate != -1)
+                    if (Utils.GetBonusValue(lvsi.Text) > 0)
                     {
-                        if (stock.zf(nextDate) > 0)
-                        {
-                            lvsi.BackColor = Color.Red;
-                            lvsi.ForeColor = Color.White;
-                        }
-                        else
-                        {
-                            lvsi.BackColor = Color.Green;
-                            lvsi.ForeColor = Color.White;
-                        }
+                        lvsi.BackColor = Color.Red;
+                        lvsi.ForeColor = Color.White;
+                    }
+                    else
+                    {
+                        lvsi.BackColor = Color.Green;
+                        lvsi.ForeColor = Color.White;
                     }
                 }
                 lvi.SubItems.Add(lvsi);
@@ -346,5 +316,17 @@ namespace SelectImpl
             return retList;
         }
 
+        public static List<SelectItem> OfDate(int date, List<SelectItem> selItems)
+        {
+            List<SelectItem> retList = new List<SelectItem>();
+            foreach (SelectItem item in selItems)
+            {
+                if (item.date_ == date)
+                {
+                    retList.Add(item);
+                }
+            }
+            return retList;
+        }
     }
 }
