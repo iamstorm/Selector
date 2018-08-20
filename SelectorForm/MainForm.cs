@@ -37,7 +37,7 @@ namespace SelectorForm
             tradedayText.Text = "";
 
             App.host_ = this;
-            GUtils.InitGrid(selectGrid_);
+            LUtils.InitListView(selectListView_);
 
             Dist.Setup();
         }
@@ -222,16 +222,6 @@ namespace SelectorForm
             }
             isBusy_ = false;
         }
-        private void selectGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
-        {
-            GUtils.UpdateGridRowNum(selectGrid_);
-        }
-
-        private void selectGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            GUtils.UpdateGridRowNum(selectGrid_);
-        }
-
         private void selectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (isBusy_)
@@ -239,7 +229,7 @@ namespace SelectorForm
                 MessageBox.Show("正忙，请稍微。");
                 return;
             }
-            GUtils.RemoveAllGridRow(selectGrid_);
+            LUtils.RemoveAllListRow(selectListView_);
             selectWorker.RunWorkerAsync();
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -272,11 +262,11 @@ namespace SelectorForm
         {
             if (reSelect_ == null)
             {
-                GUtils.RemoveAllGridRow(selectGrid_);
+                LUtils.RemoveAllListRow(selectListView_);
             }
             else
             {
-                GUtils.FillGridData(selectGrid_, reSelect_.selItems_);
+                LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
             }
             showForm("TabSelect");
         }
@@ -306,6 +296,12 @@ namespace SelectorForm
             isBusy_ = true;
             try
             {
+                if (!App.ds_.prepareForSelect())
+                {
+                    MessageBox.Show("准备数据工作失败，无法继续执行！");
+                    isBusy_ = false;
+                    return;
+                }
                 RegressManager regressManager = new RegressManager();
                 RegressResult re = regressManager.regress(regressingRe_.name_,
                     regressingRe_.startDate_, regressingRe_.endDate_);
@@ -334,17 +330,12 @@ namespace SelectorForm
                 RegressSelectForm selectform = (RegressSelectForm)createTabPage(re.name_+"_Select", new RegressSelectForm());
                 RegressBuyForm buyform = (RegressBuyForm)createTabPage(re.name_ + "_Buy", new RegressBuyForm());
                 selectform.re_ = buyform.re_ = re;
-                GUtils.FillGridData(selectform.selectItemGrid(), re.selItems_);
-                GUtils.FillGridData(buyform.buyItemGrid(), re.buyItems_);
+                LUtils.FillListViewData(selectform.selectItemListView(), re.selItems_);
+                LUtils.FillListViewData(buyform.buyItemListView(), re.buyItems_);
                 regressingRe_ = null;
                 App.regressList_.Add(re);
             }
 
-        }
-
-        private void selectGrid__CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-            GUtils.GridCellValueNeeded(selectGrid_, reSelect_.selItems_, e);
         }
 
         private void regressLisToolStripMenuItem_Click(object sender, EventArgs e)
@@ -353,7 +344,9 @@ namespace SelectorForm
             form.ShowDialog();
         }
 
-
-
+        private void selectList__RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            e.Item = LUtils.RetrieveVirtualItem(selectListView_, e.ItemIndex, reSelect_.selItems_);
+        }
     }
 }

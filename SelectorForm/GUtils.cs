@@ -21,7 +21,7 @@ namespace SelectorForm
         public static void InitGrid(DataGridView grid)
         {
             grid.Columns.Clear();
-            String[] colNameArr = SelectItem.ShowColumnList();
+            String[] colNameArr = SelectItem.ShowColumnList;
             for (int i = 0; i < colNameArr.Length; i++)
             {
                 DataGridViewColumn col = new DataGridViewTextBoxColumn();
@@ -66,7 +66,7 @@ namespace SelectorForm
                     StrategyData straData = App.asset_.straData(item.strategyName_);
 
                     int iRowIndex = grid.Rows.Add();
-                    String[] colNameArr = SelectItem.ShowColumnList();
+                    String[] colNameArr = SelectItem.ShowColumnList;
                     foreach (String colName in colNameArr)
                     {
                         grid.Rows[iRowIndex].Cells[colName].Value = item.getCellValue(grid.Rows[iRowIndex], colName, stock, straData);

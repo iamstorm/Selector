@@ -28,60 +28,45 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.mainGrid = new System.Windows.Forms.DataGridView();
-            this.subGrid = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.mainGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.subGrid)).BeginInit();
+            this.mainListView_ = new System.Windows.Forms.ListView();
+            this.subListView_ = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
-            // mainGrid
+            // mainListView_
             // 
-            this.mainGrid.AllowUserToAddRows = false;
-            this.mainGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.mainGrid.Location = new System.Drawing.Point(0, 0);
-            this.mainGrid.Name = "mainGrid";
-            this.mainGrid.ReadOnly = true;
-            this.mainGrid.RowHeadersWidth = 50;
-            this.mainGrid.RowTemplate.Height = 23;
-            this.mainGrid.Size = new System.Drawing.Size(1024, 438);
-            this.mainGrid.TabIndex = 0;
-            this.mainGrid.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.mainGrid_CellValueNeeded);
-            this.mainGrid.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.mainGrid_RowsAdded);
-            this.mainGrid.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.mainGrid_RowsRemoved);
+            this.mainListView_.Location = new System.Drawing.Point(0, -1);
+            this.mainListView_.Name = "mainListView_";
+            this.mainListView_.Size = new System.Drawing.Size(1024, 440);
+            this.mainListView_.TabIndex = 2;
+            this.mainListView_.UseCompatibleStateImageBehavior = false;
+            this.mainListView_.RetrieveVirtualItem += new System.Windows.Forms.RetrieveVirtualItemEventHandler(this.mainListView__RetrieveVirtualItem);
             // 
-            // subGrid
+            // subListView_
             // 
-            this.subGrid.AllowUserToAddRows = false;
-            this.subGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.subGrid.Location = new System.Drawing.Point(0, 445);
-            this.subGrid.Name = "subGrid";
-            this.subGrid.ReadOnly = true;
-            this.subGrid.RowHeadersWidth = 50;
-            this.subGrid.RowTemplate.Height = 23;
-            this.subGrid.Size = new System.Drawing.Size(1024, 150);
-            this.subGrid.TabIndex = 1;
-            this.subGrid.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.subGrid_RowsAdded);
-            this.subGrid.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.subGrid_RowsRemoved);
+            this.subListView_.Location = new System.Drawing.Point(0, 446);
+            this.subListView_.Name = "subListView_";
+            this.subListView_.Size = new System.Drawing.Size(1024, 150);
+            this.subListView_.TabIndex = 3;
+            this.subListView_.UseCompatibleStateImageBehavior = false;
             // 
             // RegressBuyForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1023, 585);
-            this.Controls.Add(this.subGrid);
-            this.Controls.Add(this.mainGrid);
+            this.Controls.Add(this.subListView_);
+            this.Controls.Add(this.mainListView_);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "RegressBuyForm";
             this.Text = "RegressTabPage";
-            ((System.ComponentModel.ISupportInitialize)(this.mainGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.subGrid)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGridView mainGrid;
-        private System.Windows.Forms.DataGridView subGrid;
+        private System.Windows.Forms.ListView mainListView_;
+        private System.Windows.Forms.ListView subListView_;
+
     }
 }

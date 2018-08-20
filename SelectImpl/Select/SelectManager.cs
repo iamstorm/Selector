@@ -83,7 +83,9 @@ namespace SelectImpl
         public SelectResult selectNow()
         {
             DataStoreHelper dsh = new DataStoreHelper();
-            return select(dsh, Utils.NowDate());
+            SelectResult re = select(dsh, Utils.NowDate());
+            re.selItems_ = SelectResult.MergeSelectItem(re.selItems_);
+            return re;
         }
     }
 }

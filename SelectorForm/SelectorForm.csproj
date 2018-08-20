@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GUtils.cs" />
+    <Compile Include="LUtils.cs" />
     <Compile Include="NewRegressForm.cs">
       <SubType>Form</SubType>
     </Compile>

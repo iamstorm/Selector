@@ -41,11 +41,35 @@ namespace SelectImpl
             missBuy.strategyName_ = "miss";
             return missBuy;
         }
-        public static String[] ShowColumnList()
+        public static ColumnInfo[] ShowColumnInfos
         {
-            return new String[] {
-                "date", "code", "name", "zf", "bonus", "close", "strategy", "rate", "hscount", "rateKey"
-            };
+            get {
+                return new ColumnInfo[]
+                {
+                    new ColumnInfo() { name_ = "date", width_ = 60 },
+                    new ColumnInfo() { name_ = "code", width_ = 50 },
+                    new ColumnInfo() { name_ = "name", width_ = 60 },
+                    new ColumnInfo() { name_ = "zf", width_ = 60 },
+                    new ColumnInfo() { name_ = "bonus", width_ = 60 },
+                    new ColumnInfo() { name_ = "nsh", width_ = 60 },
+                    new ColumnInfo() { name_ = "nsc", width_ = 60 },
+                    new ColumnInfo() { name_ = "sellspan", width_ = 60 },
+                    new ColumnInfo() { name_ = "close", width_ = 60 },
+                    new ColumnInfo() { name_ = "strategy", width_ = 200 },
+                    new ColumnInfo() { name_ = "rate", width_ = 60 },
+                    new ColumnInfo() { name_ = "hscount", width_ = 60 },
+                    new ColumnInfo() { name_ = "rateKey", width_ = 60 },
+                };
+            }
+        }
+
+        public static String[] ShowColumnList
+        {
+            get
+            {
+                return (from info in ShowColumnInfos
+                 select info.name_).ToArray<String>();
+            }
         }
         public String getColumnVal(String colName, Stock stock, StrategyData straData)
         {
@@ -75,14 +99,56 @@ namespace SelectImpl
                 {
                     return "";
                 }
-                int nextDate = stock.nextDate(date_);
-                if (nextDate == -1)
+                bool bSellWhenMeetMyBounusLimit;
+                int sellDate;
+                return App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+            }
+            else if (colName == "nsh")
+            {
+                if (stock == null)
                 {
                     return "";
                 }
+                bool bSellWhenMeetMyBounusLimit;
+                int sellDate;
+                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
+                {
+                    return "";
+                }
+                return Utils.ToBonus(stock.hf(sellDate));
+            }
+            else if (colName == "nsc")
+            {
+                if (stock == null)
+                {
+                    return "";
+                }
+                bool bSellWhenMeetMyBounusLimit;
+                int sellDate;
+                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
+                {
+                    return "";
+                }
+                return Utils.ToBonus(stock.zf(sellDate));
+            }
+            else if (colName == "sellspan")
+            {
+                if (stock == null)
+                {
+                    return "";
+                }
+                bool bSellWhenMeetMyBounusLimit;
+                int sellDate;
+                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                if (sellDate == -1)
+                {
+                    return "not yet";
+                }
                 else
                 {
-                    return stock.zfSee(nextDate);
+                    return Utils.DateSpan(date_, sellDate);
                 }
             }
             else if (colName == "close")
@@ -91,7 +157,7 @@ namespace SelectImpl
                 {
                     return "";
                 }
-                return App.ds_.realVal(Info.C, code_, date_).ToString();
+                return App.ds_.realVal(Info.C, code_, date_).ToString("F3");
             }
             else if (colName == "strategy")
             {
@@ -142,7 +208,7 @@ namespace SelectImpl
             {
                 if (stock != null)
                 {
-                    int nextDate = stock.nextDate(date_);
+                    int nextDate = stock.nextTradeDate(date_);
                     if (nextDate != -1)
                     {
                         if (stock.zf(nextDate) > 0)
@@ -159,6 +225,51 @@ namespace SelectImpl
                 }
             }
             return val;
+        }
+
+        public ListViewItem toListViewItem(ListView lv, int iItemIndex, int nCount)
+        {
+            Stock stock = code_ == null ? null : App.ds_.sk(code_);
+            StrategyData straData = App.asset_.straData(strategyName_);
+            ListViewItem lvi = new ListViewItem(String.Format("{0}/{1}", iItemIndex+1, nCount));
+            lvi.UseItemStyleForSubItems = false;
+            Color rowColor = Color.Empty;
+            if (stock != null)
+            {
+                if (stock.zf(date_) > 0)
+                {
+                    rowColor = Color.Red;
+                }
+                else
+                {
+                    rowColor = Color.Green;
+                }
+            }
+            foreach (String colName in ShowColumnList)
+            {
+                ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
+                lvsi.Text = getColumnVal(colName, stock, straData);
+                lvsi.ForeColor = rowColor;
+                if (stock != null && colName == "bonus")
+                {
+                    int nextDate = stock.nextTradeDate(date_);
+                    if (nextDate != -1)
+                    {
+                        if (stock.zf(nextDate) > 0)
+                        {
+                            lvsi.BackColor = Color.Red;
+                            lvsi.ForeColor = Color.White;
+                        }
+                        else
+                        {
+                            lvsi.BackColor = Color.Green;
+                            lvsi.ForeColor = Color.White;
+                        }
+                    }
+                }
+                lvi.SubItems.Add(lvsi);
+            }
+            return lvi;
         }
     }
     public class SelectResult

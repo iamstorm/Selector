@@ -7,6 +7,11 @@ using System.Data.SQLite;
 
 namespace SelectImpl
 {
+    public struct ColumnInfo
+    {
+        public String name_;
+        public int width_;
+    }
     public class Utils
     {
         public static int Date(DateTime dateTime)
@@ -32,6 +37,10 @@ namespace SelectImpl
         {
             return Utils.ToType<float>(bonus.TrimEnd('%'));
         }
+        public static String ToBonus(float zf)
+        {
+            return (zf * 100).ToString("F2") + "%";
+        }
         public static float ToPrice(int normlizedVal)
         {
             return normlizedVal * 1.0f / Setting.NormalizeRate;
@@ -47,8 +56,6 @@ namespace SelectImpl
                 return false;
             }
         }
-        static bool isTradeDayIsInit_;
-        static bool isTradeDay_;
         public static bool IsTradeDay(int date)
         {
             return App.ds_.tradeDateDict_.ContainsKey(date);
@@ -121,6 +128,14 @@ namespace SelectImpl
             {
                 return String.Format("{0}m{1}s", elapseM, elapseS);
             }
+        }
+        public static bool IsUpStop(float zf)
+        {
+            return zf > 0.095;
+        }
+        public static bool IsDownStop(float zf)
+        {
+            return zf < -0.095;
         }
     }
 }

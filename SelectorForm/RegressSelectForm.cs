@@ -17,46 +17,22 @@ namespace SelectorForm
         {
             InitializeComponent();
 
-            GUtils.InitGrid(mainGrid);
-            GUtils.InitGrid(subGrid);
+            LUtils.InitListView(mainListView_);
+            LUtils.InitListView(subListView_);
         }
-        public DataGridView selectItemGrid()
+        public ListView selectItemListView()
         {
-            return mainGrid;
+            return mainListView_;
         }
-        public DataGridView daySelectGrid()
+        public ListView daySelectListView()
         {
-            return subGrid;
+            return subListView_;
         }
 
-        private void mainGrid_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        private void mainListView__RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
-            GUtils.UpdateGridRowNum(mainGrid);
+            e.Item = LUtils.RetrieveVirtualItem(mainListView_, e.ItemIndex, re_.selItems_);
         }
 
-        private void mainGrid_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            GUtils.UpdateGridRowNum(mainGrid);
-        }
-
-        private void subGrid_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
-        {
-            GUtils.UpdateGridRowNum(subGrid);
-        }
-
-        private void subGrid_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            GUtils.UpdateGridRowNum(subGrid);
-        }
-
-        private void mainGrid_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-            GUtils.GridCellValueNeeded(mainGrid, re_.selItems_, e);
-        }
-
-        private void subGrid_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-
-        }
     }
 }

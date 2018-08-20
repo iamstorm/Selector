@@ -37,5 +37,6 @@ namespace SelectImpl
                 return true;
             }
         }
+        public static float MyBounusLimit = 0.022f;
     }
 }

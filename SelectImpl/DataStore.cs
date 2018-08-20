@@ -51,14 +51,26 @@ namespace SelectImpl
 
         public String zfSee(int date)
         {
-            return (App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date))*100).ToString("F2")+"%";
+            return Utils.ToBonus(App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date)));
         }
 
+        public float of(int date)
+        {
+            return App.ds_.Ref(Info.OF, dataList_, App.ds_.index(this, date));
+        }
         public float zf(int date)
         {
             return App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date));
         }
-        public int nextDate(int date)
+        public float hf(int date)
+        {
+            return App.ds_.Ref(Info.HF, dataList_, App.ds_.index(this, date));
+        }
+        public float lf(int date)
+        {
+            return App.ds_.Ref(Info.LF, dataList_, App.ds_.index(this, date));
+        }
+        public int nextTradeDate(int date)
         {
             int iIndex = App.ds_.index(this, date);
             if (iIndex == 0)
@@ -223,6 +235,12 @@ namespace SelectImpl
             DateTime lastUpdateTime;
             if (DateTime.TryParse(sLastUpdateTime, out lastUpdateTime))
             {
+                var now = DateTime.Now;
+                if (lastUpdateTime.Year == now.Year && lastUpdateTime.Day == now.Day &&
+                    (lastUpdateTime.Hour > 15) || (lastUpdateTime.Hour == 15 && lastUpdateTime.Minute > 15))
+                {
+                    return true;
+                }
                 var span = DateTime.Now - lastUpdateTime;
                 if (span.TotalMinutes < 2)
                 {
@@ -346,6 +364,8 @@ namespace SelectImpl
             {
                 case Info.ZF:
                     return F(d.close_, dataList, wantedIndex);
+                case Info.OF:
+                    return F(d.open_, dataList, wantedIndex);
                 case Info.HF:
                     return F(d.high_, dataList, wantedIndex);
                 case Info.LF:
@@ -379,8 +399,8 @@ namespace SelectImpl
     }
     public class DataStoreHelper
     {
-        DataStore ds_;
-        Stock stock_;
+        public DataStore ds_;
+        public Stock stock_;
         public int iIndex_;
         public List<Data> dataList_;
         List<Data> szListData_;
