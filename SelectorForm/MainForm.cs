@@ -10,6 +10,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Text.RegularExpressions;
 using SelectImpl;
+using System.Diagnostics;
 
 namespace SelectorForm
 {
@@ -20,7 +21,9 @@ namespace SelectorForm
         public SelectItem buyItem_;
         public RegressResult regressingRe_;
         public bool isBusy_;
-        public List<TabPage> hideTabPages = new List<TabPage>(); 
+        public List<TabPage> hideTabPages_ = new List<TabPage>();
+        public Stopwatch runWatch_ = new Stopwatch();
+        public bool isClosing_;
         public MainForm()
         {
             Me = this;
@@ -40,6 +43,10 @@ namespace SelectorForm
         }
         void IHost.uiStartProcessBar()
         {
+            if (isClosing_)
+            {
+                return;
+            }
             Action action;
             Invoke(action = () =>
                 {
@@ -49,6 +56,10 @@ namespace SelectorForm
         }
         void IHost.uiSetProcessBar(String msgIn, float percentIn)
         {
+            if (isClosing_)
+            {
+                return;
+            }
             Action<String, float> action;
             Invoke(action = (msg, percent) =>
             {
@@ -61,6 +72,10 @@ namespace SelectorForm
         }
         void IHost.uiFinishProcessBar()
         {
+            if (isClosing_)
+            {
+                return;
+            }
             Action action;
             Invoke(action = () =>
             {
@@ -73,6 +88,10 @@ namespace SelectorForm
         }
         void IHost.uiSetMsg(string msgIn)
         {
+            if (isClosing_)
+            {
+                return;
+            }
             Action<string> action;
             Invoke(action = (msg) =>
             {
@@ -82,10 +101,14 @@ namespace SelectorForm
         }
         void IHost.uiSetTradeDay()
         {
+            if (isClosing_)
+            {
+                return;
+            }
             Action action;
             Invoke(action = () =>
                 {
-                    tradedayText.Text = Utils.IsTradeDay() ? "is tradeday" : "not tradeday";
+                    tradedayText.Text = Utils.NowIsTradeDay() ? "is tradeday" : "not tradeday";
                     tradedayText.Update();
                 });
         }
@@ -134,13 +157,13 @@ namespace SelectorForm
         {
             if (bShow)
             {
-                for (int i = 0; i < hideTabPages.Count; i++)
+                for (int i = 0; i < hideTabPages_.Count; i++)
                 {
-                    if (hideTabPages[i].Name == name)
+                    if (hideTabPages_[i].Name == name)
                     {
-                        hideTabPages[i].Parent = mainTab;
-                        mainTab.SelectedTab = hideTabPages[i];
-                        hideTabPages.RemoveAt(i);
+                        hideTabPages_[i].Parent = mainTab;
+                        mainTab.SelectedTab = hideTabPages_[i];
+                        hideTabPages_.RemoveAt(i);
                         break;
                     }
                 }
@@ -159,7 +182,7 @@ namespace SelectorForm
                 {
                     if (mainTab.TabPages[i].Name == name)
                     {
-                        hideTabPages.Add(mainTab.TabPages[i]);
+                        hideTabPages_.Add(mainTab.TabPages[i]);
                         mainTab.TabPages[i].Parent = null;
                         return;
                     }
@@ -174,17 +197,20 @@ namespace SelectorForm
         private void startWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             isBusy_ = true;
+            runWatch_.Start();
             if (!App.ds_.start())
             {
                 MessageBox.Show("初始化失败！");
                 Close();
                 return;
             }
+            ((IHost)this).uiSetMsg("UseTime: " + Utils.ReportWatch(runWatch_));
             isBusy_ = false;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            isClosing_ = true;
             endWorker.RunWorkerAsync();
         }
         private void endWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -213,6 +239,7 @@ namespace SelectorForm
                 MessageBox.Show("正忙，请稍微。");
                 return;
             }
+            GUtils.RemoveAllGridRow(selectGrid_);
             selectWorker.RunWorkerAsync();
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -228,7 +255,7 @@ namespace SelectorForm
                 }
                 SelectManager manager = new SelectManager();
                 reSelect_ = manager.selectNow();
-                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_);
+                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_, Utils.NowDate());
             }
             catch (Exception ex)
             {

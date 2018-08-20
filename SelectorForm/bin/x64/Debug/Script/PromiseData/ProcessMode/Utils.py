@@ -33,11 +33,10 @@ def ExeScalar(conn, sSQL):
 
 def GetValFromSys(conn, key, defVal=''):
     c = conn.execute("Select val From SysInfo Where key = '{0}'".format(key))
-    if c.rowcount == 0:
-        return defVal
 
     for row in c:
         return row[0]
+    return defVal
 
 def SetValToSys(conn, key, val):
     conn.execute("Update SysInfo Set val = '{0}' Where key = '{1}'".format(val, key))
@@ -97,9 +96,10 @@ def GetStockCodeInfos(conn):
 
     return retlist
 
-def NormlizePrice(df, colName):
+def NormlizePrice(df, colNames):
     cp = df.loc[:, df.columns]
-    cp[colName] = (cp[colName]*Setting.PriceNormalizeRate).astype(int)
+    for colName in colNames:
+        cp[colName] = (cp[colName].astype(float)*10000).astype(int)
     return cp
 
 

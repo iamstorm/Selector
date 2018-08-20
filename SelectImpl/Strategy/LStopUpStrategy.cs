@@ -36,7 +36,7 @@ namespace SelectImpl
 
         String[] IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param)
         {
-            if (dsh.Ref(Info.ZF) < -0.095)
+            if (dsh.Ref(Info.ZF) < 0.05)
             {
                 return new String[0];
             }

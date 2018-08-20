@@ -48,5 +48,10 @@ namespace SelectorForm
         {
             GUtils.UpdateGridRowNum(subGrid);
         }
+
+        private void mainGrid_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            GUtils.GridCellValueNeeded(mainGrid, re_.selItems_, e);
+        }
     }
 }

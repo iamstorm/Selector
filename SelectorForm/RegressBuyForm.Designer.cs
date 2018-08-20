@@ -45,6 +45,7 @@
             this.mainGrid.RowTemplate.Height = 23;
             this.mainGrid.Size = new System.Drawing.Size(1024, 438);
             this.mainGrid.TabIndex = 0;
+            this.mainGrid.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.mainGrid_CellValueNeeded);
             this.mainGrid.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.mainGrid_RowsAdded);
             this.mainGrid.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.mainGrid_RowsRemoved);
             // 

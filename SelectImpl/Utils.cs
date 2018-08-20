@@ -11,9 +11,15 @@ namespace SelectImpl
     {
         public static int Date(DateTime dateTime)
         {
-            int date = 0;
-            int.TryParse(dateTime.ToString("yyyyMMdd"), out date);
-            return date;
+            return Utils.ToType<int>(dateTime.ToString("yyyyMMdd"));
+        }
+        public static int NowDate()
+        {
+            return Date(DateTime.Now);
+        }
+        public static int NowTime()
+        {
+            return Utils.ToType<int>(DateTime.Now.ToString("HHmmss")); 
         }
         public static String DateSpan(int startDate, int endDate)
         {
@@ -45,17 +51,11 @@ namespace SelectImpl
         static bool isTradeDay_;
         public static bool IsTradeDay(int date)
         {
-            return DB.Global().ExecuteScalar<int>(
-                            String.Format("Select Count(*) From trade_date Where cal_date = '{0}'", date)) > 0; ;
+            return App.ds_.tradeDateDict_.ContainsKey(date);
         }
-        public static bool IsTradeDay()
+        public static bool NowIsTradeDay()
         {
-            if (!isTradeDayIsInit_)
-            {
-                isTradeDay_ = IsTradeDay(Date(DateTime.Now));
-                isTradeDayIsInit_ = true;
-            }
-            return isTradeDay_;
+            return IsTradeDay(NowDate());
         }
         public static int Year(int date)
         {
@@ -107,6 +107,19 @@ namespace SelectImpl
             else
             {
                 return obj.ToString();
+            }
+        }
+        public static String ReportWatch(Stopwatch watch)
+        {
+            Int64 elapseM = watch.ElapsedMilliseconds / 1000 / 60;
+            Int64 elapseS = watch.ElapsedMilliseconds / 1000 % 60;
+            if (elapseM == 0)
+            {
+                return String.Format("{0}s", elapseS);
+            }
+            else
+            {
+                return String.Format("{0}m{1}s", elapseM, elapseS);
             }
         }
     }

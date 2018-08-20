@@ -49,9 +49,14 @@ namespace SelectImpl
                         {
                             continue;
                         }
-                        hint.nextWantedIndexHintDict_[sk] = iIndex + 1;
-
+                        if (hint != null)
+                        {
+                            hint.nextWantedIndexHintDict_[sk] = iIndex + 1;
+                        }
                         dsh.iIndex_ = iIndex;
+
+                        if (dsh.dataList_[iIndex] == Data.NowInvalidData)
+                            continue;
 
                         rateItems = stra.select(dsh, paramList[i]);
                         if (rateItems == null)
@@ -78,7 +83,7 @@ namespace SelectImpl
         public SelectResult selectNow()
         {
             DataStoreHelper dsh = new DataStoreHelper();
-            return select(dsh, Utils.Date(DateTime.Now));
+            return select(dsh, Utils.NowDate());
         }
     }
 }

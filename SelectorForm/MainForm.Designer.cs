@@ -86,7 +86,7 @@
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.selectGrid_.RowHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.selectGrid_.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            this.selectGrid_.RowHeadersWidth = 50;
             this.selectGrid_.RowTemplate.Height = 23;
             this.selectGrid_.Size = new System.Drawing.Size(1023, 585);
             this.selectGrid_.TabIndex = 0;

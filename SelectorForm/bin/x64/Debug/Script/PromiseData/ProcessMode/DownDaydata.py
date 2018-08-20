@@ -93,10 +93,7 @@ def DownloadDayRecord(datadir, conn, globalConn, stocks):
             row['trade_date'] = row['trade_date'].replace('-','');
 
         dfInRange = df[(df['vol']>0) & (df['trade_date']>str(start))]
-        dfInRange = Utils.NormlizePrice(dfInRange, 'open')
-        dfInRange = Utils.NormlizePrice(dfInRange, 'high')
-        dfInRange = Utils.NormlizePrice(dfInRange, 'low')
-        dfInRange = Utils.NormlizePrice(dfInRange, 'close')
+        dfInRange = Utils.NormlizePrice(dfInRange, ['open', 'high', 'low', 'close'])
 
         dfInRange.sort_values(by=['trade_date'], inplace=True)
         dfInRange.to_sql(name=symbol, con=conn, if_exists='append', index=False)

@@ -8,23 +8,21 @@ tu = Utils.InitTuShare()
 
 def FetchRunTimeData():
     df = tu.ts.get_today_all()
-    return df[['code','trade','open','high','low','volume','amount']]
+    df = df.loc[:, ['code','trade','open','high','low','volume','amount']]
+    dfValid = df[df['open']>0]
+    dfValid = Utils.NormlizePrice(dfValid, ['open', 'high', 'low', 'trade'])
+    return dfValid
 
 def Fetch000001RunTimeData():
     df = tu.ts.get_realtime_quotes('sh')
-    df.rename(columns={'price':'close', 'volumn':'vol'}, inplace = True)
-    df = df[:,['open','close','high','low','vol']]
-    Utils.NormlizePrice(df, 'open')
-    Utils.NormlizePrice(df, 'high')
-    Utils.NormlizePrice(df, 'low')
-    Utils.NormlizePrice(df, 'close')
+    df.rename(columns={'price':'close', 'volume':'vol'}, inplace = True)
+    df = df.loc[:,['open','close','high','low','vol']]
     return df
 
 def UpdateRunTime(bindir):
     datadir = os.path.join(bindir, "data")
     now = datetime.datetime.now();
-    curYear = now.date().year
-    dbFile = Utils.GetYearDayFilePath(datadir, curYear)
+    dbFile = Utils.GetGlobalFilePath(bindir)
     conn = sqlite3.connect(dbFile)
     runtime_time = int(Utils.GetValFromSys(conn, 'runtime_time', defVal='0'))
     if runtime_time>int(now.date().strftime("%Y%m%d15")):
@@ -34,6 +32,7 @@ def UpdateRunTime(bindir):
     df = FetchRunTimeData()
     conn.execute("Delete From runtime");
     conn.commit()
+    df.drop_duplicates(['code'], inplace=True)
     df.to_sql(name='runtime', con=conn, if_exists='append', index=False)
 
     df = Fetch000001RunTimeData()
@@ -48,5 +47,9 @@ def UpdateRunTime(bindir):
     conn.close()
 
 def Run(bindir):
-    UpdateRunTime(bindir)
+    try:
+        UpdateRunTime(bindir)
+    except:
+        print("runtime.fail")
+        raise    
     Utils.MarkAsSuc(bindir)

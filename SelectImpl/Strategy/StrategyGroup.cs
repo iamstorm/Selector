@@ -17,14 +17,18 @@ namespace SelectImpl
                 string name = stra.name();
             }
         }
-        public SelectItem makeDeside(List<SelectItem> selectItems)
+        public SelectItem makeDeside(List<SelectItem> selectItems, int date)
         {
             SelectItem buyItem = null;
+            if (selectItems.Count == 0)
+            {
+                return SelectItem.MissBuy(date);
+            }
             if (selectItems.Count == 1)
             {
                 buyItem = selectItems[0];
             }
-            else 
+            else
             {
                 int maxRate = 0;
                 SelectItem maxRateItem = null;
@@ -53,11 +57,11 @@ namespace SelectImpl
                 {
                     if (Utils.IsTradeDay(date))
                     {
-                        buyitems.Add(makeDeside(items));
+                        buyitems.Add(makeDeside(items, date));
                     }
                     continue;
                 }
-                buyitems.Add(makeDeside(items));
+                buyitems.Add(makeDeside(items, date));
             }
             return re.buyItems_ = buyitems;
         }

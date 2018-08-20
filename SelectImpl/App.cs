@@ -59,6 +59,7 @@ namespace SelectImpl
             output =p.StandardOutput.ReadLine();
             bool bScriptStart = false;
             bool bProgressStart = false;
+            string sFailBecause = null;
             while (output != null)
             {
                 if (output == "exe.start")
@@ -68,6 +69,11 @@ namespace SelectImpl
                 output = p.StandardOutput.ReadLine();
                 if (!bScriptStart || output == null)
                     continue;
+
+                if (output == "runtime.fail")
+                {
+                    sFailBecause = "实时数据暂时无法获取，请稍后再试...";
+                }
 
                 Match m = Regex.Match(output, "^(.*)总进度\\[.*\\](.*)%$");
                 string sProgressMsg = null;
@@ -110,6 +116,14 @@ namespace SelectImpl
             string sPyRun = Utils.GetSysInfo(DB.Global(), "pyrun");
             if (sPyRun != "1")
             {
+                if (sFailBecause != null)
+                {
+                    App.host_.uiSetMsg("脚本执行失败：" + sFailBecause);
+                }
+                else
+                {
+                    App.host_.uiSetMsg("脚本执行失败：" + cmd);
+                }
                 return false;
             }
             else

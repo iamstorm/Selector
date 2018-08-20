@@ -5,6 +5,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.IO;
 using System.Data.SQLite;
+using System.Windows.Forms;
 
 namespace SelectImpl
 {
@@ -30,6 +31,8 @@ namespace SelectImpl
         public int low_;
         public int vol_;
         public int amount_;
+
+        public static Data NowInvalidData = new Data() { date_ = Utils.NowDate() };
     }
     public class Stock
     {
@@ -79,9 +82,27 @@ namespace SelectImpl
         public Dictionary<String, Stock> stockDict_ = new Dictionary<String, Stock>();
         public List<Stock> stockList_ = new List<Stock>();
         public List<Data> szListData_ = new List<Data>();
+        public Dictionary<int, int> tradeDateDict_ = new Dictionary<int,int>();
+        void readTradeDate()
+        {
+            DataTable  tradedays = DB.Global().Select("Select cal_date From trade_date");
+            foreach (DataRow row in tradedays.Rows)
+            {
+                tradeDateDict_[(int)row["cal_date"]] = 0;
+            }
+            App.host_.uiSetTradeDay();
+        }
         void readStocks()
         {
-            DataTable stocks = DB.Global().Select("Select * From Stock Order by symbol");
+            DataTable stocks;
+            if (Setting.DebugMode)
+            {
+                stocks = DB.Global().Select("Select * From Stock Order by symbol limit 50");
+            }
+            else
+            {
+                stocks = DB.Global().Select("Select * From Stock Order by symbol");
+            }
             foreach (DataRow row in stocks.Rows)
             {
                 Stock sk = new Stock();
@@ -125,18 +146,18 @@ namespace SelectImpl
             catch (System.IO.EndOfStreamException )
             {
             }
-            if (Utils.IsTradeDay())
+            if (Utils.NowIsTradeDay())
             {
-                sk.dataList_.Add(null);//代表今日
+                sk.dataList_.Add(Data.NowInvalidData);//代表今日
             }
             sk.dataList_.Reverse();
         }
         void readSZData()
         {
             DataTable datas = DB.Global().Select("Select * From [000001] Order by trade_date desc");
-            if (Utils.IsTradeDay())
+            if (Utils.NowIsTradeDay())
             {
-                szListData_.Add(null);//代表今日
+                szListData_.Add(Data.NowInvalidData);//代表今日
             }
             foreach (DataRow row in datas.Rows)
             {
@@ -152,12 +173,16 @@ namespace SelectImpl
         }
         public bool start()
         {
-            if (!App.RunScript("start"))
+            if (Utils.GetSysInfo(DB.Global(), "SucRunStartScriptDate", "0") != Utils.NowDate().ToString())
             {
-                return false;
+                if (!App.RunScript("start"))
+                {
+                    return false;
+                }
+                Utils.SetSysInfo(DB.Global(), "SucRunStartScriptDate", Utils.NowDate().ToString());
             }
 
-            App.host_.uiSetTradeDay();
+            readTradeDate();
             readStocks();
             if (stockDict_.Count == 0)
             {
@@ -192,21 +217,57 @@ namespace SelectImpl
             }
             return true;
         }
-        public bool prepareForSelect()
+        bool runRunTimeScript()
         {
-            if (!Utils.IsTradeDay())
+            String sLastUpdateTime = Utils.GetSysInfo(DB.Global(), "SucRunRuntimeScriptTime", "2005-01-01");
+            DateTime lastUpdateTime;
+            if (DateTime.TryParse(sLastUpdateTime, out lastUpdateTime))
             {
-                return true;
+                var span = DateTime.Now - lastUpdateTime;
+                if (span.TotalMinutes < 2)
+                {
+                    if (DialogResult.No == MessageBox.Show("Update runtime Now?", "Selector", MessageBoxButtons.YesNo))
+                    {
+                        return true;
+                    }
+                }
             }
             if (!updateRuntime())
                 return false;
 
+            Utils.SetSysInfo(DB.Global(), "SucRunRuntimeScriptTime", DateTime.Now.ToString());
+            return true;
+        }
+        public bool prepareForSelect()
+        {
+            if (!Utils.NowIsTradeDay())
+            {
+                return true;
+            }
+
+            if (!runRunTimeScript())
+            {
+                return false;
+            }
+
             DataTable dt = DB.Global().Select("Select * From [runtime]");
-            int nowDate = Utils.Date(DateTime.Now);
+            int nowDate = Utils.NowDate();
             foreach (DataRow row in dt.Rows)
             {
+                string code = row["code"].ToString();
+                if (!stockDict_.ContainsKey(code))
+                {
+                    if (Setting.DebugMode)
+                    {
+                        continue;
+                    }
+                    if (Setting.IsAcceptableRuntimeCode(code))
+                    {
+                        MessageBox.Show(String.Format("{0} is not in history database!", code));
+                    }
+                    continue;
+                }
                 Data d = new Data();
-                string code = Utils.ToType<string>(row["code"]);
                 d.date_ = nowDate;
                 d.open_ = Utils.ToType<int>(row["open"]);
                 d.high_ = Utils.ToType<int>(row["high"]);
@@ -321,7 +382,7 @@ namespace SelectImpl
         DataStore ds_;
         Stock stock_;
         public int iIndex_;
-        List<Data> dataList_;
+        public List<Data> dataList_;
         List<Data> szListData_;
         public DataStoreHelper()
         {
