@@ -128,7 +128,6 @@
     <Compile Include="RegressListForm.Designer.cs">
       <DependentUpon>RegressListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Setting.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

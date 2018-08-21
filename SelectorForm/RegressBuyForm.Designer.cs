@@ -42,7 +42,7 @@
             this.mainListView_.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainListView_.Location = new System.Drawing.Point(0, 0);
             this.mainListView_.Name = "mainListView_";
-            this.mainListView_.Size = new System.Drawing.Size(1023, 374);
+            this.mainListView_.Size = new System.Drawing.Size(1017, 370);
             this.mainListView_.TabIndex = 2;
             this.mainListView_.UseCompatibleStateImageBehavior = false;
             this.mainListView_.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.mainListView__ColumnClick);
@@ -54,7 +54,7 @@
             this.subListView_.Dock = System.Windows.Forms.DockStyle.Fill;
             this.subListView_.Location = new System.Drawing.Point(0, 0);
             this.subListView_.Name = "subListView_";
-            this.subListView_.Size = new System.Drawing.Size(1023, 207);
+            this.subListView_.Size = new System.Drawing.Size(1017, 205);
             this.subListView_.TabIndex = 3;
             this.subListView_.UseCompatibleStateImageBehavior = false;
             this.subListView_.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.subListView__ColumnClick);
@@ -63,7 +63,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Location = new System.Drawing.Point(3, 3);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -74,8 +74,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.subListView_);
-            this.splitContainer1.Size = new System.Drawing.Size(1023, 585);
-            this.splitContainer1.SplitterDistance = 374;
+            this.splitContainer1.Size = new System.Drawing.Size(1017, 579);
+            this.splitContainer1.SplitterDistance = 370;
             this.splitContainer1.TabIndex = 4;
             // 
             // RegressBuyForm
@@ -86,6 +86,7 @@
             this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "RegressBuyForm";
+            this.Padding = new System.Windows.Forms.Padding(3);
             this.Text = "RegressTabPage";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);

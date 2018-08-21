@@ -32,9 +32,9 @@ namespace SelectImpl
         {
             return binPath_ + "global.data";
         }
-        public static String YearDayFile(String year)
+        public static String DayDBFile()
         {
-            return String.Join("\\", binPath_, "data", year+".day");
+            return dataPath_ + "day.data";
         }
         public static void Setup()
         {

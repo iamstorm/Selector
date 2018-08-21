@@ -2,6 +2,7 @@ import os
 import sqlite3
 import datetime
 import pandas as pd
+import sys
 from . import Utils
 
 tu = Utils.InitTuShare()
@@ -50,6 +51,7 @@ def Run(bindir):
     try:
         UpdateRunTime(bindir)
     except:
-        print("runtime.fail")
+        print(sys.exc_info())
+        traceback.print_exc(file=sys.stdout)
         raise    
     Utils.MarkAsSuc(bindir)

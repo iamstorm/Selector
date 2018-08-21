@@ -64,6 +64,10 @@ namespace SelectImpl
         {
             return IsTradeDay(NowDate());
         }
+        public static int LastTradeDay()
+        {
+            return DB.Global().ExecuteScalar<int>(String.Format("SELECT cal_date from trade_date where cal_date < {0}  order by cal_date desc limit 1", NowDate()));
+        }
         public static int Year(int date)
         {
             return date / 10000;

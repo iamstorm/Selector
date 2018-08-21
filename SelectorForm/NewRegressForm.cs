@@ -16,6 +16,8 @@ namespace SelectorForm
         {
             InitializeComponent();
 
+            AcceptButton = btnOk;
+
             string sDate = Utils.GetSysInfo(DB.Global(), "NewRegressForm.startDate");
             if (sDate != "")
             {

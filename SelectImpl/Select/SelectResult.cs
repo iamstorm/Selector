@@ -142,10 +142,29 @@ namespace SelectImpl
                     return "";
                 }
                 List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
-                var plusItems =  from item in daySelectItems
-                          where Utils.GetBonusValue(item.getColumnVal("bonus")) > 0
-                                 select item;
-                return (plusItems.Count() * 1.0f / daySelectItems.Count).ToString("F2");
+                int nPlusCount = 0;
+                int nAllCount = 0;
+                foreach (var item in daySelectItems)
+                {
+                    var bonus = item.getColumnVal("bonus");
+                    if (bonus == "")
+                    {
+                        continue;
+                    }
+                    if (Utils.GetBonusValue(bonus) > 0)
+                    {
+                        ++nPlusCount;
+                    }
+                    ++nAllCount;
+                }
+                if (nAllCount == 0)
+                {
+                    return "";
+                }
+                else
+                {
+                    return (nPlusCount * 1.0f / nAllCount).ToString("F2");
+                }
             }
             else if (colName == "sellspan")
             {

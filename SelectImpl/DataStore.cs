@@ -164,7 +164,7 @@ namespace SelectImpl
             }
             sk.dataList_.Reverse();
         }
-        void readSZData()
+        void readSZZSData()
         {
             DataTable datas = DB.Global().Select("Select * From [000001] Order by trade_date desc");
             if (Utils.NowIsTradeDay())
@@ -191,7 +191,6 @@ namespace SelectImpl
                 {
                     return false;
                 }
-                Utils.SetSysInfo(DB.Global(), "SucRunStartScriptDate", Utils.NowDate().ToString());
             }
 
             readTradeDate();
@@ -209,7 +208,32 @@ namespace SelectImpl
                 ++nFinishCount;
                 App.host_.uiSetProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / nTotalCount);
             }
-            readSZData();
+            readSZZSData();
+            int lastTrayDay = Utils.LastTradeDay();
+            int iNewestLastTrayDayIndex;
+            if (Utils.NowIsTradeDay())
+            {
+                iNewestLastTrayDayIndex = 1;
+            }
+            else
+            {
+                iNewestLastTrayDayIndex = 0;
+            }
+            bool bSZZSHasFullHistory = szListData_[iNewestLastTrayDayIndex].date_ == lastTrayDay;
+            bool bStockHasFullHistory = false;
+            foreach (var sk in stockList_)
+            {
+                if (sk.dataList_[iNewestLastTrayDayIndex].date_ == lastTrayDay)
+                {
+                    bStockHasFullHistory = true;
+                    break;
+                }
+            }
+            if (bSZZSHasFullHistory && bStockHasFullHistory)
+            {
+                Utils.SetSysInfo(DB.Global(), "SucRunStartScriptDate", Utils.NowDate().ToString());
+            }
+
             App.host_.uiFinishProcessBar();
             return true;
         }
@@ -237,7 +261,7 @@ namespace SelectImpl
             {
                 var now = DateTime.Now;
                 if (lastUpdateTime.Year == now.Year && lastUpdateTime.Day == now.Day &&
-                    (lastUpdateTime.Hour > 15) || (lastUpdateTime.Hour == 15 && lastUpdateTime.Minute > 15))
+                    (lastUpdateTime.Hour > 15 || (lastUpdateTime.Hour == 15 && lastUpdateTime.Minute > 15)))
                 {
                     return true;
                 }
@@ -310,7 +334,7 @@ namespace SelectImpl
             return true;
         }
 
-        float F(int z, List<Data> dataList, int iIndex)
+        public float F(int z, List<Data> dataList, int iIndex)
         {
             if (iIndex + 1 >= dataList.Count)
             {

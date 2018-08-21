@@ -13,11 +13,11 @@ namespace SelectImpl
         public static Dictionary<String, SQLiteHelper> connDict_ = new Dictionary<String, SQLiteHelper>();
         static DB()
         {
-            RegConn(Dist.GlobalDBFile(), "g");
+            RegConn(Dist.GlobalDBFile(), "$g");
         }
         public static SQLiteHelper Global()
         {
-            return connDict_["g"];
+            return connDict_["$g"];
         }
         public static SQLiteHelper RegConn(String sDBPath, String sKey)
         {

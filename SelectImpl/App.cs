@@ -60,22 +60,62 @@ namespace SelectImpl
             bool bScriptStart = false;
             bool bProgressStart = false;
             string sFailBecause = null;
-            while (output != null)
+            int iReadChar = -1;
+            String msg = "";
+            bool bRuntimeGettingData = false;
+            while (true)
             {
-                if (output == "exe.start")
+                if (!bScriptStart)
                 {
-                    bScriptStart = true;
-                }
-                output = p.StandardOutput.ReadLine();
-                if (!bScriptStart || output == null)
+                    output = p.StandardOutput.ReadLine();
+                    if (output == "exe.start")
+                    {
+                        bScriptStart = true;
+                        iReadChar = p.StandardOutput.Read();
+                    }
+                    else if (output == null)
+                    {
+                        break;
+                    }
                     continue;
+                }
+                iReadChar = p.StandardOutput.Read();
+                if (iReadChar == -1)
+                {
+                    break;
+                }
+                char c = (char)iReadChar;
+                string msgLine = null;
+                if (c == '\n' || c == '\r')
+                {
+                    msgLine = msg;
+                    msg = "";
+                    bRuntimeGettingData = false;
+                }
+                else
+                {
+                    msg += c;
+                }
+                if (msg == "[Getting data:]")
+                {
+                    bRuntimeGettingData = true;
+                }
+                if (bRuntimeGettingData)
+                {
+                    App.host_.uiSetMsg(msg);
+                    continue;
+                }
+                if (msgLine == null)
+                {
+                    continue;   
+                }
 
-                if (output == "runtime.fail")
+                if (msgLine.IndexOf("HTTPError") > -1)
                 {
                     sFailBecause = "实时数据暂时无法获取，请稍后再试...";
                 }
 
-                Match m = Regex.Match(output, "^(.*)总进度\\[.*\\](.*)%$");
+                Match m = Regex.Match(msgLine, "^(.*)总进度\\[.*\\](.*)%$");
                 string sProgressMsg = null;
                 string sProgressPercent = null;
                 if (m.Length > 0)
@@ -87,7 +127,7 @@ namespace SelectImpl
                         bProgressStart = true;
                     }
                 }
-                if (bProgressStart)
+                if (sProgressMsg != null)
                 {
                     float percent = Utils.ToType<float>(sProgressPercent);
                     App.host_.uiSetProcessBar(sProgressMsg, percent);
@@ -99,15 +139,15 @@ namespace SelectImpl
                 }
                 else
                 {
-                    if (output == "")
+                    if (msgLine == "")
                     {
-                        App.host_.uiSetMsg("正在执行...");
+                        App.host_.uiSetMsg("正在执行脚本...");
                     }
                     else
                     {
-                        App.host_.uiSetMsg(output);
+                        App.host_.uiSetMsg(msgLine);
                     }
-                }
+                 }
             }
 
             p.WaitForExit();//等待程序执行完退出进程
@@ -128,6 +168,7 @@ namespace SelectImpl
             }
             else
             {
+                App.host_.uiSetMsg("Script success completed");
                 return true;
             }
         }

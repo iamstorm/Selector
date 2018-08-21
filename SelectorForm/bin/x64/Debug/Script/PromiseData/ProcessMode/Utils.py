@@ -24,6 +24,9 @@ def GetGlobalFilePath(bindir):
 def GetDaySqliteFilePath(datadir):
     return os.path.join(datadir, "day.data")
 
+def NowDate():
+    return int(datetime.datetime.now().strftime('%Y%m%d'))
+
 def ExeScalar(conn, sSQL):
     c = conn.execute(sSQL)
     for row in c:
@@ -81,7 +84,7 @@ def MarkAsSuc(bindir):
     conn.close()
 
 def GetLastTradeDate(conn):
-    now = datetime.datetime.now().strftime('%Y%m%d')
+    now = NowDate()
     return int(ExeScalar(conn, "SELECT cal_date from trade_date where cal_date < {0}  order by cal_date desc limit 1".format(now)))
 
 def GetNextTradeDay(conn, date):

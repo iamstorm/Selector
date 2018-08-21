@@ -70,8 +70,7 @@ def DownloadDayRecord(datadir, conn, globalConn, stocks):
 
     progress = Utils.Progress(len(stocks))      
     for ts_code,symbol in stocks:
-        update_date = int(Utils.ExeScalar(conn, "Select ifnull(max(trade_date), {0}) From [{1}]".format(Setting.DataFrom, symbol)))
-        start = Utils.GetNextTradeDay(globalConn, update_date)
+        start = int(Utils.ExeScalar(conn, "Select ifnull(max(trade_date), {0}) From [{1}]".format(Setting.DataFrom, symbol)))
         if start >= lastTradeDay:
             msg = "{0}的历史数据{1}-现在是完整的...".format(ts_code, start)
             progress.show(msg)

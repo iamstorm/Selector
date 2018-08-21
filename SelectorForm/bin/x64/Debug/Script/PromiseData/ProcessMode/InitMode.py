@@ -152,7 +152,10 @@ def Fetch000001(startDate):
 
 def Update000001(conn):
     start = Utils.ExeScalar(conn, "Select ifnull(max(trade_date), {0}) From [000001]".format(Setting.DataFrom))
-
+    lastTradeDay = Utils.GetLastTradeDate(conn)
+    if start >= lastTradeDay:
+        print("大盘历史数据是完整的，不需要更新。")
+        return
     Utils.Info("正在更新大盘数据{0}-现在...".format(start))
     df = Fetch000001WithBaostock(start);
     df.to_sql(name='000001', con=conn, if_exists='append', index=False)
@@ -169,19 +172,24 @@ def Run(bindir):
 
     dbFile = Utils.GetGlobalFilePath(bindir)
     conn = sqlite3.connect(dbFile)
-    count = Utils.ExeScalar(conn, "Select Count(*) From Stock")
-    Utils.Info("正在获取最新股票数量...")
-    fetchCount = len(FetchStockBasic())
-    if count != fetchCount:
-        Utils.Info("目前本地股票数量和服务器不一致，开始更新股票基本资料...")
-        UpdateStock(conn)
-        UpdateTradeDate(conn)
+    stock_update_date = int(Utils.GetValFromSys(conn, "stock_update_date", "0"))
+    if stock_update_date >= Utils.NowDate():
+        print("股票基本资料目前已经是最新了。")
     else:
-        Utils.Info("目前本地股票数量和服务器一致，不需要更新股票基本资料。")
+        count = Utils.ExeScalar(conn, "Select Count(*) From Stock")
+        Utils.Info("正在获取最新股票数量...")
+        fetchCount = len(FetchStockBasic())
+        if count != fetchCount:
+            Utils.Info("目前本地股票数量和服务器不一致，开始更新股票基本资料...")
+            UpdateStock(conn)
+        else:
+            Utils.Info("目前本地股票数量和服务器一致，不需要更新股票基本资料。")
+
+        UpdateTradeDate(conn)
+        Utils.SetValToSys(conn, "stock_update_date", Utils.NowDate)
+        conn.commit()
 
 
-
-    UpdateTradeDate(conn)
     Update000001(conn)
 
 

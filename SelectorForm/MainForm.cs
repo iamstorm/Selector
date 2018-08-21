@@ -24,17 +24,15 @@ namespace SelectorForm
         public List<TabPage> hideTabPages_ = new List<TabPage>();
         public Stopwatch runWatch_ = new Stopwatch();
         public bool isClosing_;
+        public int sortColumn_;
         public MainForm()
         {
             Me = this;
             InitializeComponent();
 
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
-            progressBar.Value = 0;
-            progressBar.Visible = false;
             msgText.Text = "";
-            tradedayText.Text = "";
+            toolStripStatusLabel1_.Text = Setting.DebugMode ? "Debug" : "Release";
+            toolStripStatusLabel2_.Text = "";
 
             App.host_ = this;
             LUtils.InitListView(selectListView_);
@@ -50,8 +48,8 @@ namespace SelectorForm
             Action action;
             Invoke(action = () =>
                 {
-                    progressBar.Value = 0;
-                    progressBar.Visible = true;
+                    toolStripProgressBar_.Value = 0;
+                    toolStripProgressBar_.Visible = true;
                 });
         }
         void IHost.uiSetProcessBar(String msgIn, float percentIn)
@@ -63,10 +61,8 @@ namespace SelectorForm
             Action<String, float> action;
             Invoke(action = (msg, percent) =>
             {
-                progressBar.Value = 0;
-                progressBar.Visible = true;
+                toolStripProgressBar_.Value = (int)percent;
                 msgText.Text = String.Format("{0}...{1}%", msg, percent.ToString("F2"));
-                progressBar.Value = (int)percent;
                 msgText.Update();
             }, msgIn, percentIn);
         }
@@ -80,8 +76,8 @@ namespace SelectorForm
             Invoke(action = () =>
             {
                 msgText.Text = "";
-                progressBar.Value = 100;
-                progressBar.Visible = false;
+                toolStripProgressBar_.Value = 100;
+                toolStripProgressBar_.Visible = false;
                 msgText.Update();
             });
 
@@ -108,8 +104,12 @@ namespace SelectorForm
             Action action;
             Invoke(action = () =>
                 {
-                    tradedayText.Text = Utils.NowIsTradeDay() ? "is tradeday" : "not tradeday";
-                    tradedayText.Update();
+                    if (Utils.NowIsTradeDay())
+	                {
+		                toolStripStatusLabel2_.Text = "tradeday";
+	                } else {
+                        toolStripStatusLabel2_.Text = "holiday";
+                    }
                 });
         }
         public Form createTabPage(string name, Form form)
@@ -208,6 +208,16 @@ namespace SelectorForm
             isBusy_ = false;
         }
 
+        private void startWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (Setting.DebugMode)
+	        {
+                toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks", App.ds_.stockList_.Count);
+	        } else 
+            {
+                toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks", App.ds_.stockList_.Count);
+            }
+        }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             isClosing_ = true;
@@ -237,6 +247,8 @@ namespace SelectorForm
             isBusy_ = true;
             try
             {
+                reSelect_ = null;
+                LUtils.RemoveAllListRow(selectListView_);
                 if (!App.ds_.prepareForSelect())
                 {
                     MessageBox.Show("准备数据工作失败，无法继续执行！");
@@ -257,16 +269,62 @@ namespace SelectorForm
             }
             isBusy_ = false;
         }
-
+        void showRuntimeInfo()
+        {
+                int nUpCount = 0, nDownCount = 0, nZeroCount = 0;
+                int now = Utils.NowDate();
+                foreach (var sk in App.ds_.stockList_)
+                {
+                    float zf = sk.zf(now);
+                    if (zf > 0)
+                    {
+                        nUpCount++;
+                    }
+                    else if (zf < 0)
+                    {
+                        nDownCount++;
+                    }
+                    else
+                    {
+                        nZeroCount++;
+                    }
+                }
+                float envZf = App.ds_.F(App.ds_.szListData_[0].close_, App.ds_.szListData_, 0)*100;
+                if (Setting.DebugMode)
+                {
+                    toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks, {1}%, {2} Up, {3} Down, {4} Zero {5} ",
+                        App.ds_.stockList_.Count, envZf.ToString("F2"), nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
+                }
+                else
+                {
+                    toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks, {1}%, ,{2} Up, {3} Down, {4} Zero {5} ",
+                        App.ds_.stockList_.Count, envZf.ToString("F2"), nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
+                }
+                if (envZf > 0)
+                {
+                    toolStripStatusLabel1_.ForeColor = Color.Red;
+                    toolStripStatusLabel2_.ForeColor = Color.Red;
+                } 
+                else if (envZf < 0)
+                {
+                    toolStripStatusLabel1_.ForeColor = Color.Green;
+                    toolStripStatusLabel2_.ForeColor = Color.Green;
+                }
+                else
+                {
+                    toolStripStatusLabel1_.ForeColor = Color.Black;
+                    toolStripStatusLabel2_.ForeColor = Color.Black;
+                }
+        }
         private void selectWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (reSelect_ == null)
-            {
-                LUtils.RemoveAllListRow(selectListView_);
-            }
-            else
+            if (reSelect_ != null)
             {
                 LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
+                if (Utils.NowIsTradeDay())
+	            {
+                    showRuntimeInfo();
+	            }
             }
             showForm("TabSelect");
         }
@@ -296,11 +354,14 @@ namespace SelectorForm
             isBusy_ = true;
             try
             {
-                if (!App.ds_.prepareForSelect())
+                if (regressingRe_.endDate_ == Utils.NowDate())
                 {
-                    MessageBox.Show("准备数据工作失败，无法继续执行！");
-                    isBusy_ = false;
-                    return;
+                    if (!App.ds_.prepareForSelect())
+                    {
+                        MessageBox.Show("准备数据工作失败，无法继续执行！");
+                        isBusy_ = false;
+                        return;
+                    }
                 }
                 RegressManager regressManager = new RegressManager();
                 RegressResult re = regressManager.regress(regressingRe_.name_,
@@ -348,5 +409,30 @@ namespace SelectorForm
         {
             e.Item = LUtils.RetrieveVirtualItem(selectListView_, e.ItemIndex, reSelect_.selItems_);
         }
+
+        private void selectListView__ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            LUtils.OnColumnClick(selectListView_, e.Column, ref sortColumn_);
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+        
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            for (int i = 0; i < mainTab.TabPages.Count; i++)
+            {
+                if (mainTab.TabPages[i].Name == "TabSelect")
+                {
+                    continue;
+                }
+                Form form = (Form)mainTab.TabPages[i].Controls[0];
+                form.Size = mainTab.ClientSize;
+
+            }
+        }
+
     }
 }
