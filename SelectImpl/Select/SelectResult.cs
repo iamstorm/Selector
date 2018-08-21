@@ -12,8 +12,7 @@ namespace SelectImpl
         public int date_;
         public String code_;
         public String strategyName_;
-        public String rateItemKey_;
-        public String rate_;
+        public Dictionary<String, String> rateItemDict_;
         public List<SelectItem> allSelectItems_;
 
         public SelectItem()
@@ -25,8 +24,7 @@ namespace SelectImpl
             date_ = item.date_;
             code_ = item.code_;
             strategyName_ = item.strategyName_;
-            rateItemKey_ = item.rateItemKey_;
-            rate_ = item.rate_;
+            rateItemDict_ = item.rateItemDict_;
         }
         public static SelectItem DontBuy(int date)
         {
@@ -55,12 +53,15 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
+                    new ColumnInfo() { name_ = "dbuysuc", width_ = 60 },
+                    new ColumnInfo() { name_ = "szzs", width_ = 60 },
                     new ColumnInfo() { name_ = "sellspan", width_ = 60 },
                     new ColumnInfo() { name_ = "close", width_ = 60 },
                     new ColumnInfo() { name_ = "strategy", width_ = 200 },
                     new ColumnInfo() { name_ = "rate", width_ = 60 },
                     new ColumnInfo() { name_ = "hscount", width_ = 60 },
-                    new ColumnInfo() { name_ = "rateKey", width_ = 60 },
+                    new ColumnInfo() { name_ = "strarate", width_ = 60 },
+                    new ColumnInfo() { name_ = "itemrate", width_ = 60 },
                 };
             }
         }
@@ -73,13 +74,21 @@ namespace SelectImpl
                  select info.name_).ToArray<String>();
             }
         }
-        public String getColumnVal(String colName, Stock stock, StrategyData straData)
+        public String getColumnVal(String colName, Stock stock, HistoryData straData)
         {
             if (colName == "date")
             {
                 return date_.ToString();
             }
-            else if (colName == "code")
+            else if (colName == "strategy")
+            {
+                return strategyName_;
+            }
+            if (stock == null)
+            {
+                return "";
+            }
+            if (colName == "code")
             {
                 return code_;
             }
@@ -89,28 +98,16 @@ namespace SelectImpl
             }
             else if (colName == "zf")
             {
-                if (stock == null)
-                {
-                    return "";
-                }
                 return stock.zfSee(date_);
             }
             else if (colName == "bonus")
             {
-                if (stock == null)
-                {
-                    return "";
-                }
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
                 return App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
             }
             else if (colName == "nsh")
             {
-                if (stock == null)
-                {
-                    return "";
-                }
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
                 App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
@@ -122,10 +119,6 @@ namespace SelectImpl
             }
             else if (colName == "nsc")
             {
-                if (stock == null)
-                {
-                    return "";
-                }
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
                 App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
@@ -137,10 +130,6 @@ namespace SelectImpl
             }
             else if (colName == "hrate")
             {
-                if (stock == null)
-                {
-                    return "";
-                }
                 List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
                 int nPlusCount = 0;
                 int nAllCount = 0;
@@ -166,12 +155,33 @@ namespace SelectImpl
                     return (nPlusCount * 1.0f / nAllCount).ToString("F2");
                 }
             }
-            else if (colName == "sellspan")
+            else if (colName == "dbuysuc")
             {
-                if (stock == null)
+                if (strategyName_ != "dontBuy")
                 {
                     return "";
                 }
+                List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
+                int nNobuySucCount = 0;
+                foreach (var item in daySelectItems)
+                {
+                    String bonus = item.getColumnVal("bonus");
+                    if (Utils.GetBonusValue(bonus) < 0)
+                    {
+                        nNobuySucCount++;
+                    }
+                }
+                return (nNobuySucCount * 1.0f/ daySelectItems.Count).ToString("F02");
+            }
+            else if (colName == "szzs")
+	        {
+                bool bSellWhenMeetMyBounusLimit;
+                int sellDate;
+                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                return sellDate == -1 ? "" : App.ds_.envBonus(sellDate);
+	        }
+            else if (colName == "sellspan")
+            {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
                 App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
@@ -186,27 +196,23 @@ namespace SelectImpl
             }
             else if (colName == "close")
             {
-                if (code_ == null)
-                {
-                    return "";
-                }
                 return App.ds_.realVal(Info.C, code_, date_).ToString("F3");
-            }
-            else if (colName == "strategy")
-            {
-                return strategyName_;
             }
             else if (colName == "rate")
             {
-                return rate_;
+                return RateComputer.TotalRate(RateComputer.HistoryRate(straData), RateComputer.ComputerRate(strategyName_, rateItemDict_)).ToString();
             }
             else if (colName == "hscount")
             {
                 return straData == null ? "0" : straData.selectCount_.ToString();
             }
-            else if (colName == "rateKey")
+            else if (colName == "strarate")
             {
-                return rateItemKey_;
+                return RateComputer.HistoryRate(straData).ToString();
+            }
+            else if (colName == "itemrate")
+            {
+                return RateComputer.ComputerRate(strategyName_, rateItemDict_).ToString();
             }
             else
             {
@@ -216,14 +222,14 @@ namespace SelectImpl
         public String getColumnVal(String colName)
         {
             Stock stock = code_ == null ? null : App.ds_.sk(code_);
-            StrategyData straData = App.asset_.straData(strategyName_);
+            HistoryData straData = App.asset_.straData(strategyName_);
             return getColumnVal(colName, stock, straData);
         }
        
         public ListViewItem toListViewItem(ListView lv, int iItemIndex, int nCount)
         {
             Stock stock = code_ == null ? null : App.ds_.sk(code_);
-            StrategyData straData = App.asset_.straData(strategyName_);
+            HistoryData straData = App.asset_.straData(strategyName_);
             ListViewItem lvi = new ListViewItem(String.Format("{0}/{1}", iItemIndex+1, nCount));
             lvi.UseItemStyleForSubItems = false;
             Color rowColor = Color.Empty;
@@ -243,7 +249,7 @@ namespace SelectImpl
                 ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
                 lvsi.Text = getColumnVal(colName, stock, straData);
                 lvsi.ForeColor = rowColor;
-                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc"))
+                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc" || colName == "szzs"))
                 {
                     if (Utils.GetBonusValue(lvsi.Text) > 0)
                     {
@@ -264,77 +270,7 @@ namespace SelectImpl
     public class SelectResult
     {
         public List<SelectItem> selItems_ = new List<SelectItem>();
-        public static List<SelectItem> MergeSelectItem(List<SelectItem> selItems)
-        {
-            Dictionary<Tuple<String, int>, List<SelectItem>> sameCodeDateItemDict = new Dictionary<Tuple<string, int>, List<SelectItem>>();
-            foreach (var item in selItems)
-            {
-                var key = Tuple.Create(item.code_, item.date_);
-                List<SelectItem> items;
-                if (sameCodeDateItemDict.TryGetValue(key, out items))
-	            {
-		            items.Add(item);
-	            } else 
-                {
-                    items = new List<SelectItem>();
-                    items.Add(item);
-                    sameCodeDateItemDict[key] = items;
-                }
-            }
-            List<SelectItem> retList = new List<SelectItem>();
-            foreach (var kv in sameCodeDateItemDict)
-            {
-                if (kv.Value.Count < 2)
-                {
-                    retList.Add((kv.Value[0]));
-                }
-                else
-                {
-                    List<String> straList = new List<String>();
-                    List<String> rateList = new List<String>();
-                    List<String> rateItemKeyList = new List<String>();
-                    for (int i = 0; i < kv.Value.Count; ++i )
-                    {
-                        straList.Add(kv.Value[i].strategyName_);
-                        rateList.Add(kv.Value[i].rate_);
-                        rateItemKeyList.Add(kv.Value[i].rateItemKey_);
-                    }
-                    var newItem = new SelectItem(kv.Value[0]);
-                    newItem.strategyName_ = String.Join(",", straList);
-                    newItem.rate_ = String.Join(",", rateList);
-                    newItem.rateItemKey_ = String.Join(",", rateItemKeyList);
-                    retList.Add(newItem);
-                }
-            }
-            return retList;
-        }
-        public static List<SelectItem> SplitSelectItem(List<SelectItem> selItems)
-        {
-            List<SelectItem> retList = new List<SelectItem>();
-            foreach(var item in selItems)
-            {
-                String[] straList = item.strategyName_.Split(',');
-                if (straList.Length == 1)
-                {
-                    retList.Add(item);
-                }
-                else
-                {
-                    String[] rateList = item.rate_.Split(',');
-                    String[] rateItemKeyList = item.rateItemKey_.Split(',');
-                    for (int i = 0; i < straList.Length; i++)
-                    {
-                        var newItem = new SelectItem(item);
-                        newItem.strategyName_ = straList[0];
-                        newItem.rate_ = rateList[0];
-                        newItem.rateItemKey_ = rateItemKeyList[0];
-                        retList.Add(newItem);
-                    }
-                }
-            }
-            return retList;
-        }
-
+      
         public static List<SelectItem> OfDate(int date, List<SelectItem> selItems)
         {
             List<SelectItem> retList = new List<SelectItem>();

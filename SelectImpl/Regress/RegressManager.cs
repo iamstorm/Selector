@@ -47,7 +47,6 @@ namespace SelectImpl
                 item.allSelectItems_ = regressRe.selItems_;
             }
             regressRe.buyItems_ = App.grp_.desideToBuy(regressRe);
-            regressRe.selItems_ = SelectResult.MergeSelectItem(regressRe.selItems_);
             App.host_.uiFinishProcessBar();
             return regressRe;
         }

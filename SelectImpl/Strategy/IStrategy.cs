@@ -16,8 +16,7 @@ namespace SelectImpl
 #endregion
         Dictionary<String, String> setup();
 
-        String[] select(DataStoreHelper dsh, Dictionary<String, String> param);
-        int rate(String[] rateItems);
+        Dictionary<String, String> select(DataStoreHelper dsh, Dictionary<String, String> param);
     }
 
 }

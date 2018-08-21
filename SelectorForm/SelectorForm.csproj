@@ -98,6 +98,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

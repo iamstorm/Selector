@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         String[] IStrategy.rateItemNames()
         {
-            return new String[] { "1", "2" };
+            return new String[] {  };
         }
         bool IStrategy.focusOnNew()
         {
@@ -34,18 +34,13 @@ namespace SelectImpl
             return null;
         }
 
-        String[] IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param)
         {
             if (dsh.Ref(Info.ZF) < -0.095)
             {
-                return new String[0];
+                return new Dictionary<String, String>();
             }
             return null;
         }
-        int IStrategy.rate(String[] rateItems)
-        {
-            return 1;
-        }
-
     }
 }

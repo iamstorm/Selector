@@ -91,10 +91,6 @@ namespace SelectImpl
             }
             return list;
         }
-        public static String FormatRateItemKey(String[] rateItems)
-        {
-            return String.Join("|", rateItems);
-        }
         public static T ToType<T>(object obj)
         {
             return (T)Convert.ChangeType(obj.ToString(), typeof(T));

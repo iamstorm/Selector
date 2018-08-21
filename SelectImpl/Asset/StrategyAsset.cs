@@ -7,8 +7,8 @@ namespace SelectImpl
 {
     public class StrategyAsset
     {
-        public Dictionary<String, StrategyData> straDataDict_;
-        public Dictionary<String, RateItemData> straRaItemKeyData;
+        public Dictionary<String, HistoryData> straDataDict_;
+        public Dictionary<String, HistoryData> straRaItemData_;
 
         public StrategyAsset()
         {
@@ -16,8 +16,8 @@ namespace SelectImpl
         }
         public void refreshAsset()
         {
-            straDataDict_ = new Dictionary<String, StrategyData>();
-            straRaItemKeyData = new Dictionary<String, RateItemData>();
+            straDataDict_ = new Dictionary<String, HistoryData>();
+            straRaItemData_ = new Dictionary<String, HistoryData>();
             foreach(IStrategy stra in App.grp_.strategyList_)
             {
                 straDataDict_.Add(stra.name(), null);
@@ -26,16 +26,16 @@ namespace SelectImpl
             straDataDict_.Add("miss", null);
         }
 
-        public StrategyData straData(String straName)
+        public HistoryData straData(String straName)
         {
             return straDataDict_[straName];
         }
-        public StrategyData straRateItemData(String straName, String rateItemKey)
+        public HistoryData straRateItemData(String straName, String rateItemKey)
         {
             string key = straName + "/" + rateItemKey;
-            if (straRaItemKeyData.ContainsKey(key))
+            if (straRaItemData_.ContainsKey(key))
             {
-                return straRaItemKeyData[key];
+                return straRaItemData_[key];
             }
             else
             {

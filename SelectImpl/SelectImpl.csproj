@@ -104,9 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Asset\RateItemKeyData.cs" />
+    <Compile Include="Asset\RateComputer.cs" />
     <Compile Include="Asset\StrategyAsset.cs" />
-    <Compile Include="Asset\StrategyData.cs" />
+    <Compile Include="Asset\HistoryData.cs" />
     <Compile Include="BaseStrategy.cs" />
     <Compile Include="DataStore.cs" />
     <Compile Include="DB.cs" />

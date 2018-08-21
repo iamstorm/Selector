@@ -42,7 +42,7 @@ namespace SelectorForm
             if (e.IsSelected)
             {
                 int selDate = Utils.ToType<int>(e.Item.SubItems[1].Text);
-                if (daySelectItems_ != null && daySelectItems_[0].date_ == selDate)
+                if (daySelectItems_ != null && daySelectItems_.Count > 0 && daySelectItems_[0].date_ == selDate)
                 {
                     return;
                 }

@@ -41,7 +41,7 @@ namespace SelectImpl
                 for (int i = 0; i < straList.Count; ++i)
                 {
                     IStrategy stra = straList[i];
-                    String[] rateItems = null;
+                    Dictionary<String, String> rateItemDict = null;
                     try
                     {
                         int iIndex = App.ds_.index(sk, date, iDateIndexHint);
@@ -58,8 +58,8 @@ namespace SelectImpl
                         if (dsh.dataList_[iIndex] == Data.NowInvalidData)
                             continue;
 
-                        rateItems = stra.select(dsh, paramList[i]);
-                        if (rateItems == null)
+                        rateItemDict = stra.select(dsh, paramList[i]);
+                        if (rateItemDict == null)
                         {
                             continue;
                         }
@@ -72,8 +72,7 @@ namespace SelectImpl
                     selItem.code_ = sk.code_;
                     selItem.date_ = date;
                     selItem.strategyName_ = stra.name();
-                    selItem.rateItemKey_ = Utils.FormatRateItemKey(rateItems);
-                    selItem.rate_ = stra.rate(rateItems).ToString();
+                    selItem.rateItemDict_ = rateItemDict;
                     re.selItems_.Add(selItem);
                 }
             }
@@ -88,7 +87,6 @@ namespace SelectImpl
             {
                 item.allSelectItems_ = re.selItems_;
             }
-            re.selItems_ = SelectResult.MergeSelectItem(re.selItems_);
             return re;
         }
     }

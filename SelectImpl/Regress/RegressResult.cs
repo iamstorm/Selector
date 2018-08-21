@@ -65,15 +65,5 @@ namespace SelectImpl
                 return new String[] { SelectFormName, BuyFormName };
             }
         }
-        public static RegressResult ReadFromDB(SQLiteHelper sh, String name)
-        {
-            RegressResult ret = new RegressResult();
-            ret.name_ = name;
-            return ret;
-        }
-        public void writeToDB(SQLiteHelper sh)
-        {
-            List<SelectItem> retList = SelectResult.SplitSelectItem(selItems_);
-        }
     }
 }

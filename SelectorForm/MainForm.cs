@@ -289,23 +289,23 @@ namespace SelectorForm
                         nZeroCount++;
                     }
                 }
-                float envZf = App.ds_.F(App.ds_.szListData_[0].close_, App.ds_.szListData_, 0)*100;
+                String envBonus = App.ds_.envBonus(Utils.NowDate());
                 if (Setting.DebugMode)
                 {
                     toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks, {1}%, {2} Up, {3} Down, {4} Zero {5} ",
-                        App.ds_.stockList_.Count, envZf.ToString("F2"), nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
+                        App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
                 else
                 {
                     toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks, {1}%, ,{2} Up, {3} Down, {4} Zero {5} ",
-                        App.ds_.stockList_.Count, envZf.ToString("F2"), nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
+                        App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
-                if (envZf > 0)
+                if (Utils.GetBonusValue(envBonus) > 0)
                 {
                     toolStripStatusLabel1_.ForeColor = Color.Red;
                     toolStripStatusLabel2_.ForeColor = Color.Red;
-                } 
-                else if (envZf < 0)
+                }
+                else if (Utils.GetBonusValue(envBonus) < 0)
                 {
                     toolStripStatusLabel1_.ForeColor = Color.Green;
                     toolStripStatusLabel2_.ForeColor = Color.Green;

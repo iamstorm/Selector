@@ -34,7 +34,11 @@ namespace SelectImpl
                 SelectItem maxRateItem = null;
                 foreach (var item in selectItems)
                 {
-                    int rate = Utils.ToType<int>(item.rate_);
+                    int rate = Utils.ToType<int>(item.getColumnVal("rate"));
+                    if (rate < 0)
+                    {
+                        continue;
+                    }
                     if (rate > maxRate)
                     {
                         maxRateItem = item;

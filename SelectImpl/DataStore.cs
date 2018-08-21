@@ -343,6 +343,15 @@ namespace SelectImpl
             float lastC = dataList[iIndex + 1].close_;
             return (z - lastC) / lastC;
         }
+        public String envBonus(int date, int dayCount = 0)
+        {
+            int iIndex = index(szListData_, date + dayCount);
+            float envZf = App.ds_.F(
+                szListData_[iIndex].close_, 
+                szListData_,
+                iIndex) * 100;
+            return envZf.ToString("F2") + "%";
+        }
         public Stock sk(String code)
         {
             return stockDict_[code];
@@ -351,21 +360,25 @@ namespace SelectImpl
         {
             return stockDict_[code].dataList_;
         }
-        public int index(Stock stock, int date, int iDateIndexHint = -1)
+        public int index(List<Data> dataList, int date, int iDateIndexHint = -1)
         {
             int iStartIndex = iDateIndexHint == -1 ? 0 : iDateIndexHint;
-            for (int i = iStartIndex; i < stock.dataList_.Count; ++i)
+            for (int i = iStartIndex; i < dataList.Count; ++i)
             {
-                if (stock.dataList_[i].date_ == date)
+                if (dataList[i].date_ == date)
                 {
                     return i;
                 }
-                if (stock.dataList_[i].date_ < date)
+                if (dataList[i].date_ < date)
                 {
                     return -1;
                 }
             }
             return -1;
+        }
+        public int index(Stock stock, int date, int iDateIndexHint = -1)
+        {
+            return index(stock.dataList_, date, iDateIndexHint);
         }
         public float realVal(Info info, String code, int date)
         {

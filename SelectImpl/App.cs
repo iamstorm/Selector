@@ -23,11 +23,6 @@ namespace SelectImpl
 
         public static void RemoveRegress(RegressResult re)
         {
-            if (File.Exists(re.DBFilePath))
-            {
-                DB.UnRegConn(re.ConnKey);
-                File.Delete(re.DBFilePath);
-            }
             App.regressList_.Remove(re);
         }
 
