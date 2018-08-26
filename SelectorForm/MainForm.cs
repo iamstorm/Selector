@@ -11,11 +11,13 @@ using System.IO;
 using System.Text.RegularExpressions;
 using SelectImpl;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace SelectorForm
 {
     public partial class MainForm : Form, IHost
     {
+        public Sunisoft.IrisSkin.SkinEngine skinEngine_;
         public static MainForm Me;
         public SelectResult reSelect_;
         public SelectItem buyItem_;
@@ -30,14 +32,20 @@ namespace SelectorForm
             Me = this;
             InitializeComponent();
 
+            var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
+            if (skinName != "")
+            {
+                skinEngine_ = new Sunisoft.IrisSkin.SkinEngine();
+                MainForm.Me.skinEngine_.SkinFile = Path.Combine(Dist.binPath_, "Skins", skinName);
+            }
+
             msgText.Text = "";
             toolStripStatusLabel1_.Text = Setting.DebugMode ? "Debug" : "Release";
             toolStripStatusLabel2_.Text = "";
 
             App.host_ = this;
-            LUtils.InitListView(selectListView_);
+            LUtils.InitItemListView(selectListView_);
 
-            Dist.Setup();
         }
         void IHost.uiStartProcessBar()
         {
@@ -117,6 +125,8 @@ namespace SelectorForm
             TabPage page = new TabPage(name);
             page.Name = name;
             form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Size = mainTab.ClientSize;
             page.Controls.Add(form);
             mainTab.TabPages.Add((page));
             mainTab.SelectedTab = page;
@@ -236,7 +246,7 @@ namespace SelectorForm
         {
             if (isBusy_)
             {
-                MessageBox.Show("正忙，请稍微。");
+                MessageBox.Show("正忙，请稍微。", "Selector");
                 return;
             }
             LUtils.RemoveAllListRow(selectListView_);
@@ -257,7 +267,7 @@ namespace SelectorForm
                 }
                 SelectManager manager = new SelectManager();
                 reSelect_ = manager.selectNow();
-                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_, Utils.NowDate());
+                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
             }
             catch (Exception ex)
             {
@@ -292,12 +302,12 @@ namespace SelectorForm
                 String envBonus = App.ds_.envBonus(Utils.NowDate());
                 if (Setting.DebugMode)
                 {
-                    toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks, {1}%, {2} Up, {3} Down, {4} Zero {5} ",
+                    toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks, {1}, {2} Up, {3} Down, {4} Zero {5} ",
                         App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
                 else
                 {
-                    toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks, {1}%, ,{2} Up, {3} Down, {4} Zero {5} ",
+                    toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks, {1}, ,{2} Up, {3} Down, {4} Zero {5} ",
                         App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
                 if (Utils.GetBonusValue(envBonus) > 0)
@@ -333,7 +343,7 @@ namespace SelectorForm
         {
             if (isBusy_)
             {
-                MessageBox.Show("正忙，请稍微。");
+                MessageBox.Show("正忙，请稍微。", "Selector");
                 return;
             }
             NewRegressForm form = new NewRegressForm();
@@ -341,10 +351,7 @@ namespace SelectorForm
             {
                 return;
             }
-            regressingRe_ = new RegressResult();
-            regressingRe_.name_ = form.name.Text;
-            regressingRe_.startDate_ = Utils.Date(form.startDate.Value);
-            regressingRe_.endDate_ = Utils.Date(form.endDate.Value);
+            regressingRe_ = form.re_;
 
             regressWorker.RunWorkerAsync();
         }
@@ -354,7 +361,7 @@ namespace SelectorForm
             isBusy_ = true;
             try
             {
-                if (regressingRe_.endDate_ == Utils.NowDate())
+                if (regressingRe_.EndDate == Utils.NowDate())
                 {
                     if (!App.ds_.prepareForSelect())
                     {
@@ -364,9 +371,8 @@ namespace SelectorForm
                     }
                 }
                 RegressManager regressManager = new RegressManager();
-                RegressResult re = regressManager.regress(regressingRe_.name_,
-                    regressingRe_.startDate_, regressingRe_.endDate_);
-                e.Result = re;
+                regressManager.regress(regressingRe_);
+                e.Result = true;
             }
             catch (Exception ex)
             {
@@ -386,15 +392,24 @@ namespace SelectorForm
                 return;
             } else
             {
-                RegressResult re = (RegressResult)e.Result;
-                re.name_ = regressingRe_.name_;
-                RegressSelectForm selectform = (RegressSelectForm)createTabPage(re.name_+"_Select", new RegressSelectForm());
-                RegressBuyForm buyform = (RegressBuyForm)createTabPage(re.name_ + "_Buy", new RegressBuyForm());
-                selectform.re_ = buyform.re_ = re;
-                LUtils.FillListViewData(selectform.selectItemListView(), re.selItems_);
-                LUtils.FillListViewData(buyform.buyItemListView(), re.buyItems_);
+                App.regressList_.Add(regressingRe_);
+                RegressSelectForm selectform = (RegressSelectForm)createTabPage(regressingRe_.SelectFormName, new RegressSelectForm());
+                RegressBuyForm buyform = (RegressBuyForm)createTabPage(regressingRe_.BuyFormName, new RegressBuyForm());
+                if (regressingRe_.runMode_ == RunMode.RM_Asset)
+                {
+                    createTabPage(regressingRe_.StatisRawHistoryFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_RawHistory));
+                    createTabPage(regressingRe_.StatisBonusFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_BonusData));
+                }
+                else
+                {
+                    createTabPage(regressingRe_.StatisBonusFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_BonusData));
+                    createTabPage(regressingRe_.StatisRateItemFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_RateItemData));
+                }
+                createTabPage(regressingRe_.StatisHistoryFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_HistoryData));
+                selectform.re_ = buyform.re_ = regressingRe_;
+                LUtils.FillListViewData(selectform.selectItemListView(), regressingRe_.selItems_);
+                LUtils.FillListViewData(buyform.buyItemListView(), regressingRe_.buyItems_);
                 regressingRe_ = null;
-                App.regressList_.Add(re);
             }
 
         }
@@ -415,11 +430,6 @@ namespace SelectorForm
             LUtils.OnColumnClick(selectListView_, e.Column, ref sortColumn_);
         }
 
-        private void MainForm_Resize(object sender, EventArgs e)
-        {
-        
-        }
-
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             for (int i = 0; i < mainTab.TabPages.Count; i++)
@@ -432,6 +442,38 @@ namespace SelectorForm
                 form.Size = mainTab.ClientSize;
 
             }
+        }
+
+        private void swichmodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Setting.DebugMode)
+            {
+                Utils.SetSysInfo(DB.Global(), "DebugMode", "0");
+            }
+            else
+            {
+                Utils.SetSysInfo(DB.Global(), "DebugMode", "1");
+            }
+            Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
+            Close();
+        }
+
+        private void skinToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SkinForm form = new SkinForm();
+            form.ShowDialog();
+        }
+
+        private void solutionSettingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SolutionSettingForm form = new SolutionSettingForm();
+            form.ShowDialog();
+        }
+
+        private void dateRangeSettingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DateRangeSettingForm form = new DateRangeSettingForm();
+            form.ShowDialog();
         }
 
     }

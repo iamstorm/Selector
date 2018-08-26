@@ -20,8 +20,8 @@ namespace SelectorForm
         {
             InitializeComponent();
 
-            LUtils.InitListView(mainListView_);
-            LUtils.InitListView(subListView_);
+            LUtils.InitItemListView(mainListView_);
+            LUtils.InitItemListView(subListView_);
         }
         public ListView selectItemListView()
         {

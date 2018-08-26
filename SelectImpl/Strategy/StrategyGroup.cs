@@ -11,49 +11,41 @@ namespace SelectImpl
         public StrategyGroup()
         {
             strategyList_.Add(new LStopUpStrategy());
+            strategyList_.Add(new UStopDownStrategy());
 
-            foreach (IStrategy stra in strategyList_)
-            {
-                string name = stra.name();
-            }
         }
-        public SelectItem makeDeside(List<SelectItem> selectItems, int date)
+        public IStrategy strategy(String straName)
         {
-            SelectItem buyItem = null;
+            foreach (var stra in strategyList_)
+            {
+                if (stra.name() == straName)
+                {
+                    return stra;
+                }
+            }
+            return null;
+        }
+        public SelectItem makeDeside(List<SelectItem> selectItems, int date, IBuyDesider desider)
+        {
             if (selectItems.Count == 0)
             {
                 return SelectItem.MissBuy(date);
             }
-            if (selectItems.Count == 1)
-            {
-                buyItem = selectItems[0];
-            }
-            else
-            {
-                int maxRate = 0;
-                SelectItem maxRateItem = null;
-                foreach (var item in selectItems)
-                {
-                    int rate = Utils.ToType<int>(item.getColumnVal("rate"));
-                    if (rate < 0)
-                    {
-                        continue;
-                    }
-                    if (rate > maxRate)
-                    {
-                        maxRateItem = item;
-                        maxRate = rate;
-                    }
-                }
-                buyItem = maxRateItem;
-            }
+            SelectItem buyItem = desider.makeDeside(selectItems);
+            
             return buyItem == null ? SelectItem.DontBuy(selectItems[0].date_) : buyItem;
         }
         public List<SelectItem> desideToBuy(RegressResult re)
         {
+            App.host_.uiStartProcessBar();
             List<SelectItem> buyitems = new List<SelectItem>();
-            List<int> dateList = Utils.TraverTimeDay(re.startDate_, re.endDate_);
+            List<int> dateList = Utils.TraverTimeDay(re.dateRangeList_);
             dateList.Reverse();
+            int nFinishCount = 0;
+            int nTotalCount = dateList.Count;
+            int nMissCount = 0;
+            int nDontCount = 0;
+            int nTradeCount = 0;
             foreach (int date in dateList)
             {
                 List<SelectItem> items = SelectResult.OfDate(date, re.selItems_);
@@ -61,71 +53,81 @@ namespace SelectImpl
                 {
                     if (Utils.IsTradeDay(date))
                     {
-                        buyitems.Add(makeDeside(items, date));
+                        buyitems.Add(makeDeside(items, date, RankBuyDesider.buyer_));
+                        ++nMissCount;
                     }
                     continue;
-                }
-                buyitems.Add(makeDeside(items, date));
-            }
-            return re.buyItems_ = buyitems;
-        }
-        public String computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit,out int sellDate)
-        {
-            sellDate = stock.nextTradeDate(buyDate);
-            float onemoney = 1.0f;
-            bSellWhenMeetMyBounusLimit = true;
-            if (sellDate == -1)
-	        {
-		        return "";// 还未遇到交易日，不知道盈亏
-	        }
-            do
-            {
-                float of = stock.of(sellDate);
-                float hf = stock.hf(sellDate);
-                float zf = stock.zf(sellDate);
-                if (Utils.IsDownStop(hf))//一直跌停
-                {
-                    sellDate = stock.nextTradeDate(sellDate);
-                    onemoney *= 1+hf;
-                    bSellWhenMeetMyBounusLimit = false;
-                    continue;
-                }
-                //今天没一直跌停，大概率能卖出
-                if (bSellWhenMeetMyBounusLimit)
-                {
-                    if (of > Setting.MyBounusLimit)//开盘超出盈利顶额
-                    {
-                        onemoney *= 1+of;
-                        break;
-                    }
-                    if (hf > Setting.MyBounusLimit)//达到盈利顶额
-                    {
-                        onemoney *= 1 + Setting.MyBounusLimit;
-                        break;
-                    }
-                    if (Utils.IsDownStop(zf))//尾盘跌停，卖不了
-                    {
-                        sellDate = stock.nextTradeDate(sellDate);
-                        onemoney *= 1+zf;
-                        bSellWhenMeetMyBounusLimit = false;
-                        continue;
-                    }
-                    onemoney *= 1+zf;//尾盘卖了
-                    break;
                 }
                 else
-                {//逃命模式
-                    if (!Utils.IsDownStop(of))//开盘没跌停
-                    {//跑了
-                        onemoney *= 1+of;
-                        break;
+                {
+                    var buyItem = makeDeside(items, date, RankBuyDesider.buyer_);
+                    if (buyItem.isRealSelectItem)
+                    {
+                        ++nTradeCount;
                     }
-                    //开盘跌停但因为没一直跌停，所以肯定可以以跌停价卖出
-                    onemoney *= 1-0.095f;
-                    break;
+                    else
+                    {
+                        ++nDontCount;
+                    }
+                    buyitems.Add(buyItem);
                 }
-            } while (sellDate != -1);
-            return Utils.ToBonus(onemoney - 1);
+                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，DontBuy：{5}，Buy：{6}",
+                    dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nDontCount, nTradeCount),
+                    nFinishCount * 100 / nTotalCount);
+            }
+            App.host_.uiFinishProcessBar();
+            return re.buyItems_ = buyitems;
         }
+        public List<SelectItem> buyMostBonusPerDay(RegressResult re)
+        {
+            App.host_.uiStartProcessBar();
+            List<SelectItem> buyitems = new List<SelectItem>();
+            List<int> dateList = Utils.TraverTimeDay(re.dateRangeList_);
+            dateList.Reverse();
+            int nFinishCount = 0;
+            int nTotalCount = dateList.Count;
+            int nMissCount = 0;
+            int nTradeCount = 0;
+            foreach (int date in dateList)
+            {
+                List<SelectItem> items = SelectResult.OfDate(date, re.selItems_);
+                if (items.Count == 0)
+                {
+                    ++nMissCount;
+                    continue;
+                }
+                float maxBonusValue = -11;
+                SelectItem maxBonusItem = null;
+                foreach (var item in items)
+                {
+                    var bonus = item.getColumnVal("bonus");
+                    if (bonus == "")
+                    {
+                        continue;
+                    }
+                    var bonusValue = Utils.GetBonusValue(bonus);
+                    if (bonusValue > maxBonusValue)
+                    {
+                        maxBonusValue = bonusValue;
+                        maxBonusItem = item;
+                    }
+                }
+                if (maxBonusItem == null)
+                {
+                    buyitems.Add(items[0]);
+                }
+                else
+                {
+                    buyitems.Add(maxBonusItem);
+                }
+                ++nTradeCount;
+                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，可能最佳购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，Buy：{5}",
+                dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nTradeCount),
+                nFinishCount * 100 / nTotalCount);
+            }
+            App.host_.uiFinishProcessBar();
+            return buyitems;
+        }
+
     }
 }

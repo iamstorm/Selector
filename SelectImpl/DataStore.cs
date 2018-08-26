@@ -49,6 +49,7 @@ namespace SelectImpl
         public bool zz500_;//中证500
         public List<Data> dataList_ = new List<Data>();
 
+
         public String zfSee(int date)
         {
             return Utils.ToBonus(App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date)));
@@ -166,7 +167,15 @@ namespace SelectImpl
         }
         void readSZZSData()
         {
-            DataTable datas = DB.Global().Select("Select * From [000001] Order by trade_date desc");
+            DataTable datas;
+            if (Utils.NowIsTradeDay())
+            {
+                datas = DB.Global().Select(String.Format("Select * From [000001] Where trade_date < {0} Order by trade_date desc", Utils.NowDate()));
+            }
+            else
+            {
+                datas = DB.Global().Select(String.Format("Select * From [000001] Order by trade_date desc"));
+            }
             if (Utils.NowIsTradeDay())
             {
                 szListData_.Add(Data.NowInvalidData);//代表今日
@@ -232,6 +241,13 @@ namespace SelectImpl
             if (bSZZSHasFullHistory && bStockHasFullHistory)
             {
                 Utils.SetSysInfo(DB.Global(), "SucRunStartScriptDate", Utils.NowDate().ToString());
+            }
+            else
+            {
+                if (Utils.NowIsTradeDay())
+                {
+                    MessageBox.Show("The history is not full!", "Selector");
+                }
             }
 
             App.host_.uiFinishProcessBar();
@@ -346,6 +362,10 @@ namespace SelectImpl
         public String envBonus(int date, int dayCount = 0)
         {
             int iIndex = index(szListData_, date + dayCount);
+            if (iIndex == -1)
+            {
+                return "";
+            }
             float envZf = App.ds_.F(
                 szListData_[iIndex].close_, 
                 szListData_,
@@ -423,6 +443,15 @@ namespace SelectImpl
                     throw new ArgumentException(string.Format("invalid info {0}", info));
             }
         }
+        public int Date(List<Data> dataList, int iIndex, int dayCount = 0)
+        {
+            int wantedIndex = iIndex + dayCount;
+            if (wantedIndex >= dataList.Count)
+            {
+                throw new DataException();
+            }
+            return dataList[wantedIndex].date_;
+        }
         public float MA(Info info, int count, List<Data> dataList, int iIndex, int dayCount = 0)
         {
             int wantedIndex = iIndex + dayCount;
@@ -466,6 +495,20 @@ namespace SelectImpl
         public float SZMA(Info info, int count, int dayCount = 0)
         {
             return ds_.MA(info, count, szListData_, iIndex_, dayCount);
+        }
+        public int Date(int dayCount = 0)
+        {
+            return ds_.Date(szListData_, iIndex_, dayCount);
+        }
+        public float UpShadow(int dayCount = 0)
+        {
+            float maxCO = Math.Max(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
+            return (Ref(Info.H, dayCount) - maxCO) / Ref(Info.C, dayCount + 1);
+        }
+        public float DownShadow(int dayCount = 0)
+        {
+            float minCO = Math.Min(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
+            return (Ref(Info.L, dayCount) - minCO) / Ref(Info.C, dayCount + 1);
         }
     }
 }

@@ -80,6 +80,24 @@ namespace SelectImpl
         {
             return date - Year(date) * 10000 - Month(date) * 100;
         }
+        public static DateTime ToDateTime(int date)
+        {
+            return new DateTime(Year(date), Month(date), Day(date));
+        }
+        public static bool IsOverlap(DateTime start0, DateTime end0, DateTime start1, DateTime end1)
+        {
+            int latest_start = Math.Max(Date(start0), Date(start1));
+            int earliest_end = Math.Min(Date(end0), Date(end1));
+            int overlap = earliest_end - latest_start;
+            if (overlap < 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public static List<int> TraverTimeDay(int startDate, int endDate)
         {
             List<int> list = new List<int>();
@@ -88,6 +106,15 @@ namespace SelectImpl
             for (DateTime date = start; date <= end; date = date.AddDays(1))
             {
                 list.Add(Date(date));
+            }
+            return list;
+        }
+        public static List<int> TraverTimeDay(List<DateRange> dateRangeList)
+        {
+            List<int> list = new List<int>();
+            foreach (var range in dateRangeList)
+            {
+                list.AddRange(TraverTimeDay(range.startDate_, range.endDate_));
             }
             return list;
         }
@@ -136,6 +163,10 @@ namespace SelectImpl
         public static bool IsDownStop(float zf)
         {
             return zf < -0.095;
+        }
+        public static String StrategyName(String sRateItemKey)
+        {
+            return sRateItemKey.Split('/')[0];
         }
     }
 }

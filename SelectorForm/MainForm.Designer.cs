@@ -48,6 +48,11 @@
             this.toolStripStatusLabel1_ = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2_ = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -70,6 +75,9 @@
             // 
             // basicToolStripMenuItem
             // 
+            this.basicToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.solutionSettingToolStripMenuItem,
+            this.dateRangeSettingToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -180,7 +188,8 @@
             this.toolStripProgressBar_,
             this.toolStripStatusLabel1_,
             this.toolStripStatusLabel1,
-            this.toolStripStatusLabel2_});
+            this.toolStripStatusLabel2_,
+            this.toolStripDropDownButton1});
             this.statusStrip_.Location = new System.Drawing.Point(0, 641);
             this.statusStrip_.Name = "statusStrip_";
             this.statusStrip_.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -203,7 +212,7 @@
             // 
             this.toolStripStatusLabel1.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(649, 15);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(620, 15);
             this.toolStripStatusLabel1.Spring = true;
             // 
             // toolStripStatusLabel2_
@@ -211,6 +220,46 @@
             this.toolStripStatusLabel2_.Name = "toolStripStatusLabel2_";
             this.toolStripStatusLabel2_.Size = new System.Drawing.Size(131, 15);
             this.toolStripStatusLabel2_.Text = "toolStripStatusLabel2";
+            // 
+            // toolStripDropDownButton1
+            // 
+            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.skinToolStripMenuItem,
+            this.swichmodeToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 18);
+            this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
+            // 
+            // skinToolStripMenuItem
+            // 
+            this.skinToolStripMenuItem.Name = "skinToolStripMenuItem";
+            this.skinToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.skinToolStripMenuItem.Text = "skin";
+            this.skinToolStripMenuItem.Click += new System.EventHandler(this.skinToolStripMenuItem_Click);
+            // 
+            // swichmodeToolStripMenuItem
+            // 
+            this.swichmodeToolStripMenuItem.Name = "swichmodeToolStripMenuItem";
+            this.swichmodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.swichmodeToolStripMenuItem.Text = "swichmode";
+            this.swichmodeToolStripMenuItem.Click += new System.EventHandler(this.swichmodeToolStripMenuItem_Click);
+            // 
+            // solutionSettingToolStripMenuItem
+            // 
+            this.solutionSettingToolStripMenuItem.Name = "solutionSettingToolStripMenuItem";
+            this.solutionSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.solutionSettingToolStripMenuItem.Text = "SolutionSetting";
+            this.solutionSettingToolStripMenuItem.Click += new System.EventHandler(this.solutionSettingToolStripMenuItem_Click);
+            // 
+            // dateRangeSettingToolStripMenuItem
+            // 
+            this.dateRangeSettingToolStripMenuItem.Name = "dateRangeSettingToolStripMenuItem";
+            this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
+            this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -227,7 +276,6 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
-            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.menu.ResumeLayout(false);
             this.menu.PerformLayout();
             this.mainLayout.ResumeLayout(false);
@@ -262,6 +310,11 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1_;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2_;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem swichmodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem skinToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem solutionSettingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dateRangeSettingToolStripMenuItem;
     }
 }
 

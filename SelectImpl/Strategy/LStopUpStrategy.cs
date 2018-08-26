@@ -5,12 +5,12 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class LStopUpStrategy : BaseStrategyImpl, IStrategy
+    public class LStopUpStrategy : TodayBuyTomorowSellStrategy, IStrategy
     {
         #region meta data
-        int IStrategy.version()
+        String IStrategy.verTag()
         {
-            return 1;
+            return "1.0";
         }
         String IStrategy.name()
         {
@@ -20,25 +20,18 @@ namespace SelectImpl
         {
             return null;
         }
-        String[] IStrategy.rateItemNames()
-        {
-            return new String[] {  };
-        }
-        bool IStrategy.focusOnNew()
-        {
-            return false;
-        }
         #endregion
         Dictionary<String, String> IStrategy.setup()
         {
             return null;
         }
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
         {
-            if (dsh.Ref(Info.ZF) < -0.095)
+            var zf = dsh.Ref(Info.ZF);
+            if (zf > -0.095 && zf < -0.05)
             {
-                return new Dictionary<String, String>();
+                return EmptyRateItemButSel;
             }
             return null;
         }

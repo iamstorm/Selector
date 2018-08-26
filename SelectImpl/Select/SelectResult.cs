@@ -10,10 +10,20 @@ namespace SelectImpl
     public class SelectItem
     {
         public int date_;
+        public String sigDate_;
         public String code_;
         public String strategyName_;
         public Dictionary<String, String> rateItemDict_;
         public List<SelectItem> allSelectItems_;
+        public bool iamBuyItem_;
+        public bool isRealSelectItem
+        {
+            get
+            {
+                return strategyName_ != StrategySetting.DontbuyStrategyName &&
+                           strategyName_ != StrategySetting.MissStrategyName;
+            }
+        }
 
         public SelectItem()
         {
@@ -30,14 +40,14 @@ namespace SelectImpl
         {
             SelectItem dontBuy = new SelectItem();
             dontBuy.date_ = date;
-            dontBuy.strategyName_ = "dontBuy";
+            dontBuy.strategyName_ = StrategySetting.DontbuyStrategyName;
             return dontBuy;
         }
         public static SelectItem MissBuy(int date)
         {
             SelectItem missBuy = new SelectItem();
             missBuy.date_ = date;
-            missBuy.strategyName_ = "miss";
+            missBuy.strategyName_ = StrategySetting.MissStrategyName;
             return missBuy;
         }
         public static ColumnInfo[] ShowColumnInfos
@@ -46,6 +56,7 @@ namespace SelectImpl
                 return new ColumnInfo[]
                 {
                     new ColumnInfo() { name_ = "date", width_ = 60 },
+                    new ColumnInfo() { name_ = "sigdate", width_ = 60 },
                     new ColumnInfo() { name_ = "code", width_ = 50 },
                     new ColumnInfo() { name_ = "name", width_ = 60 },
                     new ColumnInfo() { name_ = "zf", width_ = 60 },
@@ -54,14 +65,14 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
                     new ColumnInfo() { name_ = "dbuysuc", width_ = 60 },
-                    new ColumnInfo() { name_ = "szzs", width_ = 60 },
+                    new ColumnInfo() { name_ = "envbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "sellspan", width_ = 60 },
                     new ColumnInfo() { name_ = "close", width_ = 60 },
                     new ColumnInfo() { name_ = "strategy", width_ = 200 },
-                    new ColumnInfo() { name_ = "rate", width_ = 60 },
-                    new ColumnInfo() { name_ = "hscount", width_ = 60 },
-                    new ColumnInfo() { name_ = "strarate", width_ = 60 },
-                    new ColumnInfo() { name_ = "itemrate", width_ = 60 },
+                    new ColumnInfo() { name_ = "pubrank", width_ = 60 },
+                    new ColumnInfo() { name_ = "prirank", width_ = 60 },
+                    new ColumnInfo() { name_ = "trcount", width_ = 60 },
+                    new ColumnInfo() { name_ = "selcount", width_ = 60 },
                 };
             }
         }
@@ -74,8 +85,15 @@ namespace SelectImpl
                  select info.name_).ToArray<String>();
             }
         }
+        Dictionary<String, String> colValCacheDict_ = new Dictionary<string, string>();
         public String getColumnVal(String colName, Stock stock, HistoryData straData)
         {
+            String cacheVal;
+            if (colValCacheDict_.TryGetValue(colName, out cacheVal))
+            {
+                return cacheVal;
+            }
+            IStrategy stra = App.grp_.strategy(strategyName_);
             if (colName == "date")
             {
                 return date_.ToString();
@@ -98,35 +116,45 @@ namespace SelectImpl
             }
             else if (colName == "zf")
             {
-                return stock.zfSee(date_);
+                String zf = stock.zfSee(date_);
+                colValCacheDict_[colName] = zf;
+                return zf;
             }
             else if (colName == "bonus")
             {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
-                return App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                String bonus = stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                colValCacheDict_[colName] = bonus;
+                return bonus;
             }
             else if (colName == "nsh")
             {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
-                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
                 if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
                 {
+                    colValCacheDict_[colName] = "";
                     return "";
                 }
-                return Utils.ToBonus(stock.hf(sellDate));
+                String bonus = Utils.ToBonus(stock.hf(sellDate));
+                colValCacheDict_[colName] = bonus;
+                return bonus;
             }
             else if (colName == "nsc")
             {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
-                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
                 if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
                 {
+                    colValCacheDict_[colName] = "";
                     return "";
                 }
-                return Utils.ToBonus(stock.zf(sellDate));
+                String bonus = Utils.ToBonus(stock.zf(sellDate));
+                colValCacheDict_[colName] = bonus;
+                return bonus;
             }
             else if (colName == "hrate")
             {
@@ -146,19 +174,23 @@ namespace SelectImpl
                     }
                     ++nAllCount;
                 }
+                String ret;
                 if (nAllCount == 0)
                 {
-                    return "";
+                    ret = "";
                 }
                 else
                 {
-                    return (nPlusCount * 1.0f / nAllCount).ToString("F2");
+                    ret = (nPlusCount * 1.0f / nAllCount).ToString("F2");
                 }
+                colValCacheDict_[colName] = ret;
+                return ret;
             }
             else if (colName == "dbuysuc")
             {
-                if (strategyName_ != "dontBuy")
+                if (strategyName_ != StrategySetting.DontbuyStrategyName)
                 {
+                    colValCacheDict_[colName] = "";
                     return "";
                 }
                 List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
@@ -171,48 +203,71 @@ namespace SelectImpl
                         nNobuySucCount++;
                     }
                 }
-                return (nNobuySucCount * 1.0f/ daySelectItems.Count).ToString("F02");
+                String ret = (nNobuySucCount * 1.0f/ daySelectItems.Count).ToString("F02");
+                colValCacheDict_[colName] = ret;
+                return ret;
             }
-            else if (colName == "szzs")
+            else if (colName == "envbonus")
 	        {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
-                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
-                return sellDate == -1 ? "" : App.ds_.envBonus(sellDate);
+                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                String ret = sellDate == -1 ? "" : App.ds_.envBonus(sellDate);
+                colValCacheDict_[colName] = ret;
+                return ret;
 	        }
             else if (colName == "sellspan")
             {
                 bool bSellWhenMeetMyBounusLimit;
                 int sellDate;
-                App.grp_.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                String ret;
                 if (sellDate == -1)
                 {
-                    return "not yet";
+                    ret = "not yet";
                 }
                 else
                 {
-                    return Utils.DateSpan(date_, sellDate);
+                    ret = Utils.DateSpan(date_, sellDate);
                 }
+                colValCacheDict_[colName] = ret;
+                return ret;
             }
             else if (colName == "close")
             {
-                return App.ds_.realVal(Info.C, code_, date_).ToString("F3");
+                String ret = App.ds_.realVal(Info.C, code_, date_).ToString("F3");
+                colValCacheDict_[colName] = ret;
+                return ret;
             }
-            else if (colName == "rate")
+            else if (colName == "pubrank")
             {
-                return RateComputer.TotalRate(RateComputer.HistoryRate(straData), RateComputer.ComputerRate(strategyName_, rateItemDict_)).ToString();
+                return straData == null ? "" : straData.rank_.ToString();
             }
-            else if (colName == "hscount")
+            else if (colName == "prirank")
             {
-                return straData == null ? "0" : straData.selectCount_.ToString();
+                String ret;
+                if (straData == null)
+                {
+                    ret = "";
+                }
+                else
+                {
+                    ret = RateComputer.ComputerRank(strategyName_, rateItemDict_).ToString();
+                }
+                colValCacheDict_[colName] = ret;
+                return ret;
             }
-            else if (colName == "strarate")
+            else if (colName == "trcount")
             {
-                return RateComputer.HistoryRate(straData).ToString();
+                return straData == null ? "0" : straData.nTradeCount_.ToString();
             }
-            else if (colName == "itemrate")
+            else if (colName == "selcount")
             {
-                return RateComputer.ComputerRate(strategyName_, rateItemDict_).ToString();
+                return straData == null ? "0" : straData.nGoodSampleSelectCount_.ToString();
+            }
+            else if (colName == "sigdate")
+            {
+                return sigDate_;
             }
             else
             {
@@ -249,7 +304,7 @@ namespace SelectImpl
                 ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
                 lvsi.Text = getColumnVal(colName, stock, straData);
                 lvsi.ForeColor = rowColor;
-                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc" || colName == "szzs"))
+                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc" || colName == "envbonus"))
                 {
                     if (Utils.GetBonusValue(lvsi.Text) > 0)
                     {

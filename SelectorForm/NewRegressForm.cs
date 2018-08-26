@@ -12,47 +12,119 @@ namespace SelectorForm
 {
     public partial class NewRegressForm : Form
     {
+        public RegressResult re_;
         public NewRegressForm()
         {
             InitializeComponent();
 
+
             AcceptButton = btnOk;
 
-            string sDate = Utils.GetSysInfo(DB.Global(), "NewRegressForm.startDate");
-            if (sDate != "")
+            List<SolutionSetting> allSolutionSetting = new List<SolutionSetting>();
+            allSolutionSetting.AddRange(App.customSolutionSettingList_);
+            allSolutionSetting.AddRange(App.autoSolutionSettingList_);
+
+            slnComboBox_.DataSource = allSolutionSetting;
+            slnComboBox_.DisplayMember = "name_";
+
+            dateRangeComboBox_.DataSource = App.dateRangeSettingList_;
+            dateRangeComboBox_.DisplayMember = "name_";
+
+            string sSolution = Utils.GetSysInfo(DB.Global(), "NewRegressForm.solution");
+            if (sSolution != "")
             {
-                startDate.Value = DateTime.Parse(sDate);
+                slnComboBox_.SelectedItem = App.Solution(sSolution);
             }
-            sDate = Utils.GetSysInfo(DB.Global(), "NewRegressForm.endDate");
-            if (sDate != "")
+            string sDateRange = Utils.GetSysInfo(DB.Global(), "NewRegressForm.daterange");
+            if (sDateRange != "")
             {
-                endDate.Value = DateTime.Parse(sDate);
+                dateRangeComboBox_.SelectedItem = App.DateRange(sDateRange);
+            }
+            string sMode = Utils.GetSysInfo(DB.Global(), "NewRegressForm.Mode");
+            if (sMode == "Asset")
+            {
+                radioAsset.Checked = true;
+            }
+            else
+            {
+                radioRaw.Checked = true;
             }
         }
-
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if (startDate.Value > endDate.Value)
+            if (slnComboBox_.SelectedIndex == -1)
             {
-                MessageBox.Show("StartDate must before or equal endDate!");
+                MessageBox.Show("Must select Solution!", "Selector");
+                this.DialogResult = DialogResult.None;
                 return;
             }
-            name.Text = name.Text.Trim();
-            if (String.IsNullOrEmpty(name.Text))
+            if (dateRangeComboBox_.SelectedIndex == -1)
+            {
+                MessageBox.Show("Must select DateRange!", "Selector");
+                this.DialogResult = DialogResult.None;
+                return;
+            }
+            name_.Text = name_.Text.Trim();
+            if (String.IsNullOrEmpty(name_.Text))
             {
                 MessageBox.Show("name must be provided!");
+                this.DialogResult = DialogResult.None;
                 return;
             }
             foreach (var re in App.regressList_)
             {
-                if (String.Equals(re.name_,name.Text ,StringComparison.CurrentCultureIgnoreCase))
+                if (String.Equals(re.name_,name_.Text ,StringComparison.CurrentCultureIgnoreCase))
                 {
-                    MessageBox.Show("name already exists!");
-                    return;   
+                    if (DialogResult.Yes == MessageBox.Show("Same name regress already exists, remove it and regress?", "Selector", MessageBoxButtons.YesNo))
+                    {
+                        foreach (var formName in re.AllFormNames)
+                        {
+                            MainForm.Me.removeForm(formName);
+                        }
+                        App.RemoveRegress(re);
+                        break;
+                    }
+                    else
+                    {
+                        this.DialogResult = DialogResult.None;
+                        return;   
+                    }
                 }
             }
-            Utils.SetSysInfo(DB.Global(), "NewRegressForm.startDate", startDate.Value.ToShortDateString());
-            Utils.SetSysInfo(DB.Global(), "NewRegressForm.endDate", endDate.Value.ToShortDateString());
+            List<IStrategy> strategyList = App.Solution(slnComboBox_.SelectedItem.ToString()).straList_;
+            String sMode = radioAsset.Checked ? "Asset" : "Raw";
+            if (sMode == "Asset")
+            {
+                foreach (var stra in strategyList)
+                {
+                    if (App.asset_.straData(stra.name()) == null)
+                    {
+                        MessageBox.Show(String.Format("Strategy: {0} has no asset, can't run in asset mode!", stra.name()), "Selector");
+                        this.DialogResult = DialogResult.None;
+                        return;         
+                    }
+                }
+            }
+            else
+            {
+                if (strategyList.Count != 1)
+                {
+                    MessageBox.Show("Raw mode only support single strategy solution!", "Selector");
+                    this.DialogResult = DialogResult.None;
+                    return;
+                }
+            }
+
+            re_ = new RegressResult();
+            re_.runMode_ = sMode == "Asset" ? RunMode.RM_Asset : RunMode.RM_Raw;
+            re_.name_ = name_.Text;
+            re_.solutionName_ = slnComboBox_.SelectedItem.ToString();
+            re_.dateRangeName_ = dateRangeComboBox_.SelectedItem.ToString();
+            re_.dateRangeList_ = App.DateRange(re_.dateRangeName_).rangeList_;
+            re_.strategyList_ = App.Solution(re_.solutionName_).straList_;
+            Utils.SetSysInfo(DB.Global(), "NewRegressForm.solution", slnComboBox_.SelectedItem.ToString());
+            Utils.SetSysInfo(DB.Global(), "NewRegressForm.daterange", dateRangeComboBox_.SelectedItem.ToString());
+            Utils.SetSysInfo(DB.Global(), "NewRegressForm.Mode", sMode);
             this.DialogResult = DialogResult.OK;
             Close();
         }
@@ -65,17 +137,37 @@ namespace SelectorForm
 
         void autoSetName()
         {
-            name.Text = String.Join("-", Utils.Date(startDate.Value), Utils.Date(endDate.Value));
+            if (slnComboBox_.SelectedItem == null ||
+                dateRangeComboBox_.SelectedItem == null)
+            {
+                return;
+            }
+            SolutionSetting slnSetting = (SolutionSetting)slnComboBox_.SelectedItem;
+            DateRangeSetting dateRangeSetting = (DateRangeSetting)dateRangeComboBox_.SelectedItem;
+            name_.Text = String.Join("-",  slnSetting.name_, dateRangeSetting.name_);
         }
 
-        private void startDate_ValueChanged(object sender, EventArgs e)
+        private void NewRegressForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.DialogResult == DialogResult.None)
+                e.Cancel = true;
+            base.OnClosing(e);
+        }
+
+        private void slnComboBox__SelectedIndexChanged(object sender, EventArgs e)
         {
             autoSetName();
         }
 
-        private void endDate_ValueChanged(object sender, EventArgs e)
+        private void dateRangeComboBox__SelectedIndexChanged(object sender, EventArgs e)
         {
             autoSetName();
         }
+
+        private void buyerComboBox__SelectedIndexChanged(object sender, EventArgs e)
+        {
+            autoSetName();
+        }
+
     }
 }

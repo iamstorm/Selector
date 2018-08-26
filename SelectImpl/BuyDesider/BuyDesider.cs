@@ -5,8 +5,9 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public abstract class BaseStrategyImpl
+    public interface IBuyDesider
     {
- 
+        String name();
+        SelectItem makeDeside(List<SelectItem> selItems);
     }
 }

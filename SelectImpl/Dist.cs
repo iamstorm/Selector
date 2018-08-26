@@ -13,8 +13,8 @@ namespace SelectImpl
         public static String scriptPath_;
         public static String dataPath_;
         public static String dayPath_;
-        public static String regressPath_;
         public static String assetPath_;
+        public static String straPath_;
         static Dist()
         {
             string codeBase = Assembly.GetExecutingAssembly().CodeBase;
@@ -25,8 +25,8 @@ namespace SelectImpl
             scriptPath_ = binPath_ + "Script\\";
             dataPath_ = binPath_ + "data\\";
             dayPath_ = dataPath_ + "day\\";
-            regressPath_ = binPath_ + "regress\\";
             assetPath_ = binPath_ + "asset\\";
+            straPath_ = assetPath_ + "strategy\\";
         }
         public static String GlobalDBFile()
         {
@@ -38,13 +38,13 @@ namespace SelectImpl
         }
         public static void Setup()
         {
-            if (!Directory.Exists(regressPath_))
-            {
-                Directory.CreateDirectory(regressPath_);
-            }
             if (!Directory.Exists(assetPath_))
             {
                 Directory.CreateDirectory(assetPath_);
+            }
+            if (!Directory.Exists(straPath_))
+            {
+                Directory.CreateDirectory(straPath_);
             }
         }
     }

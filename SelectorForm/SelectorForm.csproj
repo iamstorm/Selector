@@ -68,6 +68,9 @@
     <ApplicationIcon>data_analytic.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IrisSkin4">
+      <HintPath>..\ThirdParty\IrisSkin4.dll</HintPath>
+    </Reference>
     <Reference Include="IronPython">
       <HintPath>..\ThirdParty\PythonDLL\IronPython.dll</HintPath>
     </Reference>
@@ -109,6 +112,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DateRangeSettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DateRangeSettingForm.Designer.cs">
+      <DependentUpon>DateRangeSettingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ForNameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ForNameForm.Designer.cs">
+      <DependentUpon>ForNameForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUtils.cs" />
     <Compile Include="LUtils.cs" />
     <Compile Include="NewRegressForm.cs">
@@ -143,6 +158,31 @@
     <Compile Include="RegressSelectForm.Designer.cs">
       <DependentUpon>RegressSelectForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="RegressStatisticsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RegressStatisticsForm.Designer.cs">
+      <DependentUpon>RegressStatisticsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SkinForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SkinForm.Designer.cs">
+      <DependentUpon>SkinForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SolutionSettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SolutionSettingForm.Designer.cs">
+      <DependentUpon>SolutionSettingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SUtils.cs" />
+    <EmbeddedResource Include="DateRangeSettingForm.resx">
+      <DependentUpon>DateRangeSettingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ForNameForm.resx">
+      <DependentUpon>ForNameForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -166,6 +206,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="RegressSelectForm.resx">
       <DependentUpon>RegressSelectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RegressStatisticsForm.resx">
+      <DependentUpon>RegressStatisticsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SkinForm.resx">
+      <DependentUpon>SkinForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SolutionSettingForm.resx">
+      <DependentUpon>SolutionSettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

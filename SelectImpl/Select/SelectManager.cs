@@ -12,7 +12,7 @@ namespace SelectImpl
     }
     public class SelectManager
     {
-        public SelectResult select(DataStoreHelper dsh, int date, SelectHint hint = null)
+        public SelectResult select(DataStoreHelper dsh, int date, List<IStrategy> strategyList, SelectHint hint = null)
         {
             SelectResult re = new SelectResult();
             List<Dictionary<String, String> > paramList;
@@ -23,13 +23,12 @@ namespace SelectImpl
             else
             {
                 paramList = new List<Dictionary<String, String>>();
-                foreach (IStrategy stra in App.grp_.strategyList_)
+                foreach (IStrategy stra in strategyList)
                 {
                     Dictionary<String, String> param = stra.setup();
                     paramList.Add(param);
                 }
             }
-            List<IStrategy> straList = App.grp_.strategyList_;
             foreach (Stock sk in App.ds_.stockList_)
             {
                 int iDateIndexHint = -1;
@@ -38,10 +37,11 @@ namespace SelectImpl
                     iDateIndexHint = hint.nextWantedIndexHintDict_[sk];
                 }
                 dsh.setStock(sk);
-                for (int i = 0; i < straList.Count; ++i)
+                for (int i = 0; i < strategyList.Count; ++i)
                 {
-                    IStrategy stra = straList[i];
+                    IStrategy stra = strategyList[i];
                     Dictionary<String, String> rateItemDict = null;
+                    String sigDate = "";
                     try
                     {
                         int iIndex = App.ds_.index(sk, date, iDateIndexHint);
@@ -58,7 +58,30 @@ namespace SelectImpl
                         if (dsh.dataList_[iIndex] == Data.NowInvalidData)
                             continue;
 
-                        rateItemDict = stra.select(dsh, paramList[i]);
+                        FocusOn fon = stra.focusOn();
+                        int beforDateCount = sk.dataList_.Count - iIndex;
+                        bool isNewStock = beforDateCount < Setting.MyNewStockLimit;
+                        switch (fon)
+                        {
+                            case FocusOn.FO_Old:
+                                if (isNewStock)
+                                {
+                                    continue;
+                                }
+                                break;
+                            case FocusOn.FO_All:
+                                break;
+                            case FocusOn.FO_New:
+                                if (!isNewStock)
+                                {
+                                    continue;
+                                }
+                                break;
+                            default:
+                                throw new ArgumentException("Unknown focusOn");
+                        }
+
+                        rateItemDict = stra.select(dsh, paramList[i], ref sigDate);
                         if (rateItemDict == null)
                         {
                             continue;
@@ -71,6 +94,7 @@ namespace SelectImpl
                     SelectItem selItem = new SelectItem();
                     selItem.code_ = sk.code_;
                     selItem.date_ = date;
+                    selItem.sigDate_ = sigDate;
                     selItem.strategyName_ = stra.name();
                     selItem.rateItemDict_ = rateItemDict;
                     re.selItems_.Add(selItem);
@@ -82,11 +106,12 @@ namespace SelectImpl
         public SelectResult selectNow()
         {
             DataStoreHelper dsh = new DataStoreHelper();
-            SelectResult re = select(dsh, Utils.NowDate());
+            SelectResult re = select(dsh, Utils.NowDate(), App.grp_.strategyList_);
             foreach (var item in re.selItems_)
             {
                 item.allSelectItems_ = re.selItems_;
             }
+            SelectItem buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
             return re;
         }
     }

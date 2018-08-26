@@ -9,22 +9,18 @@ namespace SelectImpl
     public class RegressManager
     {
         public DataStore ds_;
-        public RegressResult regress(String name, int startDate, int endDate)
+        public void regress(RegressResult regressRe)
         {
             DataStoreHelper dsh = new DataStoreHelper();
-            RegressResult regressRe = new RegressResult();
-            regressRe.name_ = name;
-            regressRe.startDate_ = startDate;
-            regressRe.endDate_ = endDate;
             SelectManager selManager = new SelectManager();
-            List<int> dateList = Utils.TraverTimeDay(startDate, endDate);
+            List<int> dateList = Utils.TraverTimeDay(regressRe.dateRangeList_);
             dateList.Reverse();
             App.host_.uiStartProcessBar();
             int nFinishCount = 0;
             int nTotalCount = dateList.Count;
 
             SelectHint hint = new SelectHint();
-            foreach (IStrategy stra in App.grp_.strategyList_)
+            foreach (IStrategy stra in regressRe.strategyList_)
             {
                 Dictionary<String, String> param = stra.setup();
                 hint.straParamList_.Add(param);
@@ -35,20 +31,42 @@ namespace SelectImpl
             }
             foreach (int date in dateList)
             {
-                SelectResult re = selManager.select(dsh, date, hint);
+                SelectResult re = selManager.select(dsh, date, regressRe.strategyList_, hint);
                 regressRe.selItems_.AddRange(re.selItems_);
-                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}完成{2}的选择, 当前选中记录数:{3}", 
-                    startDate, endDate, date, regressRe.selItems_.Count), 
+                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，选择阶段：完成{2}的选择，当前选中记录数：{3}",
+                    dateList.Last(), dateList.First(), date, regressRe.selItems_.Count), 
                     nFinishCount * 100 / nTotalCount);
                 ++nFinishCount;
             }
+            regressRe.selItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
+            {
+                var lhsBonus = lhs.getColumnVal("bonus");
+                var rhsBonus = rhs.getColumnVal("bonus");
+                if (lhsBonus == "")
+                {
+                    return 1;
+                }
+                if (rhsBonus == "")
+                {
+                    return -1;
+                }
+                float lhsBonusValue = Utils.GetBonusValue(lhsBonus);
+                float rhsBonusValue = Utils.GetBonusValue(rhsBonus);
+                return lhsBonusValue.CompareTo(rhsBonusValue);
+            });
             foreach (var item in regressRe.selItems_)
             {
                 item.allSelectItems_ = regressRe.selItems_;
             }
-            regressRe.buyItems_ = App.grp_.desideToBuy(regressRe);
             App.host_.uiFinishProcessBar();
-            return regressRe;
+            if (regressRe.runMode_ == RunMode.RM_Asset)
+            {
+                regressRe.buyItems_ = App.grp_.desideToBuy(regressRe);
+            }
+            else
+            {
+                regressRe.buyItems_ = App.grp_.buyMostBonusPerDay(regressRe);
+            }
         }
     }
 }
