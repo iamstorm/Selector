@@ -22,7 +22,6 @@ namespace SelectorForm
     {
         public WantDataType wd_;
         public RegressResult re_;
-        public HistoryData reHistory_;
         public Dictionary<String, HistoryData> strategyRateItemHistoryData_;
         public RegressStatisticsForm(RegressResult re, WantDataType wd)
         {
@@ -48,13 +47,13 @@ namespace SelectorForm
                     break;
                 case WantDataType.WD_HistoryData:
                     fillHistoryDataChart();
-                    if (reHistory_ == null)
+                    if (re_.reHistory_ == null)
                     {
                         break;
                     }
                     historyView.Columns.Add("solution", 80);
                     LUtils.InitListView(historyView, HistoryData.ShowColumnInfos);
-                    historyView.Items.Add(reHistory_.toListViewItem(historyView, re_.solutionName_));
+                    historyView.Items.Add(re_.reHistory_.toListViewItem(historyView, re_.solutionName_));
                     break;
                 default:
                     throw new ArgumentException("Unknown data type!");
@@ -128,7 +127,7 @@ namespace SelectorForm
                 xDescList.Add(SUtils.ToXDesc(xUnit, item.startDate_, item.endDate_));
             }
             SUtils.FillHistoryDataToChart(chart, dataList, xDescList);
-            reHistory_ = HistoryData.MergeHistory(dataList);
+            re_.reHistory_ = HistoryData.MergeHistory(dataList);
         }
 
         public void fillHistoryDataChart()
@@ -205,24 +204,35 @@ namespace SelectorForm
             {
                 return;
             }
+//             List<DateSelectItem> dayItems = RegressResult.ToDaySelectItemList(re_.selItems_, re_.dateRangeList_);
+//             List<SelectItem> validItems = new List<SelectItem>();
+//             foreach (var item in dayItems)
+//             {
+//                 if (item.selItems_.Count > 1)
+//                 {
+//                     validItems.AddRange(item.selItems_);
+//                 }
+//             }
+
             Dictionary<String, List<SelectItem>> rateItemDict = RegressResult.ToRateItemDict(re_.selItems_);
+            var sortDict = from objDic in rateItemDict orderby objDic.Key select objDic;
             List<HistoryData> dataList = new List<HistoryData>();
             List<String> rateItemList = new List<string>();
-            foreach (var kv in rateItemDict)
+            foreach (var kv in sortDict)
             {
                 rateItemList.Add(kv.Key);
                 List<DateSelectItem> items = RegressResult.ToDaySelectItemList(kv.Value, re_.dateRangeList_);
-                HistoryData data = StrategyAsset.GetHistoryData(items, 0, kv.Value.Count, RunMode.RM_Raw);
+                HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
                 dataList.Add(data);
             }
-            List<int> occurInUpItemList, occurInDownItemList;
-            int nUpSelCount, nDownSelCount;
-            RegressResult.GetUpDownOccurCountForRateItem(re_.selItems_, rateItemList, 
-                out occurInUpItemList, out occurInDownItemList, out nUpSelCount, out nDownSelCount);
-            for (int i = 0; i < rateItemList.Count; i++)
-            {
-                dataList[i].recalProbilityForRateItem(occurInUpItemList[i], occurInDownItemList[i], nUpSelCount, nDownSelCount);
-            }
+//             List<int> occurInUpItemList, occurInDownItemList;
+//             int nUpSelCount, nDownSelCount;
+//             RegressResult.GetUpDownOccurCountForRateItem(re_.selItems_, rateItemList, 
+//                 out occurInUpItemList, out occurInDownItemList, out nUpSelCount, out nDownSelCount);
+//             for (int i = 0; i < rateItemList.Count; i++)
+//             {
+//                 dataList[i].recalProbilityForRateItem(occurInUpItemList[i], occurInDownItemList[i], nUpSelCount, nDownSelCount);
+//             }
 
             if (dataList.Count == 0)
             {
@@ -257,7 +267,8 @@ namespace SelectorForm
                 MessageBox.Show("Current is not raw mode, can't write asset!", "Selector");
                 return;
             }
-            StrategyAsset.WriteStrategyAsset(re_.strategyList_[0], reHistory_, strategyRateItemHistoryData_);
+            StrategyAsset.WriteStrategyAsset(re_.strategyList_[0], re_.reHistory_, strategyRateItemHistoryData_);
+            MessageBox.Show("Save success!", "Selector");
         }
 
     }

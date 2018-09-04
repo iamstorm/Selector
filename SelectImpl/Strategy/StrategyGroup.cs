@@ -55,7 +55,7 @@ namespace SelectImpl
                 {
                     if (Utils.IsTradeDay(date))
                     {
-                        buyitems.Add(makeDeside(items, date, RankBuyDesider.buyer_));
+        //                buyitems.Add(makeDeside(items, date, RankBuyDesider.buyer_));
                         ++nMissCount;
                     }
                     continue;
@@ -65,6 +65,7 @@ namespace SelectImpl
                     var buyItem = makeDeside(items, date, RankBuyDesider.buyer_);
                     if (buyItem.isRealSelectItem)
                     {
+                        buyItem.iamBuyItem_ = true;
                         ++nTradeCount;
                     }
                     else

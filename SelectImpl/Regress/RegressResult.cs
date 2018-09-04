@@ -43,6 +43,7 @@ namespace SelectImpl
         public List<IStrategy> strategyList_;
         public List<SelectItem> selItems_ = new List<SelectItem>();
         public List<SelectItem> buyItems_;
+        public HistoryData reHistory_;
         public String TotalBonus
         {
             get 

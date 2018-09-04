@@ -116,6 +116,21 @@ namespace SelectImpl
             {
                 item.allSelectItems_ = re.selItems_;
             }
+            var buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
+            buyItem.iamBuyItem_ = true;
+            re.selItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
+            {
+                if (lhs.iamBuyItem_)
+                {
+                    return -1;
+                }
+                if (rhs.iamBuyItem_)
+                {
+                    return 1;
+                }
+                return Utils.ToType<int>(lhs.getColumnVal("prirank")).CompareTo(Utils.ToType<int>(rhs.getColumnVal("prirank")));
+            });
+
             return re;
         }
     }

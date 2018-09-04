@@ -142,10 +142,10 @@ namespace SelectorForm
             Dictionary<String, WantedRange> valueDict = new Dictionary<String, WantedRange>();
             Dictionary<String, Color> colorDict = new Dictionary<String, Color>();
             dt.Columns.Add("xDesc");
-            dt.Columns.Add("bonusValue"); valueDict["bonusValue"] = new WantedRange(0, -20, 20); colorDict["bonusValue"] = Color.Red;
+            dt.Columns.Add("bonusValue"); valueDict["bonusValue"] = new WantedRange(0, -2, 2); colorDict["bonusValue"] = Color.Red;
             dt.Columns.Add("tradeSucProbility"); valueDict["tradeSucProbility"] = new WantedRange(0.5, 0, 1); colorDict["tradeSucProbility"] = Color.Orange;
             dt.Columns.Add("selectSucProbility"); valueDict["selectSucProbility"] = new WantedRange(0.5, 0, 1); colorDict["selectSucProbility"] = Color.Blue;
-            dt.Columns.Add("tradeDayRate"); valueDict["tradeDayRate"] = new WantedRange(0.5, 0, 1); colorDict["tradeDayRate"] = Color.BurlyWood;
+            dt.Columns.Add("tradeDayRate"); valueDict["tradeDayRate"] = new WantedRange(0.1, 0, 1); colorDict["tradeDayRate"] = Color.BurlyWood;
             dt.Columns.Add("antiRate"); valueDict["antiRate"] = new WantedRange(0.2, 0, 1); colorDict["antiRate"] = Color.Violet;
             dt.Columns.Add("goodSamples"); valueDict["goodSamples"] = new WantedRange(0, 0, 10); colorDict["goodSamples"] = Color.Black;
             dt.Columns.Add("rank"); valueDict["rank"] = new WantedRange(50, 0, 100); colorDict["rank"] = Color.DeepSkyBlue;
@@ -154,7 +154,7 @@ namespace SelectorForm
                 var item = dataList[i];
                 DataRow row = dt.NewRow();
                 row["xDesc"] = xDescList[i]; 
-                row["bonusValue"] = item.bonusValue_;
+                row["bonusValue"] = item.bPerTradeDay_;
                 row["tradeSucProbility"] = item.tradeSucProbility_;
                 row["selectSucProbility"] = item.selectSucProbility_;
                 row["tradeDayRate"] = item.tradeDayRate_;

@@ -100,6 +100,7 @@ namespace SelectImpl
                                 nDayCount              INT              NOT NULL,
                                 nTradeCount            INT              NOT NULL,
                                 nGoodSampleSelectCount INT              NOT NULL,
+                                nAllSampleSelectCount INT              NOT NULL,
                                 nAntiEnvCount          INT              NOT NULL,
                                 nAntiEnvCheckCount  INT              NOT NULL,
                                 nSelectSucCount        INT              NOT NULL,
@@ -107,7 +108,9 @@ namespace SelectImpl
                                 nDontBuyAndDown        INT              NOT NULL,
                                 nDontBuyButUp          INT              NOT NULL,
                                 bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
-                                rank                   INT              NOT NULL 
+                                rank                   INT              NOT NULL  ,
+                                verTag                   VARCHAR( 100 )              NOT NULL 
+
                             );
                     ");
                 }

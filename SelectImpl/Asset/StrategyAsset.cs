@@ -45,13 +45,13 @@ namespace SelectImpl
         public static void WriteStrategyAsset(IStrategy stra, HistoryData straData, Dictionary<String, HistoryData> straRaItemData)
         {
             DB.Global().Execute(String.Format("Delete From stra_his Where straname = '{0}'", stra.name()));
-            Dictionary<String, Object> straDataDict = straData.toDictionary();
+            Dictionary<String, Object> straDataDict = straData.toDictionary(stra);
             straDataDict["straname"] = stra.name();
             DB.Global().Insert("stra_his", straDataDict);
             stra.sh().Execute("Delete From rateitem_his");
             foreach (var kv in straRaItemData)
             {
-                Dictionary<String, Object> dataDict = kv.Value.toDictionary();
+                Dictionary<String, Object> dataDict = kv.Value.toDictionary(stra);
                 dataDict["rateItemKey"] = kv.Key;
                 stra.sh().Insert("rateitem_his", dataDict);
             }
@@ -130,7 +130,7 @@ namespace SelectImpl
                 if (runMode == RunMode.RM_Asset)
                 {
                     var buyItem = dayData.getBuyItem();
-                    if (buyItem.isRealSelectItem)
+                    if (buyItem != null && buyItem.isRealSelectItem)
                     {
                         var bonus = buyItem.getColumnVal("bonus");
                         if (bonus != "")
@@ -144,7 +144,7 @@ namespace SelectImpl
                         }
                         ++data.nTradeCount_;
                     }
-                    if (buyItem.strategyName_ == StrategySetting.DontbuyStrategyName)
+                    if (buyItem != null && buyItem.strategyName_ == StrategySetting.DontbuyStrategyName)
                     {
                         var candidateList = RankBuyDesider.buyer_.getAllPriCompeteSucList(dayData.selItems_);
                         foreach (var candidate in candidateList)

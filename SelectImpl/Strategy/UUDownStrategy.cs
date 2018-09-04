@@ -51,6 +51,7 @@ namespace SelectImpl
             float otherMaxZF = 0;
             float otherMaxC = 0;
             float otherMaxH = 0;
+            float sumOfSigDateZF = 0;
             for (int i = 1; i < 8; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -59,10 +60,20 @@ namespace SelectImpl
                 var curPreZf = dsh.Ref(Info.ZF, i + 1);
                 var vol = dsh.Ref(Info.V, i);
                 if (curOf < 0.03 && curZf > 0.03 && curZf < 0.095 &&
-                    dsh.Ref(Info.OF, i + 1) < 0.03 && dsh.Ref(Info.ZF, i + 1) > 0.03
-                    && dsh.Ref(Info.ZF, i + 2) < 0.05)
+                    dsh.Ref(Info.OF, i + 1) < 0.03 && dsh.Ref(Info.ZF, i + 1) > 0.03)
                 {
-                    if (curZf + dsh.Ref(Info.ZF, i+1) > 0.1)
+                    for (int j = i+2; j < i+5; j++)
+                    {
+                        if (dsh.Ref(Info.ZF, j) < 0)
+                            break;
+
+                        if (dsh.Ref(Info.ZF, j) > 0.05)
+                        {
+                            return null;
+                        }
+                    }
+                    sumOfSigDateZF = curZf + dsh.Ref(Info.ZF, i+1);
+                    if (sumOfSigDateZF > 0.1)
                     {
                         iSigDateIndex = i;
                         sigDateVol = Math.Max(dsh.Ref(Info.V, i + 1), vol);
@@ -174,8 +185,12 @@ namespace SelectImpl
             {
                 return null;
             }
-
-            return EmptyRateItemButSel;
+            var ret = new Dictionary<String, String>();
+            ret[String.Format("sumSig/{0}", sumOfSigDateZF>0.12 ? "1": "0")] = "";
+            ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
+            ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+            ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
+            return ret;
         }
     }
 }

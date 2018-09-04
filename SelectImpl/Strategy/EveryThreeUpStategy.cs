@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         public float bounusLimit()
         {
-            return 0.022f;
+            return 0.095f;
         }
         Dictionary<String, String> IStrategy.paramters()
         {
@@ -40,6 +40,10 @@ namespace SelectImpl
             isTwoDownMode = false;
             var zf = dsh.Ref(Info.ZF, iIndex);
             if (zf > -0.05 || zf < -0.095)
+            {
+                return null;
+            }
+            if (!dsh.IsRealDown())
             {
                 return null;
             }
@@ -172,7 +176,10 @@ namespace SelectImpl
 //             {
 //                 return null;
 //             }
-            return EmptyRateItemButSel;
+            var ret = new Dictionary<String, String>();
+            ret[String.Format("Threshold/{0}", nThreshold)] = "";
+            ret[String.Format("Meet/{0}", nMeetMinus5PercentCount == nThreshold - 1 ? "1" : "0")] = "";
+            return ret;
         }
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
@@ -185,7 +192,9 @@ namespace SelectImpl
                 ret = selectFor(dsh, param, ref sigDate, 1, out bIsTwoDownMode);
                 if (ret == null && bIsTwoDownMode)
                 {
-                    return EmptyRateItemButSel;
+                    var retDict = new Dictionary<String, String>();
+                    retDict[String.Format("TwoDownMode/1")] = "";
+                    return retDict;
                 }
             }
             ret = selectFor(dsh, param, ref sigDate, 0, out bIsTwoDownMode);
@@ -193,13 +202,7 @@ namespace SelectImpl
             {
                 return null;
             }
-//             for (int i = 1; i < SearchDayCount; i++)
-//             {
-//                 if (selectFor(dsh, param, ref sigDate, i, out bIsTwoDownMode) != null)
-//                 {
-//                     return null;
-//                 }
-//             }
+            ret[String.Format("TwoDownMode/0")] = "";
             return ret;
         }
     }

@@ -96,7 +96,7 @@ namespace SelectImpl
             data.nTradeCount_ = Utils.ToType<int>(row["nTradeCount"]);
             data.bPerTradeDay_ = Utils.ToType<float>(row["bPerTradeDay"]);
             data.nGoodSampleSelectCount_ = Utils.ToType<int>(row["nGoodSampleSelectCount"]);
-            data.nAllSampleSelectCount_ = Utils.ToType<int>(row["nAllSampleSelectCount_"]);
+            data.nAllSampleSelectCount_ = Utils.ToType<int>(row["nAllSampleSelectCount"]);
             data.nAntiEnvCount_ = Utils.ToType<int>(row["nAntiEnvCount"]);
             data.nAntiEnvCheckCount_ = Utils.ToType<int>(row["nAntiEnvCheckCount"]);
             data.nSelectSucCount_ = Utils.ToType<int>(row["nSelectSucCount"]);
@@ -105,7 +105,7 @@ namespace SelectImpl
             data.nDontBuyButUp_ = Utils.ToType<int>(row["nDontBuyButUp"]);
             return data;
         }
-        public Dictionary<String, Object> toDictionary()
+        public Dictionary<String, Object> toDictionary(IStrategy stra)
         {
             Dictionary<String, Object> dict = new Dictionary<String, Object>();
             dict["tradeSucProbility"] = tradeSucProbility_;
@@ -114,7 +114,7 @@ namespace SelectImpl
             dict["antiRate"] = antiRate_;
             dict["tradeDayRate"] = tradeDayRate_;
             dict["dontBuyRate"] = dontBuyRate_;
-            dict["rate"] = rank_;
+            dict["rank"] = rank_;
             dict["startDate"] = startDate_;
             dict["endDate"] = endDate_;
             dict["nDayCount"] = nDayCount_;
@@ -125,8 +125,10 @@ namespace SelectImpl
             dict["nAntiEnvCount"] = nAntiEnvCount_;
             dict["nAntiEnvCheckCount"] = nAntiEnvCheckCount_;
             dict["nSelectSucCount"] = nSelectSucCount_;
+            dict["nTradeSucCount"] = nTradeSucCount_;
             dict["nDontBuyAndDown"] = nDontBuyAndDown_;
             dict["nDontBuyButUp"] = nDontBuyButUp_;
+            dict["verTag"] = stra.verTag();
             return dict;
         }
         public static HistoryData MergeHistory(List<HistoryData> dataList)

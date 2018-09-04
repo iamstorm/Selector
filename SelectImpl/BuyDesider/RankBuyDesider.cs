@@ -34,7 +34,7 @@ namespace SelectImpl
         SelectItem priCompete(List<SelectItem> selItems, out float maxRank)
         {
             SelectItem maxRankItem = null;
-            maxRank = 0;
+            maxRank = int.MinValue;
             foreach (var item in selItems)
             {
                 int rank = Utils.ToType<int>(item.getColumnVal("prirank"));
@@ -59,36 +59,50 @@ namespace SelectImpl
         }
         SelectItem IBuyDesider.makeDeside(List<SelectItem> selItems)
         {
-            var straDict = descomposeByStrategy(selItems);
-            List<SelectItem> priCompeteSucList = new List<SelectItem>();
-            foreach (var kv in straDict)
-            {
-                float maxPriRate;
-                SelectItem item = priCompete(kv.Value, out maxPriRate);
-                if (maxPriRate > Setting.MyBuyRateLimit)
-                {
-                    priCompeteSucList.Add(item);
-                }
-            }
+//             var straDict = descomposeByStrategy(selItems);
+//             List<SelectItem> priCompeteSucList = new List<SelectItem>();
+//             foreach (var kv in straDict)
+//             {
+//                 float maxPriRate;
+//                 SelectItem item = priCompete(kv.Value, out maxPriRate);
+//                 priCompeteSucList.Add(item);
+//             }
+//             SelectItem maxRankItem = null;
+//             int maxRank = int.MinValue;
+//             foreach (var item in priCompeteSucList)
+//             {
+//                 int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
+//                 if (rank > maxRank)
+//                 {
+//                     maxRank = rank;
+//                     maxRankItem = item;
+//                 }
+//             }
+//             return maxRankItem;
             SelectItem maxRankItem = null;
-            int maxRank = 0;
-            foreach (var item in priCompeteSucList)
+            int maxRank = int.MinValue;
+            float maxRankC = 0;
+            foreach (var item in selItems)
             {
-                int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
+                int rank = Utils.ToType<int>(item.getColumnVal("prirank"));
                 if (rank > maxRank)
                 {
                     maxRank = rank;
                     maxRankItem = item;
+                    maxRankC = Utils.ToType<float>(item.getColumnVal("close"));
+                }
+                else if (rank == maxRank)
+                {
+                    float curC = Utils.ToType<float>(item.getColumnVal("close"));
+                    if (curC > maxRankC)
+                    {
+                        maxRank = rank;
+                        maxRankItem = item;
+                        maxRankC = curC;
+                    }
                 }
             }
-            if (maxRank > Setting.MyBuyRateLimit)
-            {
-                return maxRankItem;
-            }
-            else
-            {
-                return null;
-            }
+            return maxRankItem;
         }
     }
 }

@@ -20,7 +20,6 @@ namespace SelectorForm
         public Sunisoft.IrisSkin.SkinEngine skinEngine_;
         public static MainForm Me;
         public SelectResult reSelect_;
-        public SelectItem buyItem_;
         public RegressResult regressingRe_;
         public bool isBusy_;
         public List<TabPage> hideTabPages_ = new List<TabPage>();
@@ -272,12 +271,10 @@ namespace SelectorForm
                 }
                 SelectManager manager = new SelectManager();
                 reSelect_ = manager.selectNow();
-                buyItem_ = App.grp_.makeDeside(reSelect_.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
             }
             catch (Exception ex)
             {
                 reSelect_ = null;
-                buyItem_ = null;
                 MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
                 isBusy_ = false;
                 throw;

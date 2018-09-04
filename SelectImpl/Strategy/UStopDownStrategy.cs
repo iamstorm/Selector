@@ -51,6 +51,7 @@ namespace SelectImpl
             float otherMaxZF = 0;
             float otherMaxC = 0;
             float otherMaxH = 0;
+            float sigZF = 0;
             for (int i = 1; i < 8; ++i )
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -58,10 +59,11 @@ namespace SelectImpl
                 var curZf = dsh.Ref(Info.ZF, i);
                 var curPreZf = dsh.Ref(Info.ZF, i+1);
                 var vol = dsh.Ref(Info.V, i);
-                if (curOf < 0.095 && curHf > 0.095 && curZf < 0.095 && curZf > 0)
+                if (curOf < 0.04 && curHf > 0.095 && curZf < 0.095 && curZf > 0)
                 {
                     iSigDateIndex = i;
                     sigDateVol = vol;
+                    sigZF = curZf;
                     break;
                 }
                 otherMaxVol = Math.Max(vol, otherMaxVol);
@@ -96,7 +98,7 @@ namespace SelectImpl
                 }
                 otherMaxZF = Math.Max(otherMaxZF, curZf);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
-                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH); 
+                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
             }
             if (iSigDateIndex == -1)
             {
@@ -164,8 +166,10 @@ namespace SelectImpl
              {
                  return null;
              }
-
-            return EmptyRateItemButSel;
+             var ret = new Dictionary<String, String>();
+             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
+             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+             return ret;
         }
     }
 }
