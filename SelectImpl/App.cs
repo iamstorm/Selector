@@ -106,6 +106,7 @@ namespace SelectImpl
                                 nTradeSucCount         INT              NOT NULL,
                                 nDontBuyAndDown        INT              NOT NULL,
                                 nDontBuyButUp          INT              NOT NULL,
+                                bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
                                 rank                   INT              NOT NULL 
                             );
                     ");

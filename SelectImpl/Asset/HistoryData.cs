@@ -16,6 +16,7 @@ namespace SelectImpl
         public float antiRate_ = -1;
         public float tradeDayRate_ = -1;
         public float dontBuyRate_ = 1;//不买确实跌了/不买却涨了
+        public float bPerTradeDay_ = 0;
         public int rank_;
 
         public int startDate_;
@@ -68,7 +69,7 @@ namespace SelectImpl
             lvi.SubItems.Add(dontBuyRate_.ToString("F2"));
             lvi.SubItems.Add(nDayCount_.ToString());
             lvi.SubItems.Add(nTradeCount_.ToString());
-            lvi.SubItems.Add((bonusValue_ / nTradeCount_).ToString("F2") + "%");
+            lvi.SubItems.Add(bPerTradeDay_.ToString("F2") + "%");
             lvi.SubItems.Add(nGoodSampleSelectCount_.ToString());
             lvi.SubItems.Add(nAllSampleSelectCount_.ToString());
             lvi.SubItems.Add(nAntiEnvCount_.ToString());
@@ -93,6 +94,7 @@ namespace SelectImpl
             data.endDate_ = Utils.ToType<int>(row["endDate"]);
             data.nDayCount_ = Utils.ToType<int>(row["nDayCount"]);
             data.nTradeCount_ = Utils.ToType<int>(row["nTradeCount"]);
+            data.bPerTradeDay_ = Utils.ToType<float>(row["bPerTradeDay"]);
             data.nGoodSampleSelectCount_ = Utils.ToType<int>(row["nGoodSampleSelectCount"]);
             data.nAllSampleSelectCount_ = Utils.ToType<int>(row["nAllSampleSelectCount_"]);
             data.nAntiEnvCount_ = Utils.ToType<int>(row["nAntiEnvCount"]);
@@ -117,6 +119,7 @@ namespace SelectImpl
             dict["endDate"] = endDate_;
             dict["nDayCount"] = nDayCount_;
             dict["nTradeCount"] = nTradeCount_;
+            dict["bPerTradeDay"] = bPerTradeDay_;
             dict["nGoodSampleSelectCount"] = nGoodSampleSelectCount_;
             dict["nAllSampleSelectCount"] = nAllSampleSelectCount_;
             dict["nAntiEnvCount"] = nAntiEnvCount_;
@@ -193,20 +196,20 @@ namespace SelectImpl
             {
                 dontBuyRate_ = nDontBuyAndDown_ * 1.0f / nDontBuyButUp_;
             }
+            if (nTradeCount_ == 0)
+            {
+                bPerTradeDay_ = 0;
+            } else
+            {
+                bPerTradeDay_ = bonusValue_ / nTradeCount_;
+            }
             float probility = tradeSucProbility_ < 0 ? selectSucProbility_ : tradeSucProbility_;
             rank_ = (int)(100 * probility * priority());
         }
         public float priority()
         {
             int bonusValueRank/*25*/, antiRateRank/*30*/, tradeDayRateRank/*25*/, dontBuyRank/*20*/;
-            if (bonusValue_ > nDayCount_)//1%per day
-            {
-                bonusValueRank = 25;
-            }
-            else
-            {
-                bonusValueRank = (int)(bonusValue_ *1.0f/ nDayCount_ * 25);
-            }
+            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 25);
             if (antiRate_ > 0)
             {
                 antiRateRank = (int)(antiRate_ * 30);

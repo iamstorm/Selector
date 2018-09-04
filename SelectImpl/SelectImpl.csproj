@@ -128,11 +128,16 @@
     <Compile Include="SQLiteHelper\SQLiteTable.cs" />
     <Compile Include="Strategy\IStrategy.cs" />
     <Compile Include="Strategy\LStopUpStrategy.cs" />
+    <Compile Include="Strategy\EveryThreeUpStategy.cs" />
     <Compile Include="Strategy\Solution.cs" />
     <Compile Include="Strategy\StrategyGroup.cs" />
     <Compile Include="Strategy\TodayBuyTomorowSellStrategy.cs" />
     <Compile Include="Strategy\UStopDownStrategy.cs" />
+    <Compile Include="Strategy\UUDownStrategy.cs" />
     <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

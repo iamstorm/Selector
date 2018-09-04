@@ -77,11 +77,11 @@ namespace SelectorForm
                 DateTime date;
                 if (DateTime.TryParse(dateRangeGrid_.CurrentCell.Value.ToString(), out date))
                 {
-              //      dtp_.Value = date.AddMinutes(1);
+                      dtp_.Value = date.AddMinutes(1);
                 }
                 else
                 {
-         //           dtp_.Value = dtp_.Value.AddMinutes(1);
+                      dtp_.Value = dtp_.Value.AddMinutes(1);
                 }
             }
             else

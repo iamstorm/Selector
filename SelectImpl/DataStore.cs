@@ -134,11 +134,17 @@ namespace SelectImpl
                 stockList_.Add(sk);
             }
         }
-        void readDayData(Stock sk)
+        class AdjFactor
+        {
+            public int date_;
+            public float factor_;
+        }
+        void readDayData(Stock sk, List<AdjFactor> factors)
         {
             string fileName = Dist.dayPath_+ sk.code_+".day";
             try
             {
+                int iCurFactorIndex = 0;
                 using (FileStream fs = new FileStream(fileName, FileMode.Open))
                 using (BinaryReader reader = new BinaryReader(fs))
                 {
@@ -146,10 +152,20 @@ namespace SelectImpl
                     {
                         Data d = new Data();
                         d.date_ = reader.ReadInt32();
-                        d.open_ = reader.ReadInt32();
-                        d.high_ = reader.ReadInt32();
-                        d.low_ = reader.ReadInt32();
-                        d.close_ = reader.ReadInt32();
+                        
+                        float factor = 1;
+                        if (factors != null)
+	                    {
+		                    if (d.date_ >= factors[iCurFactorIndex + 1].date_)
+                                ++iCurFactorIndex;
+
+                            factor = factors[iCurFactorIndex].factor_;
+	                    }
+
+                        d.open_ = (int)(reader.ReadInt32() * factor);
+                        d.high_ = (int)(reader.ReadInt32() * factor);
+                        d.low_ = (int)(reader.ReadInt32() * factor);
+                        d.close_ = (int)(reader.ReadInt32() * factor);
                         d.vol_ = reader.ReadInt32();
                         d.amount_ = reader.ReadInt32();
                         sk.dataList_.Add(d);
@@ -211,9 +227,46 @@ namespace SelectImpl
             int nFinishCount = 0;
             int nTotalCount = stockList_.Count + 1;
             App.host_.uiStartProcessBar();
+            Dictionary<String, List<AdjFactor>> stockFactorDict = new Dictionary<string, List<AdjFactor>>();
+            DataTable dtFactor = DB.Global().Select("Select * From AdjFactor Order by trade_date");
+
+            foreach (DataRow row in dtFactor.Rows)
+            {
+                String code = row["code"].ToString();
+                AdjFactor adjFactor = new AdjFactor();
+                adjFactor.date_ = Utils.ToType<int>(row["trade_date"]);
+                adjFactor.factor_ = Utils.ToType<float>(row["adj_factor"]);
+                List<AdjFactor> factors;
+                if (stockFactorDict.TryGetValue(code, out factors))
+                {
+                    factors.Add(adjFactor);
+                }
+                else
+                {
+                    factors = new List<AdjFactor>();
+                    factors.Add(adjFactor);
+                    stockFactorDict[code] = factors;
+                }
+            }
+            AdjFactor dummyFactor = new AdjFactor();
+            dummyFactor.date_ = Utils.Date(DateTime.Now.AddYears(2));
+            dummyFactor.factor_ = 1;
+            foreach (var kv in stockFactorDict)
+            {
+                float newestFactor = kv.Value[kv.Value.Count - 1].factor_;
+                kv.Value[kv.Value.Count - 1].factor_ = 1;
+                for (int i = kv.Value.Count - 2; i >= 0; i--)
+                {
+                    kv.Value[i].factor_ = kv.Value[i].factor_ / newestFactor;                    
+                }
+                kv.Value.Add(dummyFactor);
+            }
+
             foreach (Stock sk in stockList_)
             {
-                readDayData(sk);
+                List<AdjFactor> factors = null;
+                stockFactorDict.TryGetValue(sk.code_, out factors);
+                readDayData(sk, factors);
                 ++nFinishCount;
                 App.host_.uiSetProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / nTotalCount);
             }
@@ -362,7 +415,7 @@ namespace SelectImpl
         public String envBonus(int date, int dayCount = 0)
         {
             int iIndex = index(szListData_, date + dayCount);
-            if (iIndex == -1)
+            if (iIndex == -1 || iIndex == szListData_.Count - 1)
             {
                 return "";
             }
@@ -412,7 +465,7 @@ namespace SelectImpl
         public float Ref(Info info, List<Data> dataList, int iIndex, int dayCount = 0)
         {
             int wantedIndex = iIndex + dayCount;
-            if (wantedIndex >= dataList.Count)
+            if (wantedIndex >= dataList.Count || wantedIndex < 0)
             {
                 throw new DataException();
             }
@@ -446,7 +499,7 @@ namespace SelectImpl
         public int Date(List<Data> dataList, int iIndex, int dayCount = 0)
         {
             int wantedIndex = iIndex + dayCount;
-            if (wantedIndex >= dataList.Count)
+            if (wantedIndex >= dataList.Count || wantedIndex < 0)
             {
                 throw new DataException();
             }
@@ -470,10 +523,22 @@ namespace SelectImpl
         public int iIndex_;
         public List<Data> dataList_;
         List<Data> szListData_;
+        public int iSZIndex_;
         public DataStoreHelper()
         {
             ds_ = App.ds_;
             szListData_ = App.ds_.szListData_;
+        }
+        public DataStoreHelper newDsh(int dayCount)
+        {
+            var ret = new DataStoreHelper();
+            ret.ds_ = ds_;
+            ret.stock_ = stock_;
+            ret.iIndex_ = iIndex_ + dayCount;
+            ret.dataList_ = dataList_;
+            ret.szListData_ = szListData_;
+            ret.iSZIndex_ = iSZIndex_;
+            return ret;
         }
         public void setStock(Stock stock)
         {
@@ -490,15 +555,15 @@ namespace SelectImpl
         }
         public float SZRef(Info info, int dayCount = 0)
         {
-            return ds_.Ref(info, szListData_, iIndex_, dayCount);
+            return ds_.Ref(info, szListData_, iSZIndex_, dayCount);
         }
         public float SZMA(Info info, int count, int dayCount = 0)
         {
-            return ds_.MA(info, count, szListData_, iIndex_, dayCount);
+            return ds_.MA(info, count, szListData_, iSZIndex_, dayCount);
         }
         public int Date(int dayCount = 0)
         {
-            return ds_.Date(szListData_, iIndex_, dayCount);
+            return ds_.Date(dataList_, iIndex_, dayCount);
         }
         public float UpShadow(int dayCount = 0)
         {
@@ -509,6 +574,121 @@ namespace SelectImpl
         {
             float minCO = Math.Min(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
             return (Ref(Info.L, dayCount) - minCO) / Ref(Info.C, dayCount + 1);
+        }
+        public bool CrossMA(Info info, int count, int beCrossCount, int dayCount = 0)
+        {
+            float curMA = ds_.MA(info, count, dataList_, iIndex_, dayCount);
+            float curBeCrossMA = ds_.MA(info, beCrossCount, dataList_, iIndex_, dayCount);
+            float preMA = ds_.MA(info, count, dataList_, iIndex_, dayCount+1);
+            float preBeCrossMA = ds_.MA(info, beCrossCount, dataList_, iIndex_, dayCount+1);
+            return preBeCrossMA > preMA && curBeCrossMA < curMA;
+        }
+        public bool IsUpStopEveryDay(int count, int dayCount=0)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (Ref(Info.ZF, i + dayCount) < 0.095)
+                    return false;
+            }
+            return true;
+        }
+        public float AbsCO(int dayCount=0)
+        {
+            return Math.Abs(Ref(Info.C, dayCount) - Ref(Info.O, dayCount));
+        }
+        public int LL(Info info, int count, int dayCount = 0)
+        {
+            float minVal = float.MaxValue;
+            int iLastDay = dayCount + count;
+            int iMinIndex = -1;
+            for (int i = dayCount; i < iLastDay; i++)
+            {
+                float val = Ref(info, i);
+                if (val < minVal)
+	            {
+		            minVal = val;
+                    iMinIndex = i;
+	            }
+            }
+            return iMinIndex;
+        }
+        public int HH(Info info, int count, int dayCount = 0)
+        {
+            float maxVal = -float.MaxValue;
+            int iLastDay = dayCount + count;
+            int iMaxIndex = -1;
+            for (int i = dayCount; i < iLastDay; i++)
+            {
+                float val = Ref(info, i);
+                if (val > maxVal)
+                {
+                    maxVal = val;
+                    iMaxIndex = i;
+                }
+            }
+            return iMaxIndex;
+        }
+        public bool IsLowPeak(Info info, int iIndex, int count)
+        {
+            float indexVal = Ref(info, iIndex);
+            int iMinIndex = iIndex - count;
+            int iMaxIndex = iIndex + count;
+            for (int i = iMinIndex; i < iMaxIndex; i++)
+            {
+                if (i == iIndex)
+                {
+                    continue;
+                }
+                float val = Ref(info, i);
+                if (val < indexVal)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public bool IsHighPeak(Info info, int iIndex, int count)
+        {
+            float indexVal = Ref(info, iIndex);
+            int iMinIndex = iIndex - count;
+            int iMaxIndex = iIndex + count;
+            for (int i = iMinIndex; i < iMaxIndex; i++)
+            {
+                if (i == iIndex)
+                {
+                    continue;
+                }
+                float val = Ref(info, i);
+                if (val > indexVal)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public bool IsRealUp(int dayCount = 0)
+        {
+            if (Ref(Info.C, dayCount) <= Ref(Info.O, dayCount))
+            {
+                return false;
+            }
+            if (Ref(Info.ZF, dayCount) <= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool IsRealDown(int dayCount = 0)
+        {
+            if (Ref(Info.C, dayCount) >= Ref(Info.O, dayCount))
+            {
+                return false;
+            }
+            if (Ref(Info.ZF, dayCount) >= 0)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

@@ -12,7 +12,8 @@ namespace SelectImpl
         {
             strategyList_.Add(new LStopUpStrategy());
             strategyList_.Add(new UStopDownStrategy());
-
+            strategyList_.Add(new UUDownStrategy());
+            strategyList_.Add(new EveryThreeUpStategy());
         }
         public IStrategy strategy(String straName)
         {
@@ -48,6 +49,7 @@ namespace SelectImpl
             int nTradeCount = 0;
             foreach (int date in dateList)
             {
+                nFinishCount++;
                 List<SelectItem> items = SelectResult.OfDate(date, re.selItems_);
                 if (items.Count == 0)
                 {
@@ -90,10 +92,14 @@ namespace SelectImpl
             int nTradeCount = 0;
             foreach (int date in dateList)
             {
+                nFinishCount++;
                 List<SelectItem> items = SelectResult.OfDate(date, re.selItems_);
                 if (items.Count == 0)
                 {
-                    ++nMissCount;
+                    if (Utils.IsTradeDay(date))
+                    {
+                        ++nMissCount;
+                    }
                     continue;
                 }
                 float maxBonusValue = -11;

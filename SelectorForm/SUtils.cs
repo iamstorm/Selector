@@ -147,7 +147,7 @@ namespace SelectorForm
             dt.Columns.Add("selectSucProbility"); valueDict["selectSucProbility"] = new WantedRange(0.5, 0, 1); colorDict["selectSucProbility"] = Color.Blue;
             dt.Columns.Add("tradeDayRate"); valueDict["tradeDayRate"] = new WantedRange(0.5, 0, 1); colorDict["tradeDayRate"] = Color.BurlyWood;
             dt.Columns.Add("antiRate"); valueDict["antiRate"] = new WantedRange(0.2, 0, 1); colorDict["antiRate"] = Color.Violet;
-            dt.Columns.Add("goodSamples"); valueDict["goodSamples"] = new WantedRange(10, 0, 100); colorDict["goodSamples"] = Color.Black;
+            dt.Columns.Add("goodSamples"); valueDict["goodSamples"] = new WantedRange(0, 0, 10); colorDict["goodSamples"] = Color.Black;
             dt.Columns.Add("rank"); valueDict["rank"] = new WantedRange(50, 0, 100); colorDict["rank"] = Color.DeepSkyBlue;
             for (int i = 0; i < dataList.Count; ++i)
             {
@@ -159,7 +159,7 @@ namespace SelectorForm
                 row["selectSucProbility"] = item.selectSucProbility_;
                 row["tradeDayRate"] = item.tradeDayRate_;
                 row["antiRate"] = item.antiRate_;
-                row["goodSamples"] = item.nGoodSampleSelectCount_;
+                row["goodSamples"] = item.nGoodSampleSelectCount_/500.0f;
                 row["rank"] = item.rank_;
                 dt.Rows.Add(row);
             }

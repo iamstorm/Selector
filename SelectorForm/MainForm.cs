@@ -31,6 +31,7 @@ namespace SelectorForm
         {
             Me = this;
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized; 
 
             var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
             if (skinName != "")
@@ -249,6 +250,10 @@ namespace SelectorForm
                 MessageBox.Show("正忙，请稍微。", "Selector");
                 return;
             }
+            if (DialogResult.Yes != MessageBox.Show("Are you want to select now?", "Selector", MessageBoxButtons.YesNo))
+            {
+                return;
+            }
             LUtils.RemoveAllListRow(selectListView_);
             selectWorker.RunWorkerAsync();
         }
@@ -285,6 +290,10 @@ namespace SelectorForm
                 int now = Utils.NowDate();
                 foreach (var sk in App.ds_.stockList_)
                 {
+                    if (sk.dataList_.Count < 2)
+                    {
+                        continue;
+                    }
                     float zf = sk.zf(now);
                     if (zf > 0)
                     {

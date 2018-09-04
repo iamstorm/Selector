@@ -29,6 +29,7 @@ namespace SelectImpl
                     paramList.Add(param);
                 }
             }
+            dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, date);
             foreach (Stock sk in App.ds_.stockList_)
             {
                 int iDateIndexHint = -1;
@@ -106,12 +107,15 @@ namespace SelectImpl
         public SelectResult selectNow()
         {
             DataStoreHelper dsh = new DataStoreHelper();
-            SelectResult re = select(dsh, Utils.NowDate(), App.grp_.strategyList_);
+            List<IStrategy> strategyList = new List<IStrategy>();
+            strategyList.Add(App.grp_.strategy("UStopDown"));
+            strategyList.Add(App.grp_.strategy("UUDown"));
+            strategyList.Add(App.grp_.strategy("EveryThreeUp"));
+            SelectResult re = select(dsh, Utils.NowDate(), strategyList);
             foreach (var item in re.selItems_)
             {
                 item.allSelectItems_ = re.selItems_;
             }
-            SelectItem buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
             return re;
         }
     }

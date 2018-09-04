@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class UStopDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class UUDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,7 +14,7 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "UStopDown";
+            return "UUDown";
         }
         public float bounusLimit()
         {
@@ -51,18 +51,23 @@ namespace SelectImpl
             float otherMaxZF = 0;
             float otherMaxC = 0;
             float otherMaxH = 0;
-            for (int i = 1; i < 8; ++i )
+            for (int i = 1; i < 8; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
                 var curHf = dsh.Ref(Info.HF, i);
                 var curZf = dsh.Ref(Info.ZF, i);
-                var curPreZf = dsh.Ref(Info.ZF, i+1);
+                var curPreZf = dsh.Ref(Info.ZF, i + 1);
                 var vol = dsh.Ref(Info.V, i);
-                if (curOf < 0.095 && curHf > 0.095 && curZf < 0.095 && curZf > 0)
+                if (curOf < 0.03 && curZf > 0.03 && curZf < 0.095 &&
+                    dsh.Ref(Info.OF, i + 1) < 0.03 && dsh.Ref(Info.ZF, i + 1) > 0.03
+                    && dsh.Ref(Info.ZF, i + 2) < 0.05)
                 {
-                    iSigDateIndex = i;
-                    sigDateVol = vol;
-                    break;
+                    if (curZf + dsh.Ref(Info.ZF, i+1) > 0.1)
+                    {
+                        iSigDateIndex = i;
+                        sigDateVol = Math.Max(dsh.Ref(Info.V, i + 1), vol);
+                        break;
+                    }
                 }
                 otherMaxVol = Math.Max(vol, otherMaxVol);
                 if (curZf > 0)
@@ -72,7 +77,8 @@ namespace SelectImpl
                 if (curZf > 0.095)
                 {
                     nUStopCount++;
-                } else if (curZf < -0.095)
+                }
+                else if (curZf < -0.095)
                 {
                     nDStopCount++;
                 }
@@ -96,7 +102,7 @@ namespace SelectImpl
                 }
                 otherMaxZF = Math.Max(otherMaxZF, curZf);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
-                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH); 
+                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
             }
             if (iSigDateIndex == -1)
             {
@@ -136,34 +142,38 @@ namespace SelectImpl
             {
                 return null;
             }
-//             if (dsh.Ref(Info.OF) < -0.02)
-//             {
-//                 return null;
-//             }
+            //             if (dsh.Ref(Info.OF) < -0.02)
+            //             {
+            //                 return null;
+            //             }
 
-             if (
-                  dsh.Ref(Info.ZF, 2) < 0.005 &&
-                  dsh.Ref(Info.ZF, 3) < 0.005)
-             {
-                 return null;
-             }
+            if (
+                 dsh.Ref(Info.ZF, 2) < 0.005 &&
+                 dsh.Ref(Info.ZF, 3) < 0.005)
+            {
+                return null;
+            }
 
-//              if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
-//                   dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
-//              {
-//                  return null;
-//              }
+            //             if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
+            //                  dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
+            //             {
+            //                 return null;
+            //             }
 
-             if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
-             {
-                 return null;
-             }
+            if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.C, iSigDateIndex + 1) < dsh.Ref(Info.O, iSigDateIndex + 1))
+            {
+                return null;
+            }
 
-             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1))/dsh.Ref(Info.C, 1);
-             if (delta > -0.01)
-             {
-                 return null;
-             }
+            var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
+            if (delta > -0.01)
+            {
+                return null;
+            }
 
             return EmptyRateItemButSel;
         }

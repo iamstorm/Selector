@@ -139,7 +139,7 @@ namespace SelectorForm
             }
             ChartXUnit xUnit;
             selItemsHistoryDataToChart(chart_, re_.selItems_, re_.dateRangeList_, re_.runMode_, out xUnit);
-            chart_.Titles[0].Text += chart_.Titles[0].Text + ", " + SUtils.ToUnitName(xUnit) + ", " + re_.getTradeDayCount() + "days";
+            chart_.Titles[0].Text  = chart_.Titles[0].Text + ", " + SUtils.ToUnitName(xUnit) + ", " + re_.getTradeDayCount() + "days";
         }
         void fillBonusChart()
         {

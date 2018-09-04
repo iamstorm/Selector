@@ -33,6 +33,8 @@ def FetchStock():
     df['sz50'] = pd.Series(0, df.index)
     df['zz500'] = pd.Series(0, df.index)
 
+    return df
+
     Utils.Info("正在获取行业基本信息...")
     dfIndustry = tu.ts.get_industry_classified()
     Utils.Info("正在获取地区基本信息...")
@@ -99,6 +101,25 @@ def UpdateStock(conn):
     Utils.Info("完成股票基本信息的写入。")
     conn.commit()
     return df
+
+def UpdateAdjFactor(conn):
+    stocks = Utils.GetStockCodeInfos(conn)
+    Utils.Info("正在写入股票复权因子...")
+    progress = Utils.Progress(len(stocks))
+    for ts_code,symbol in stocks:
+        start = int(Utils.ExeScalar(conn, "Select ifnull(max(trade_date), {0}) From AdjFactor Where code = '{1}'".format(Setting.DataFrom, symbol)))
+        df = tu.pro.adj_factor(ts_code=ts_code, trade_date='')
+        
+        dfInRange = df[df['trade_date']>str(start)]
+        dfInRange.sort_values(by=['trade_date'], inplace=True)
+        dfInRange.drop_duplicates(['adj_factor'], inplace=True)
+        dfInRange['code'] = pd.Series(symbol, dfInRange.index)
+        dfInRange = dfInRange.loc[:,['code', 'trade_date', 'adj_factor']]
+        dfInRange.to_sql(name='AdjFactor', con=conn, if_exists='append', index=False)
+        progress.show("正在设置{0}的复权因子".format(symbol))
+        progress.step()
+    conn.commit()
+    progress.finish("完成设置复权因子。")
 
 
 def FetchTradeDate():
@@ -182,6 +203,7 @@ def Run(bindir):
         if count != fetchCount:
             Utils.Info("目前本地股票数量和服务器不一致，开始更新股票基本资料...")
             UpdateStock(conn)
+            UpdateAdjFactor(conn)
         else:
             Utils.Info("目前本地股票数量和服务器一致，不需要更新股票基本资料。")
 

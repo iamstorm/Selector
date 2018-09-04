@@ -241,14 +241,14 @@ namespace SelectImpl
             }
             else if (colName == "pubrank")
             {
-                return straData == null ? "" : straData.rank_.ToString();
+                return straData == null ? "-1" : straData.rank_.ToString();
             }
             else if (colName == "prirank")
             {
                 String ret;
                 if (straData == null)
                 {
-                    ret = "";
+                    ret = "-1";
                 }
                 else
                 {
