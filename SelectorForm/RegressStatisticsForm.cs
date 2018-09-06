@@ -220,6 +220,10 @@ namespace SelectorForm
             List<String> rateItemList = new List<string>();
             foreach (var kv in sortDict)
             {
+                if (kv.Value.Count < 20)
+                {
+                    continue;   
+                }
                 rateItemList.Add(kv.Key);
                 List<DateSelectItem> items = RegressResult.ToDaySelectItemList(kv.Value, re_.dateRangeList_);
                 HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
@@ -268,6 +272,7 @@ namespace SelectorForm
                 return;
             }
             StrategyAsset.WriteStrategyAsset(re_.strategyList_[0], re_.reHistory_, strategyRateItemHistoryData_);
+            App.asset_.readAssetFromDB();
             MessageBox.Show("Save success!", "Selector");
         }
 

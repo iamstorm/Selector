@@ -112,6 +112,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddManualStraForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddManualStraForm.Designer.cs">
+      <DependentUpon>AddManualStraForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DateRangeSettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +132,12 @@
     </Compile>
     <Compile Include="GUtils.cs" />
     <Compile Include="LUtils.cs" />
+    <Compile Include="ManualSelectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManualSelectForm.Designer.cs">
+      <DependentUpon>ManualSelectForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewRegressForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,6 +189,9 @@
       <DependentUpon>SolutionSettingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SUtils.cs" />
+    <EmbeddedResource Include="AddManualStraForm.resx">
+      <DependentUpon>AddManualStraForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DateRangeSettingForm.resx">
       <DependentUpon>DateRangeSettingForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -185,6 +200,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ManualSelectForm.resx">
+      <DependentUpon>ManualSelectForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewRegressForm.resx">
       <DependentUpon>NewRegressForm.cs</DependentUpon>

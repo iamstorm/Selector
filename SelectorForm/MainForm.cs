@@ -482,5 +482,11 @@ namespace SelectorForm
             form.ShowDialog();
         }
 
+        private void manualSelectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ManualSelectForm form = new ManualSelectForm();
+            form.ShowDialog();
+        }
+
     }
 }

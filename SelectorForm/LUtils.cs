@@ -93,7 +93,7 @@ namespace SelectorForm
         public static void FillListViewData(ListView lv, List<SelectItem> selItems)
         {
             RemoveAllListRow(lv);
-            if (selItems.Count > 300)
+            if (selItems.Count > 1000)
             {
                 lv.VirtualMode = true;
                 lv.VirtualListSize = selItems.Count;

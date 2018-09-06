@@ -31,6 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menu = new System.Windows.Forms.MenuStrip();
             this.basicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressLisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,8 +53,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.manualSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -77,10 +78,25 @@
             // 
             this.basicToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.solutionSettingToolStripMenuItem,
-            this.dateRangeSettingToolStripMenuItem});
+            this.dateRangeSettingToolStripMenuItem,
+            this.manualSelectToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
+            // 
+            // solutionSettingToolStripMenuItem
+            // 
+            this.solutionSettingToolStripMenuItem.Name = "solutionSettingToolStripMenuItem";
+            this.solutionSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.solutionSettingToolStripMenuItem.Text = "SolutionSetting";
+            this.solutionSettingToolStripMenuItem.Click += new System.EventHandler(this.solutionSettingToolStripMenuItem_Click);
+            // 
+            // dateRangeSettingToolStripMenuItem
+            // 
+            this.dateRangeSettingToolStripMenuItem.Name = "dateRangeSettingToolStripMenuItem";
+            this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
+            this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
             // 
             // selectToolStripMenuItem
             // 
@@ -236,30 +252,23 @@
             // skinToolStripMenuItem
             // 
             this.skinToolStripMenuItem.Name = "skinToolStripMenuItem";
-            this.skinToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.skinToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.skinToolStripMenuItem.Text = "skin";
             this.skinToolStripMenuItem.Click += new System.EventHandler(this.skinToolStripMenuItem_Click);
             // 
             // swichmodeToolStripMenuItem
             // 
             this.swichmodeToolStripMenuItem.Name = "swichmodeToolStripMenuItem";
-            this.swichmodeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.swichmodeToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.swichmodeToolStripMenuItem.Text = "swichmode";
             this.swichmodeToolStripMenuItem.Click += new System.EventHandler(this.swichmodeToolStripMenuItem_Click);
             // 
-            // solutionSettingToolStripMenuItem
+            // manualSelectToolStripMenuItem
             // 
-            this.solutionSettingToolStripMenuItem.Name = "solutionSettingToolStripMenuItem";
-            this.solutionSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.solutionSettingToolStripMenuItem.Text = "SolutionSetting";
-            this.solutionSettingToolStripMenuItem.Click += new System.EventHandler(this.solutionSettingToolStripMenuItem_Click);
-            // 
-            // dateRangeSettingToolStripMenuItem
-            // 
-            this.dateRangeSettingToolStripMenuItem.Name = "dateRangeSettingToolStripMenuItem";
-            this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
-            this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
+            this.manualSelectToolStripMenuItem.Name = "manualSelectToolStripMenuItem";
+            this.manualSelectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manualSelectToolStripMenuItem.Text = "ManualSelect";
+            this.manualSelectToolStripMenuItem.Click += new System.EventHandler(this.manualSelectToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -315,6 +324,7 @@
         private System.Windows.Forms.ToolStripMenuItem skinToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem solutionSettingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dateRangeSettingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem manualSelectToolStripMenuItem;
     }
 }
 
