@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Data.SQLite;
 
 namespace SelectImpl
 {
@@ -49,11 +50,14 @@ namespace SelectImpl
             straDataDict["straname"] = stra.name();
             DB.Global().Insert("stra_his", straDataDict);
             stra.sh().Execute("Delete From rateitem_his");
-            foreach (var kv in straRaItemData)
+            if (straRaItemData != null)
             {
-                Dictionary<String, Object> dataDict = kv.Value.toDictionary(stra);
-                dataDict["rateItemKey"] = kv.Key;
-                stra.sh().Insert("rateitem_his", dataDict);
+                foreach (var kv in straRaItemData)
+                {
+                    Dictionary<String, Object> dataDict = kv.Value.toDictionary(stra);
+                    dataDict["rateItemKey"] = kv.Key;
+                    stra.sh().Insert("rateitem_his", dataDict);
+                }
             }
         }
 
@@ -191,6 +195,36 @@ namespace SelectImpl
             }
             data.refrestStatistics();
             return data;
+        }
+        public void createStraTable(SQLiteHelper sh)
+        {
+            sh.Execute(@"CREATE TABLE rateitem_his ( 
+                                rateItemKey               VARCHAR( 200 )   PRIMARY KEY
+                                                                        UNIQUE,
+                                tradeSucProbility      NUMERIC( 5, 2 )  NOT NULL,
+                                selectSucProbility     NUMERIC( 5, 2 )  NOT NULL,
+                                bonusValue             NUMERIC( 5, 2 )  NOT NULL,
+                                antiRate               NUMERIC( 5, 2 )  NOT NULL,
+                                tradeDayRate           NUMERIC( 5, 2 )  NOT NULL,
+                                dontBuyRate            NUMERIC( 5, 2 )  NOT NULL,
+                                startDate              INT              NOT NULL,
+                                endDate                INT              NOT NULL,
+                                nDayCount              INT              NOT NULL,
+                                nTradeCount            INT              NOT NULL,
+                                nGoodSampleSelectCount INT              NOT NULL,
+                                nAllSampleSelectCount INT              NOT NULL,
+                                nAntiEnvCount          INT              NOT NULL,
+                                nAntiEnvCheckCount  INT              NOT NULL,
+                                nSelectSucCount        INT              NOT NULL,
+                                nTradeSucCount         INT              NOT NULL,
+                                nDontBuyAndDown        INT              NOT NULL,
+                                nDontBuyButUp          INT              NOT NULL,
+                                bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
+                                rank                   INT              NOT NULL  ,
+                                verTag                   VARCHAR( 100 )              NOT NULL 
+
+                            );
+                    ");
         }
     }
 }

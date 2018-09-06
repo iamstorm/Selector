@@ -269,6 +269,12 @@ namespace SelectImpl
             {
                 return sigDate_;
             }
+            else if (colName == "a")
+            {
+                String ret = App.ds_.Ref(Info.A, stock.dataList_, App.ds_.index(stock, date_), 0).ToString("F0");
+                colValCacheDict_[colName] = ret;
+                return ret;
+            }
             else
             {
                 throw new ArgumentException("想要显示无效的列值！");

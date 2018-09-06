@@ -154,11 +154,17 @@ namespace SelectImpl
 //             }
             nThreshold += nPlus5PercentCount;
             nThreshold += nDStopCount;
+
+            if (dsh.UpShadow(1) > 0.04 && dsh.Ref(Info.ZF, 1) < 0 && dsh.Ref(Info.ZF) > -0.08)
+            {
+                ++nThreshold;
+            }
             //  nThreshold += (int)Math.Ceiling(nPlus5PercentCount*0.5);
             if (nMeetMinus5PercentCount < nThreshold - 1)
             {
                 return null;
             }
+            
             if (nMeetMinus5PercentCount > nThreshold - 1)
             {
                 if (dsh.Ref(Info.ZF, iIndex + 1) > 0)

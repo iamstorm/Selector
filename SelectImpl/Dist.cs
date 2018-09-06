@@ -15,6 +15,7 @@ namespace SelectImpl
         public static String dayPath_;
         public static String assetPath_;
         public static String straPath_;
+        public static String manualStraPath_;
         static Dist()
         {
             string codeBase = Assembly.GetExecutingAssembly().CodeBase;
@@ -27,6 +28,7 @@ namespace SelectImpl
             dayPath_ = dataPath_ + "day\\";
             assetPath_ = binPath_ + "asset\\";
             straPath_ = assetPath_ + "strategy\\";
+            manualStraPath_ = binPath_ + "manual\\";
         }
         public static String GlobalDBFile()
         {
@@ -45,6 +47,10 @@ namespace SelectImpl
             if (!Directory.Exists(straPath_))
             {
                 Directory.CreateDirectory(straPath_);
+            }
+            if (!Directory.Exists(manualStraPath_))
+            {
+                Directory.CreateDirectory(manualStraPath_);
             }
         }
     }

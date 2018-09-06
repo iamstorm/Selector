@@ -134,6 +134,7 @@
     <Compile Include="Strategy\TodayBuyTomorowSellStrategy.cs" />
     <Compile Include="Strategy\UStopDownStrategy.cs" />
     <Compile Include="Strategy\UUDownStrategy.cs" />
+    <Compile Include="Strategy\TodayBuy2DaySellStrategy.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
