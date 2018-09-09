@@ -30,6 +30,8 @@ namespace SelectorForm
             wd_ = wd;
 
             menuStrip1.Visible = false;
+            writeAssetToolStripMenuItem.Visible = false;
+            writeAsOptimizeToolStripMenuItem.Visible = false;
             chart_.Titles.Add("Title");
             string sMode = re.runMode_ == RunMode.RM_Asset ? "Asset mode" : "Raw mode";
             chart_.Titles[0].Text = String.Format("{0} {1}", re.solutionName_, sMode);
@@ -44,9 +46,12 @@ namespace SelectorForm
                 case WantDataType.WD_RateItemData:
                     fillRateItemChart();
                     menuStrip1.Visible = true;
+                    writeAssetToolStripMenuItem.Visible = true;
                     break;
                 case WantDataType.WD_HistoryData:
                     fillHistoryDataChart();
+                    menuStrip1.Visible = true;
+                    writeAsOptimizeToolStripMenuItem.Visible = true;
                     if (re_.reHistory_ == null)
                     {
                         break;
@@ -54,6 +59,13 @@ namespace SelectorForm
                     historyView.Columns.Add("solution", 80);
                     LUtils.InitListView(historyView, HistoryData.ShowColumnInfos);
                     historyView.Items.Add(re_.reHistory_.toListViewItem(historyView, re_.solutionName_));
+
+                    DataTable straHisTable = DB.Global().Select(String.Format("Select * From stra_opt Where straname = '{0}'", re_.solutionName_));
+                    foreach (DataRow row in straHisTable.Rows)
+                    {
+                        HistoryData data = HistoryData.FromDataRow(row);
+                        historyView.Items.Add(data.toListViewItem(historyView, "best"));
+                    }
                     break;
                 default:
                     throw new ArgumentException("Unknown data type!");
@@ -204,16 +216,6 @@ namespace SelectorForm
             {
                 return;
             }
-//             List<DateSelectItem> dayItems = RegressResult.ToDaySelectItemList(re_.selItems_, re_.dateRangeList_);
-//             List<SelectItem> validItems = new List<SelectItem>();
-//             foreach (var item in dayItems)
-//             {
-//                 if (item.selItems_.Count > 1)
-//                 {
-//                     validItems.AddRange(item.selItems_);
-//                 }
-//             }
-
             Dictionary<String, List<SelectItem>> rateItemDict = RegressResult.ToRateItemDict(re_.selItems_);
             var sortDict = from objDic in rateItemDict orderby objDic.Key select objDic;
             List<HistoryData> dataList = new List<HistoryData>();
@@ -229,15 +231,6 @@ namespace SelectorForm
                 HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
                 dataList.Add(data);
             }
-//             List<int> occurInUpItemList, occurInDownItemList;
-//             int nUpSelCount, nDownSelCount;
-//             RegressResult.GetUpDownOccurCountForRateItem(re_.selItems_, rateItemList, 
-//                 out occurInUpItemList, out occurInDownItemList, out nUpSelCount, out nDownSelCount);
-//             for (int i = 0; i < rateItemList.Count; i++)
-//             {
-//                 dataList[i].recalProbilityForRateItem(occurInUpItemList[i], occurInDownItemList[i], nUpSelCount, nDownSelCount);
-//             }
-
             if (dataList.Count == 0)
             {
                 return;
@@ -273,6 +266,15 @@ namespace SelectorForm
             }
             StrategyAsset.WriteStrategyAsset(re_.strategyList_[0], re_.reHistory_, strategyRateItemHistoryData_);
             App.asset_.readAssetFromDB();
+            MessageBox.Show("Save success!", "Selector");
+        }
+
+        private void writeAsOptimizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DB.Global().Execute(String.Format("Delete From stra_opt Where straname = '{0}'", re_.solutionName_));
+            Dictionary<String, Object> straDataDict = re_.reHistory_.toDictionary("");
+            straDataDict["straname"] = re_.solutionName_;
+            DB.Global().Insert("stra_opt", straDataDict);
             MessageBox.Show("Save success!", "Selector");
         }
 

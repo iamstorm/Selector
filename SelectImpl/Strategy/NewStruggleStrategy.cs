@@ -106,7 +106,7 @@ namespace SelectImpl
             } while (sellDate != -1);
             return Utils.ToBonus((onemoney - 1 - 0.002f) * 0.5f);
         }
-        Dictionary<String, String> selectForHStrugle(DataStoreHelper dsh, float topMostC)
+        Dictionary<String, String> selectForHStrugle(DataStoreHelper dsh, float topMostC, float maxUpZF)
         {
             if (dsh.MaxCO(1) > dsh.MaxCO())
             {
@@ -131,11 +131,15 @@ namespace SelectImpl
                     return null;
                 }
             }
-            var test = dsh.Date().ToString();
+            float upLimitRate = maxUpZF > 0.01f ? 0 : 0.01f;
+//             if (dsh.Ref(Info.ZF) < 0.005)
+//             {
+//                 upLimitRate = 0.03f;
+//             }
             var upRate = (dsh.Ref(Info.H) - topMostC) / topMostC;
             if ((dsh.Ref(Info.H, 1) - topMostC) / topMostC < 0 &&
-             upRate > 0.01/* && dsh.UpShadow() > 0.02*/ &&
-                dsh.MaxCO() < topMostC && dsh.Ref(Info.ZF) > 0)
+             upRate > upLimitRate/* && dsh.UpShadow() > 0.02*/ &&
+                dsh.MaxCO() < topMostC && dsh.Ref(Info.ZF) > 0.005)
             {
                 return EmptyRateItemButSel;
             }
@@ -148,11 +152,6 @@ namespace SelectImpl
             if (zf > 0.095 || zf < -0.095)
             {
                 return null;
-            }
-            if (dsh.stock_.code_ == "603713")
-            {
-                int a = 3;
-                a = 5;
             }
             if (dsh.birthCount() > 40)
             {
@@ -169,7 +168,7 @@ namespace SelectImpl
                 }
                 ++nDayCount;
             }
-            if (nDayCount < 3/* && Utils.Year(dsh.Date()) == 2005*/)
+            if (nDayCount < 3)
             {
                 return null;
             }
@@ -189,7 +188,9 @@ namespace SelectImpl
                     topMostSimpleC = curTop;
                     iTopMostIndex = i;
                 }
-                if (dsh.Ref(Info.ZF, i) < 0 && dsh.MaxCO(i) > dsh.MaxCO(i-1))
+                if (
+                    (dsh.Ref(Info.C, i) < dsh.Ref(Info.O, i))
+                    && dsh.MaxCO(i) > dsh.MaxCO(i-1))
                 {
                     iSerarchBeginIndex = i;
                     break;
@@ -200,32 +201,6 @@ namespace SelectImpl
                 return null;
             }
 
-//             float topMostSecondC = topMostSimpleC;
-//             int iTopSecondIndex = -1;
-//             for (int i = iSerarchBeginIndex-1; i > 0; --i)
-//             {
-//                 if (dsh.Ref(Info.ZF, i) < -0.02 && dsh.IsRealDown(i))
-//                 {
-//                     iSearchIndex2 = i;
-//                     break;
-//                 }
-//                 topMostSecondC = Math.Max(topMostSecondC, dsh.Ref(Info.C, i));
-//                 iTopSecondIndex = i;
-//             }
-//             if (iSearchIndex2 == -1)
-//             {
-//                 return null;
-//             }
-//             if (iTopSecondIndex != -1 && topMostSecondC > topMostSimpleC)
-//             {
-//                 topMostSecondC = Math.Max(topMostSecondC, dsh.MaxCO(iTopSecondIndex - 1));
-//                 topMostC = topMostSecondC;
-//                 iTopMostIndex = iTopSecondIndex;
-//             }
-//             else
-//             {
-//                 topMostC = topMostSimpleC;
-//             }
             for (int i = 3; i >= 1; --i )
             {
                 bool bContinue = true;
@@ -255,7 +230,7 @@ namespace SelectImpl
             sigDate = dsh.Date(iTopMostIndex).ToString();
 
             int iStruggleUpIndex = -1;
-            int iTwoUpIndex = -1;
+            float maxUpZF = float.MinValue;
             for (int i = iSearchIndex2; i >= 0; --i)
             {
                 if (iStruggleUpIndex == -1)
@@ -265,41 +240,14 @@ namespace SelectImpl
                         iStruggleUpIndex = i;
                     }
                 }
-//                 if (dsh.Ref(Info.C, i + 2) < topMostC && (dsh.Ref(Info.C, i + 1) - topMostC) / topMostC > 0.005 &&
-//                     dsh.Ref(Info.ZF, i) > 0.01)
-//                 {
-//                     iTwoUpIndex = i;
-//                     break;
-//                 }
+                float curZF = (dsh.Ref(Info.C, i) - topMostC) / topMostC;
+                maxUpZF = Math.Max(curZF, maxUpZF);
             }
             if (iStruggleUpIndex == -1)
             {
                 return null;
             }
-            if (iTwoUpIndex == iStruggleUpIndex && iTwoUpIndex == 0)
-            {
-                for (int i = 1;  i < 4;  i++)
-                {
-                    if (dsh.Ref(Info.ZF, i) > 0.095)
-                    {
-                        return null;
-                    }
-                    else if (dsh.Ref(Info.ZF, i) < 0)
-                    {
-                        break;
-                    }
-                }
-                return EmptyRateItemButSel;
-            }
-//             for (int i = 1; i <= 2; i++)
-//             {
-//                 if (selectForHStrugle(dsh.newDsh(i), topMostC) != null)
-//                 {
-//                     return null;
-//                 }
-//             }
-
-            return selectForHStrugle(dsh, topMostC);
+            return selectForHStrugle(dsh, topMostC, maxUpZF);
         }
     }
 }

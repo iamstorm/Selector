@@ -46,7 +46,7 @@ namespace SelectImpl
         public static void WriteStrategyAsset(IStrategy stra, HistoryData straData, Dictionary<String, HistoryData> straRaItemData)
         {
             DB.Global().Execute(String.Format("Delete From stra_his Where straname = '{0}'", stra.name()));
-            Dictionary<String, Object> straDataDict = straData.toDictionary(stra);
+            Dictionary<String, Object> straDataDict = straData.toDictionary(stra.verTag());
             straDataDict["straname"] = stra.name();
             DB.Global().Insert("stra_his", straDataDict);
             stra.sh().Execute("Delete From rateitem_his");
@@ -54,7 +54,7 @@ namespace SelectImpl
             {
                 foreach (var kv in straRaItemData)
                 {
-                    Dictionary<String, Object> dataDict = kv.Value.toDictionary(stra);
+                    Dictionary<String, Object> dataDict = kv.Value.toDictionary(stra.verTag());
                     dataDict["rateItemKey"] = kv.Key;
                     stra.sh().Insert("rateitem_his", dataDict);
                 }

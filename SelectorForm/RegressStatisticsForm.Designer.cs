@@ -28,14 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.chart_ = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.straListView_ = new System.Windows.Forms.ListView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.historyView = new System.Windows.Forms.ListView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.writeAssetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.writeAsOptimizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.chart_)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -46,13 +47,13 @@
             // 
             // chart_
             // 
-            chartArea1.AxisX.LabelAutoFitStyle = System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.None;
-            chartArea1.AxisX.LabelStyle.Interval = 1D;
-            chartArea1.Name = "ChartArea1";
-            this.chart_.ChartAreas.Add(chartArea1);
+            chartArea2.AxisX.LabelAutoFitStyle = System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.None;
+            chartArea2.AxisX.LabelStyle.Interval = 1D;
+            chartArea2.Name = "ChartArea1";
+            this.chart_.ChartAreas.Add(chartArea2);
             this.chart_.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Name = "Legend1";
-            this.chart_.Legends.Add(legend1);
+            legend2.Name = "Legend1";
+            this.chart_.Legends.Add(legend2);
             this.chart_.Location = new System.Drawing.Point(0, 0);
             this.chart_.Name = "chart_";
             this.chart_.Size = new System.Drawing.Size(767, 360);
@@ -101,7 +102,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.writeAssetToolStripMenuItem});
+            this.writeAssetToolStripMenuItem,
+            this.writeAsOptimizeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(767, 25);
@@ -114,6 +116,13 @@
             this.writeAssetToolStripMenuItem.Size = new System.Drawing.Size(82, 21);
             this.writeAssetToolStripMenuItem.Text = "WriteAsset";
             this.writeAssetToolStripMenuItem.Click += new System.EventHandler(this.writeAssetToolStripMenuItem_Click);
+            // 
+            // writeAsOptimizeToolStripMenuItem
+            // 
+            this.writeAsOptimizeToolStripMenuItem.Name = "writeAsOptimizeToolStripMenuItem";
+            this.writeAsOptimizeToolStripMenuItem.Size = new System.Drawing.Size(117, 21);
+            this.writeAsOptimizeToolStripMenuItem.Text = "WriteAsOptimize";
+            this.writeAsOptimizeToolStripMenuItem.Click += new System.EventHandler(this.writeAsOptimizeToolStripMenuItem_Click);
             // 
             // RegressStatisticsForm
             // 
@@ -144,6 +153,7 @@
         private System.Windows.Forms.ListView historyView;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem writeAssetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem writeAsOptimizeToolStripMenuItem;
 
     }
 }

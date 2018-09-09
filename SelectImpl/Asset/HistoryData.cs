@@ -105,7 +105,7 @@ namespace SelectImpl
             data.nDontBuyButUp_ = Utils.ToType<int>(row["nDontBuyButUp"]);
             return data;
         }
-        public Dictionary<String, Object> toDictionary(IStrategy stra)
+        public Dictionary<String, Object> toDictionary(String verTag)
         {
             Dictionary<String, Object> dict = new Dictionary<String, Object>();
             dict["tradeSucProbility"] = tradeSucProbility_;
@@ -128,7 +128,7 @@ namespace SelectImpl
             dict["nTradeSucCount"] = nTradeSucCount_;
             dict["nDontBuyAndDown"] = nDontBuyAndDown_;
             dict["nDontBuyButUp"] = nDontBuyButUp_;
-            dict["verTag"] = stra.verTag();
+            dict["verTag"] = verTag;
             return dict;
         }
         public static HistoryData MergeHistory(List<HistoryData> dataList)
