@@ -58,13 +58,9 @@ namespace SelectorForm
             if (dateTimeList.Count == dt.Rows.Count)
             {
                 dt.Rows.Add(dt.NewRow());
-                DataRow row = dt.Rows[iIndex];
-                row[dateRangeGrid_.CurrentCell.ColumnIndex] = dtp_.Text.ToString();
             }
-            else
-            {
-                dateRangeGrid_.CurrentCell.Value = dtp_.Text.ToString();
-            }
+            DataRow row = dt.Rows[iIndex];
+            row[dateRangeGrid_.CurrentCell.ColumnIndex] = dtp_.Text.ToString();
         }
         private void dateRangeGrid__CellClick(object sender, DataGridViewCellEventArgs e)
         {

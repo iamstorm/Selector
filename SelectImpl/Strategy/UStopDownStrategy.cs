@@ -44,14 +44,16 @@ namespace SelectImpl
             int nDStopCount = 0;
             bool bMeetTradeSigAllready = false;
             bool bMeetRealUp = false;
-            float sigDateVol = 0;
-            float otherMaxVol = 0;
             bool bHasUpShadowTooHight = false;
             bool bHasDownShadowTooLow = false;
+            float otherMaxVol = 0;
             float otherMaxZF = 0;
             float otherMaxC = 0;
             float otherMaxH = 0;
+            float sigDateVol = 0;
             float sigZF = 0;
+            float minDownShadow = float.MaxValue;
+            float maxUpShadow = float.MinValue;
             for (int i = 1; i < 8; ++i )
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -66,7 +68,6 @@ namespace SelectImpl
                     sigZF = curZf;
                     break;
                 }
-                otherMaxVol = Math.Max(vol, otherMaxVol);
                 if (curZf > 0)
                 {
                     nUpCount++;
@@ -86,16 +87,17 @@ namespace SelectImpl
                 {
                     bMeetRealUp = true;
                 }
-
-                if (dsh.UpShadow(i) > 0.03)
+                float upShadow = dsh.UpShadow(i);
+                float downShadow = dsh.DownShadow(i);
+                if (upShadow > maxUpShadow)
                 {
-                    bHasUpShadowTooHight = true;
+                    maxUpShadow = upShadow;
                 }
-
-                if (dsh.DownShadow(i) < -0.03)
+                if (downShadow < minDownShadow)
                 {
-                    bHasDownShadowTooLow = true;
+                    minDownShadow = downShadow;
                 }
+                otherMaxVol = Math.Max(vol, otherMaxVol);
                 otherMaxZF = Math.Max(otherMaxZF, curZf);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
                 otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
@@ -106,6 +108,15 @@ namespace SelectImpl
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
 
+            if (maxUpShadow > 0.03)
+            {
+                bHasUpShadowTooHight = true;
+            }
+
+            if (minDownShadow < -0.03)
+            {
+                bHasDownShadowTooLow = true;
+            }
             if (nUpCount < 2)
             {
                 return null;
@@ -166,6 +177,7 @@ namespace SelectImpl
              {
                  return null;
              }
+   
              var ret = new Dictionary<String, String>();
              ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
              ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";

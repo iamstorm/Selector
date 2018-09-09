@@ -28,11 +28,15 @@ namespace SelectorForm
 
                 DB.RegConn(Dist.manualStraPath_+sName, sName);
             }
-            comboStra_.SelectedItem = Utils.GetSysInfo(DB.Global(), "ManualSelectForm.SelectStra");
             DataTable rateItemDt = new DataTable();
             rateItemDt.Columns.Add("Key");
             rateItemDt.Columns.Add("Value");
             dataGridRateItem_.DataSource = rateItemDt;
+            if (comboStra_.Items.Count > 0)
+            {
+                comboStra_.SelectedItem = comboStra_.Items[0];
+            }
+            comboStra_.SelectedItem = Utils.GetSysInfo(DB.Global(), "ManualSelectForm.SelectStra");
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -104,10 +108,6 @@ namespace SelectorForm
             String sRateItemKeys = straRateItemKeyDict_[sName];
             var keyList = sRateItemKeys.Split(',');
             DataTable dt = (DataTable)dataGridRateItem_.DataSource;
-            if (dt == null)
-            {
-                return;
-            }
             dt.Rows.Clear();
             foreach (var item in keyList)
             {

@@ -53,7 +53,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.manualSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -65,6 +65,7 @@
             // 
             this.menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.basicToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.selectToolStripMenuItem,
             this.regressToolStripMenuItem,
             this.regressLisToolStripMenuItem});
@@ -78,8 +79,7 @@
             // 
             this.basicToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.solutionSettingToolStripMenuItem,
-            this.dateRangeSettingToolStripMenuItem,
-            this.manualSelectToolStripMenuItem});
+            this.dateRangeSettingToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -263,12 +263,12 @@
             this.swichmodeToolStripMenuItem.Text = "swichmode";
             this.swichmodeToolStripMenuItem.Click += new System.EventHandler(this.swichmodeToolStripMenuItem_Click);
             // 
-            // manualSelectToolStripMenuItem
+            // toolStripMenuItem1
             // 
-            this.manualSelectToolStripMenuItem.Name = "manualSelectToolStripMenuItem";
-            this.manualSelectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.manualSelectToolStripMenuItem.Text = "ManualSelect";
-            this.manualSelectToolStripMenuItem.Click += new System.EventHandler(this.manualSelectToolStripMenuItem_Click);
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(97, 21);
+            this.toolStripMenuItem1.Text = "ManualSelect";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // MainForm
             // 
@@ -324,7 +324,7 @@
         private System.Windows.Forms.ToolStripMenuItem skinToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem solutionSettingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dateRangeSettingToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem manualSelectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }
 

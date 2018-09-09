@@ -365,8 +365,132 @@ namespace SelectImpl
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
+            if (zf > -0.03 || zf < -0.095)
+            {
+                return null;
+            }
 
-            if (zf > -0.095)
+            int iSigDateIndex = -1;
+            int nUpCount = 0;
+            int nDownCount = 0;
+            int nUStopCount = 0;
+            int nDStopCount = 0;
+            bool bMeetTradeSigAllready = false;
+            bool bMeetRealUp = false;
+            bool bHasUpShadowTooHight = false;
+            bool bHasDownShadowTooLow = false;
+            float otherMaxVol = 0;
+            float otherMaxZF = 0;
+            float otherMaxC = 0;
+            float otherMaxH = 0;
+            float otherMinC = float.MaxValue;
+            float sigDateVol = 0;
+            float sigZF = 0;
+            for (int i = 1; i < 8; i++)
+            {
+                var curOf = dsh.Ref(Info.OF, i);
+                var curHf = dsh.Ref(Info.HF, i);
+                var curLf = dsh.Ref(Info.LF, i);
+                var curZf = dsh.Ref(Info.ZF, i);
+                var curPreZf = dsh.Ref(Info.ZF, i + 1);
+                var vol = dsh.Ref(Info.V, i);
+                if (curOf > -0.095 && curLf < -0.095 && curZf > -0.095)
+                {
+                    iSigDateIndex = i;
+                    sigDateVol = vol;
+                    sigZF = curZf;
+                    break;
+                }
+                if (curZf > 0)
+                {
+                    ++nUpCount;
+                }
+                else if (curZf < 0)
+                {
+                    ++nDownCount;
+                }
+                if (curZf > 0.095)
+                {
+                    nUStopCount++;
+                }
+                else if (curZf < -0.095)
+                {
+                    nDStopCount++;
+                }
+                else if (curZf > 0.012)
+                {
+                    bMeetRealUp = true;
+                }
+                if (curZf < -0.03)
+                {
+                    bMeetTradeSigAllready = true;
+                }
+                if (dsh.UpShadow(i) > 0.03)
+                {
+                    bHasUpShadowTooHight = true;
+                }
+
+                if (dsh.DownShadow(i) < -0.03)
+                {
+                    bHasDownShadowTooLow = true;
+                }
+                otherMaxVol = Math.Max(vol, otherMaxVol);
+                otherMaxZF = Math.Max(otherMaxZF, curZf);
+                otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
+                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
+                otherMinC = Math.Min(dsh.Ref(Info.C, i), otherMinC);
+            }
+            if (iSigDateIndex == -1)
+            {
+                return null;
+            }
+            if (nUpCount > 2 || nDownCount == 0)
+            {
+                return null;
+            }
+            if (nUStopCount > 0)
+            {
+                return null;
+            }
+//             if (bMeetTradeSigAllready)
+//             {
+//                 return null;
+//             }
+            if (bHasDownShadowTooLow)
+            {
+                return null;
+            }
+            float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
+//             if (maxUpF < 0.035/* || maxUpF > 0.04*/)
+//             {
+//                 return null;
+//             }
+//             if (sigDateVol > otherMaxVol * 1.2)
+//             {
+//                 return null;
+//             }
+//             if (otherMaxZF + zf < -0.05)
+//             {
+//                 return null;
+//             }
+
+            if (dsh.Ref(Info.HF) > 0.05)
+            {
+                return null;
+            }
+            float minZF = (dsh.Ref(Info.C) - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
+            if (minZF < 0.02)
+            {
+                return null;
+            }
+            for (int i = iSigDateIndex; i < iSigDateIndex+10; i++)
+            {
+                if (dsh.IsUpStopEveryDay(3, i))
+                {
+                    return null;
+                }
+            }
+            if (dsh.Ref(Info.ZF, 1) > 0.07 || dsh.Ref(Info.ZF, 2) > 0.07)
             {
                 return null;
             }

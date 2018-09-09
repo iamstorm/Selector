@@ -343,6 +343,7 @@ namespace SelectorForm
 	            }
             }
             showForm("TabSelect");
+            MessageBox.Show("Select complete.", "Selector");
         }
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -367,7 +368,7 @@ namespace SelectorForm
             isBusy_ = true;
             try
             {
-                if (regressingRe_.EndDate == Utils.NowDate())
+                if (regressingRe_.EndDate >= Utils.LastTradeDay())
                 {
                     if (!App.ds_.prepareForSelect())
                     {
@@ -482,7 +483,7 @@ namespace SelectorForm
             form.ShowDialog();
         }
 
-        private void manualSelectToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ManualSelectForm form = new ManualSelectForm();
             form.ShowDialog();

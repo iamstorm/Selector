@@ -156,8 +156,13 @@ namespace SelectImpl
                         float factor = 1;
                         if (factors != null)
 	                    {
-		                    if (d.date_ >= factors[iCurFactorIndex + 1].date_)
-                                ++iCurFactorIndex;
+                            do
+                            {
+                                if (d.date_ >= factors[iCurFactorIndex+1].date_)
+                                    ++iCurFactorIndex;
+                                else
+                                    break;
+                            } while (true);
 
                             factor = factors[iCurFactorIndex].factor_;
 	                    }
@@ -689,6 +694,44 @@ namespace SelectImpl
                 return false;
             }
             return true;
+        }
+        public bool IsReal(int dayCount = 0)
+        {
+            float zf = Ref(Info.ZF, dayCount);
+            if (zf > 0)
+            {
+                if (Ref(Info.C, dayCount) <= Ref(Info.O, dayCount))
+                {
+                    return false;
+                }
+            }
+            else if (zf < 0)
+            {
+                if (Ref(Info.C, dayCount) >= Ref(Info.O, dayCount))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (Ref(Info.C, dayCount) != Ref(Info.O, dayCount))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public int birthCount(int dayCount = 0)
+        {
+            return dataList_.Count - iIndex_ - dayCount;
+        }
+        public float MinCO(int dayCount = 0)
+        {
+            return Math.Min(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
+        }
+        public float MaxCO(int dayCount = 0)
+        {
+            return Math.Max(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
         }
     }
 }

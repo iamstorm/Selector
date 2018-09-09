@@ -75,7 +75,7 @@ namespace SelectorForm
             {
                 if (String.Equals(re.name_,name_.Text ,StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (DialogResult.Yes == MessageBox.Show("Same name regress already exists, remove it and regress?", "Selector", MessageBoxButtons.YesNo))
+//                if (DialogResult.Yes == MessageBox.Show("Same name regress already exists, remove it and regress?", "Selector", MessageBoxButtons.YesNo))
                     {
                         foreach (var formName in re.AllFormNames)
                         {
@@ -84,11 +84,11 @@ namespace SelectorForm
                         App.RemoveRegress(re);
                         break;
                     }
-                    else
-                    {
-                        this.DialogResult = DialogResult.None;
-                        return;   
-                    }
+//                else
+//                {
+//                    this.DialogResult = DialogResult.None;
+//                    return;   
+//                }
                 }
             }
             List<IStrategy> strategyList = App.Solution(slnComboBox_.SelectedItem.ToString()).straList_;

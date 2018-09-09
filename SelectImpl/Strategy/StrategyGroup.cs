@@ -14,6 +14,7 @@ namespace SelectImpl
             strategyList_.Add(new UStopDownStrategy());
             strategyList_.Add(new UUDownStrategy());
             strategyList_.Add(new EveryThreeUpStategy());
+            strategyList_.Add(new NewStruggleStrategy());
         }
         public IStrategy strategy(String straName)
         {
