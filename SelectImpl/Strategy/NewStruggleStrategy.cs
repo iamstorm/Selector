@@ -153,7 +153,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.birthCount() > 40)
+            if (dsh.birthCount() > 50)
             {
                 return null;
             }

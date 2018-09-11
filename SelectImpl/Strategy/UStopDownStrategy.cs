@@ -38,6 +38,7 @@ namespace SelectImpl
             {
                 return null;
             }
+
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -68,7 +69,7 @@ namespace SelectImpl
                     sigZF = curZf;
                     break;
                 }
-                if (curZf > 0)
+                if (curZf > 0 && dsh.IsReal(i))
                 {
                     nUpCount++;
                 }

@@ -26,6 +26,7 @@ namespace SelectorForm
         public Stopwatch runWatch_ = new Stopwatch();
         public bool isClosing_;
         public int sortColumn_;
+        DateTime startupTime_;
         public MainForm()
         {
             Me = this;
@@ -46,6 +47,8 @@ namespace SelectorForm
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
+            startupTime_ = DateTime.Now;
+            timer_.Start();
         }
         void IHost.uiStartProcessBar()
         {
@@ -114,9 +117,9 @@ namespace SelectorForm
                 {
                     if (Utils.NowIsTradeDay())
 	                {
-		                toolStripStatusLabel2_.Text = "tradeday";
+                        toolStripStatusLabel2_.Text = "tradeday " + DateTime.Now.ToLongDateString();
 	                } else {
-                        toolStripStatusLabel2_.Text = "holiday";
+                        toolStripStatusLabel2_.Text = "holiday " + DateTime.Now.ToLongDateString();
                     }
                 });
         }
@@ -341,6 +344,24 @@ namespace SelectorForm
 	            {
                     showRuntimeInfo();
 	            }
+
+                DB.Global().Execute(String.Format("Delete From autoselect"));
+                DateTime curTime = DateTime.Now;
+                foreach (var item in reSelect_.selItems_)
+                {
+                    Dictionary<String, Object> selectItem = new Dictionary<string, object>();
+                    selectItem["code"] = item.code_;
+                    selectItem["name"] = item.getColumnVal("name");
+                    selectItem["date"] = item.date_;
+                    selectItem["straname"] = item.strategyName_;
+                    selectItem["zf"] = item.getColumnVal("zf");
+                    selectItem["close"] = item.getColumnVal("close");
+                    selectItem["pubrank"] = item.getColumnVal("pubrank");
+                    selectItem["prirank"] = item.getColumnVal("prirank");
+                    selectItem["selecttime"] = Utils.ToTimeDesc(curTime);
+
+                    DB.Global().Insert("autoselect", selectItem);
+                }
             }
             showForm("TabSelect");
             MessageBox.Show("Select complete.", "Selector");
@@ -487,6 +508,17 @@ namespace SelectorForm
         {
             ManualSelectForm form = new ManualSelectForm();
             form.ShowDialog();
+        }
+
+        private void timer__Tick(object sender, EventArgs e)
+        {
+            DateTime curTime = DateTime.Now;
+            if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
+                                curTime.Day != startupTime_.Day) && curTime.Hour > 9)
+            {
+                Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
+                Close();
+            }
         }
 
     }

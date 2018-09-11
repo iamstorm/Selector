@@ -109,7 +109,7 @@ def UpdateAdjFactor(conn):
     for ts_code,symbol in stocks:
         start = int(Utils.ExeScalar(conn, "Select ifnull(max(trade_date), {0}) From AdjFactor Where code = '{1}'".format(Setting.DataFrom, symbol)))
         df = tu.pro.adj_factor(ts_code=ts_code, trade_date='')
-        
+
         dfInRange = df[df['trade_date']>str(start)]
         dfInRange.sort_values(by=['trade_date'], inplace=True)
         dfInRange.drop_duplicates(['adj_factor'], inplace=True)
@@ -122,18 +122,17 @@ def UpdateAdjFactor(conn):
     progress.finish("完成设置复权因子。")
 
 
-def FetchTradeDate():
-    df = tu.pro.trade_cal(exchange_id='', start_date=str(Setting.DataFrom), end_date='')
-    df = df[df.is_open==1]
-    df = df.loc[:,['cal_date']]
+def FetchTradeDate(conn):
+    start = int(Utils.ExeScalar(conn, "Select ifnull(max(cal_date), {0}) From trade_date".format(Setting.DataFrom)))
+    df = tu.pro.trade_cal(exchange_id='', start_date=str(start), end_date='')
     for index, row in df.iterrows():
         row['cal_date'] = row['cal_date'].replace('-','')
+    df = df[(df.is_open==1) & (df['cal_date']>str(start))]
+    df = df.loc[:,['cal_date']]
     return df
 
 def UpdateTradeDate(conn):
-    df = FetchTradeDate()
-    conn.execute("DELETE FROM trade_date")
-    conn.commit()
+    df = FetchTradeDate(conn)
     df.to_sql(name='trade_date', con=conn, if_exists='append', index=False)
     conn.commit()
 

@@ -80,6 +80,10 @@ namespace SelectImpl
         {
             return date - Year(date) * 10000 - Month(date) * 100;
         }
+        public static String ToTimeDesc(DateTime time)
+        {
+            return time.ToString("yyyy-MM-dd hh:mm:ss");
+        }
         public static DateTime ToDateTime(int date)
         {
             return new DateTime(Year(date), Month(date), Day(date));

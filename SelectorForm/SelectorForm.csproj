@@ -11,7 +11,8 @@
     <RootNamespace>SelectorForm</RootNamespace>
     <AssemblyName>SelectorForm</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -101,6 +102,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -182,6 +184,7 @@
     <Compile Include="SkinForm.Designer.cs">
       <DependentUpon>SkinForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Sms.cs" />
     <Compile Include="SolutionSettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -215,6 +218,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="RegressBuyForm.resx">
       <DependentUpon>RegressBuyForm.cs</DependentUpon>
@@ -234,6 +238,7 @@
     <EmbeddedResource Include="SolutionSettingForm.resx">
       <DependentUpon>SolutionSettingForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

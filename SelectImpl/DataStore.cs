@@ -619,7 +619,7 @@ namespace SelectImpl
         }
         public int HH(Info info, int count, int dayCount = 0)
         {
-            float maxVal = -float.MaxValue;
+            float maxVal = float.MinValue;
             int iLastDay = dayCount + count;
             int iMaxIndex = -1;
             for (int i = dayCount; i < iLastDay; i++)
