@@ -26,14 +26,7 @@ namespace NFine.Code
             {
                 operatorModel = DESEncrypt.Decrypt(WebHelper.GetSession(LoginUserKey).ToString()).ToObject<OperatorModel>();
             }
-            if (operatorModel != null && operatorModel.SecretKey == "Selector")
-            {
-                return operatorModel;
-            }
-            else
-            {
-                return null;
-            }
+            return operatorModel;
         }
         public void AddCurrent(OperatorModel operatorModel)
         {

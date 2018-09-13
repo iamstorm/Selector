@@ -17,7 +17,7 @@
     <style type="text/css">
         .btn
         {
-            margin-top: 10px;
+            margin: 20px 0;
             padding: 32px 32px;
             font-size: 32px;
             line-height: 2.66;
@@ -31,11 +31,23 @@
         {
             color: red
         }
-        #table thead > tr > th > div:first-child
+        table thead > tr > th > div:first-child
         {
             color: white;
             background-color: #428bca;
             font-size: 20px;
+        }
+        .right
+        {
+            float: right
+        }
+        .clear
+        {
+            clear: both
+        }
+        .auto
+        {
+            color: red
         }
     </style>
 </head>
@@ -43,13 +55,24 @@
     <div class="container">
         <h1 id="msg">Select:</h1>
         <p></p>
-        <table id="table">
+        <table id="table_result">
         </table>
-        <button type="button" class="btn btn-primary" onclick="refresh()">Refresh</button>
+        <div>
+            <button type="button" class="btn btn-primary" onclick="refresh(true)">Refresh</button>
+            <button type="button" class="btn btn-primary right" onclick="addTask()">AddTask</button>
+        </div>
+        <table id="table_task" class="clear">
+        </table>
+        <div  id="autorefresh" class="checkbox"  style="zoom:300%;">
+        <label>
+            <input type="checkbox" name="autorefresh" value="">
+            <span>AutoRefresh</span>
+        </label>
     </div>
 <script>
     var $msg = $('#msg');
-    var $table = $('#table');
+    var $tableResult = $('#table_result');
+    var $tableTask = $('#table_task');
 
     function ColumnInfo(field) {
         return {
@@ -58,8 +81,8 @@
             halign: 'center'
         }
     }
-    function InitColumn() {
-        var cols = ['code', 'name', 'zf', 'close', 'strategy', 'pubrank', 'prirank'];
+    function InitResultColumn() {
+        var cols = ['Code', 'Name', 'ZF', 'Close', 'Strategy', 'Pubrank', 'Prirank'];
         var colinfos = [];
         for (var i = 0; i < cols.length; i++) {
             colinfos.push(ColumnInfo(cols[i]));
@@ -68,13 +91,13 @@
     }
 
     $msg.text("");
-    $table.bootstrapTable({
-        columns: InitColumn(),
+    $tableResult.bootstrapTable({
+        columns: InitResultColumn(),
         data: [],
         striped: true,
         cache: false,
         rowStyle: function rowStyle(row, index) {
-            var zf = parseFloat(row["zf"]);
+            var zf = parseFloat(row["ZF"]);
             var color = zf > 0 ? "red" : "green";
             return {
                 css: { "color": color, "font-size": "20px" }
@@ -82,13 +105,43 @@
         }
     });
 
-    function refresh() {
-        $msg.text("");
-        $table.bootstrapTable('load', []);
+    function InitTaskColumn() {
+        var cols = ['ID', 'AddTime', 'StartAfter', 'Msg', 'HasError'];
+        var colinfos = [];
+        for (var i = 0; i < cols.length; i++) {
+            colinfos.push(ColumnInfo(cols[i]));
+        }
+        return colinfos;
+    }
 
-        layer.msg('Refreshing', { time: 1000 });
+    $tableTask.bootstrapTable({
+        columns: InitTaskColumn(),
+        data: [],
+        striped: true,
+        cache: false,
+        rowStyle: function rowStyle(row, index) {
+            if (row["HasError"] == "") {
+                return {
+                    css: { "font-size": "20px" }
+                };
+            } else {
+                var hasError = parseInt(row["HasError"]);
+                var color = hasError == 1 ? "red" : "green";
+                return {
+                    css: { "background-color": color, "font-size": "20px" }
+                };
+            }
+        }
+    });
+
+    function refresh(showLayerMsg) {
+        $msg.text("");
+        $tableResult.bootstrapTable('load', []);
+
+        if (showLayerMsg)
+            layer.msg('Refreshing', { time: 1000 });
         $.ajax({
-            url: "/Select/GetSelectItems",
+            url: "/Select/GetSelectInfo",
             type: "get",
             dataType: "json",
             async: false,
@@ -104,13 +157,40 @@
                     $msg.removeClass("error");
                 }
                 $msg.text(data.msg);
-                $table.bootstrapTable('load', data.items);
+                $tableResult.bootstrapTable('load', data.selItems);
+                $tableTask.bootstrapTable('load', data.taskItems);
             }
         });
     }
+    function addTask() {
+        $.ajax({
+            url: "/Select/AddTask",
+            type: "post",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                layer.msg('Task is added', { time: 1000 });
+                refresh(false);
+            }
+        });
+    }
+    function autoRefresh() {
+        refresh(true);
+    }
 
     $(function () {
-        refresh();
+        refresh(true);
+        var intervalRet = null;
+        $('#autorefresh input').click(function () {
+            if ($('input[name="autorefresh"]').prop("checked")) {
+                $('#autorefresh span').addClass("auto");
+                intervalRet = setInterval(autoRefresh, 1000);
+            }
+            else {
+                $('#autorefresh span').removeClass("auto");
+                clearInterval(intervalRet);
+            }
+        });
     });
     
 </script>

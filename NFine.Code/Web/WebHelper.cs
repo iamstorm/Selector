@@ -201,7 +201,7 @@ namespace NFine.Code
                 cookie = new HttpCookie(strName);
             }
             cookie.Value = strValue;
-            cookie.Expires = DateTime.Now.AddYears(expires);
+            cookie.Expires = DateTime.Now.AddMinutes(expires);
             HttpContext.Current.Response.AppendCookie(cookie);
         }
         /// <summary>

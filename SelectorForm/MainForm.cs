@@ -27,10 +27,9 @@ namespace SelectorForm
         public bool isClosing_;
         public int sortColumn_;
         DateTime startupTime_;
-        bool bHasAutoSelect_ = false;
-        bool bAutoSelectMode_ = false;
         bool bHasSendSms_ = false;
-        bool bHasReportAutoSelectModeError_ = false;
+        SelectTask selectTask_;
+        DateTime lastFinishTime_;
         public MainForm()
         {
             Me = this;
@@ -56,6 +55,11 @@ namespace SelectorForm
             DB.Global().Execute(String.Format("Delete From autoselect"));
             Utils.SetSysInfo(DB.Global(), "Select.msg", "Not yet");
             Utils.SetSysInfo(DB.Global(), "Select.starttime", "");
+            DateTime.TryParse(Utils.GetSysInfo(DB.Global(), "Select.finishTime"), out lastFinishTime_);
+            if (lastFinishTime_ == null)
+            {
+                lastFinishTime_ = new DateTime(2005, 1, 1);
+            }
         }
         void IHost.uiStartProcessBar()
         {
@@ -144,7 +148,7 @@ namespace SelectorForm
         }
         bool IHost.uiAutoSelectMode()
         {
-            return bAutoSelectMode_;
+            return selectTask_ != null;
         }
         public Form createTabPage(string name, Form form)
         {
@@ -289,7 +293,7 @@ namespace SelectorForm
         }
         public void reportSelectMsg(string sMsg, bool bImportant)
         {
-            if (bAutoSelectMode_)
+            if (selectTask_ != null)
             {
                 if (bImportant && !bHasSendSms_)
                 {
@@ -313,10 +317,9 @@ namespace SelectorForm
                 if (!App.ds_.prepareForSelect())
                 {
                     reportSelectMsg("准备数据工作失败，无法继续执行！", true);
-                    if (bAutoSelectMode_)
+                    if (selectTask_ != null)
                     {
-                        Utils.SetSysInfo(DB.Global(), "Select.msg", "Select error: prepare work fail.");
-                        bHasReportAutoSelectModeError_ = true;
+                        selectTask_.reportError("prepare work fail");
                     }
                     isBusy_ = false;
                     return;
@@ -328,10 +331,9 @@ namespace SelectorForm
             {
                 reSelect_ = null;
                 reportSelectMsg(String.Format("执行发生异常：{0}", ex.Message), true);
-                if (bAutoSelectMode_)
+                if (selectTask_ != null)
                 {
-                    Utils.SetSysInfo(DB.Global(), "Select.msg", "Select error: raise exception: " + ex.Message);
-                    bHasReportAutoSelectModeError_ = true;
+                    selectTask_.reportError("raise exception: " + ex.Message);
                 }
                 isBusy_ = false;
                 throw;
@@ -393,7 +395,7 @@ namespace SelectorForm
         {
             if (reSelect_ != null && reSelect_.selItems_.Count > 0)
             {
-                if (bAutoSelectMode_)
+                if (selectTask_ != null)
                 {
                     var item = reSelect_.selItems_[0];
                     String sSelectMsg = String.Format("{0} {1}", item.code_, item.getColumnVal("name"));
@@ -420,7 +422,7 @@ namespace SelectorForm
             }
             else
             {
-                if (bAutoSelectMode_)
+                if (selectTask_ != null)
                 {
                     reportSelectMsg("No candidate", true);
                 }
@@ -433,12 +435,12 @@ namespace SelectorForm
 	            }
             }
             showForm("TabSelect");
-            reportSelectMsg("Select complete.", false);
-            if (bAutoSelectMode_ && !bHasReportAutoSelectModeError_)
+            reportSelectMsg("Select completed", false);
+            if (selectTask_ != null)
             {
-                Utils.SetSysInfo(DB.Global(), "Select.msg", "Select completed.");
+                lastFinishTime_ = selectTask_.end();
+                selectTask_ = null;
             }
-            bAutoSelectMode_ = false;
         }
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -591,14 +593,19 @@ namespace SelectorForm
                 return;
             }
             DateTime curTime = DateTime.Now;
-            if (!bHasAutoSelect_ && Utils.NowIsTradeDay() &&
+            if (Utils.NowIsTradeDay() &&
                 curTime.Hour == 14 && curTime.Minute >= 57)
             {
-                bHasAutoSelect_ = true;
-                bAutoSelectMode_ = true;
-                Utils.SetSysInfo(DB.Global(), "Select.msg", "Selecting");
-                Utils.SetSysInfo(DB.Global(), "Select.starttime", Utils.ToTimeDesc(curTime));
-                doSelectWork();
+                SelectTask.AddTask();
+            }
+            if (selectTask_ == null)
+            {
+                DateTime canStartTime = lastFinishTime_.AddMinutes(1);
+                if (DateTime.Now > canStartTime && (selectTask_ = SelectTask.QueryTask()) != null)
+                {
+                    selectTask_.startSelecting();
+                    doSelectWork();
+                }
             }
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
                                 curTime.Day != startupTime_.Day) && curTime.Hour > 9)

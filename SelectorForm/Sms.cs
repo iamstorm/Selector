@@ -58,7 +58,7 @@ namespace SelectorForm
                 StreamReader ser = new StreamReader(sr, Encoding.Default);
                 strRet = ser.ReadToEnd();
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 strRet = null;
             }

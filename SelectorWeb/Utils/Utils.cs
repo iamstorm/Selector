@@ -50,7 +50,7 @@ namespace SelectorWeb.Utils
         }
         public static String ToTimeDesc(DateTime time)
         {
-            return time.ToString("yyyy-MM-dd hh:mm:ss");
+            return time.ToString("yyyy-MM-dd HH:mm:ss");
         }
     }
 }

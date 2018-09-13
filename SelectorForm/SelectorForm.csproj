@@ -190,6 +190,7 @@
     </Compile>
     <Compile Include="Security\DESEncrypt.cs" />
     <Compile Include="Security\Md5.cs" />
+    <Compile Include="SelectTask.cs" />
     <Compile Include="SkinForm.cs">
       <SubType>Form</SubType>
     </Compile>
