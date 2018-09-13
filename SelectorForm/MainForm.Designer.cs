@@ -34,6 +34,7 @@
             this.basicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressLisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,8 +55,8 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
+            this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -81,7 +82,8 @@
             // 
             this.basicToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.solutionSettingToolStripMenuItem,
-            this.dateRangeSettingToolStripMenuItem});
+            this.dateRangeSettingToolStripMenuItem,
+            this.addUserToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -99,6 +101,13 @@
             this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
             this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(97, 21);
+            this.toolStripMenuItem1.Text = "ManualSelect";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // selectToolStripMenuItem
             // 
@@ -265,17 +274,17 @@
             this.swichmodeToolStripMenuItem.Text = "swichmode";
             this.swichmodeToolStripMenuItem.Click += new System.EventHandler(this.swichmodeToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(97, 21);
-            this.toolStripMenuItem1.Text = "ManualSelect";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
-            // 
             // timer_
             // 
-            this.timer_.Interval = 3600000;
+            this.timer_.Interval = 1000;
             this.timer_.Tick += new System.EventHandler(this.timer__Tick);
+            // 
+            // addUserToolStripMenuItem
+            // 
+            this.addUserToolStripMenuItem.Name = "addUserToolStripMenuItem";
+            this.addUserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addUserToolStripMenuItem.Text = "AddUser";
+            this.addUserToolStripMenuItem.Click += new System.EventHandler(this.addUserToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -333,6 +342,7 @@
         private System.Windows.Forms.ToolStripMenuItem dateRangeSettingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.Timer timer_;
+        private System.Windows.Forms.ToolStripMenuItem addUserToolStripMenuItem;
     }
 }
 

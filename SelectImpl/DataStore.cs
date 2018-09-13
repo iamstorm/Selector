@@ -329,25 +329,29 @@ namespace SelectImpl
         }
         bool runRunTimeScript()
         {
-            String sLastUpdateTime = Utils.GetSysInfo(DB.Global(), "SucRunRuntimeScriptTime", "2005-01-01");
-            DateTime lastUpdateTime;
-            if (DateTime.TryParse(sLastUpdateTime, out lastUpdateTime))
+            if (!App.host_.uiAutoSelectMode() )
             {
-                var now = DateTime.Now;
-                if (lastUpdateTime.Year == now.Year && lastUpdateTime.Day == now.Day &&
-                    (lastUpdateTime.Hour > 15 || (lastUpdateTime.Hour == 15 && lastUpdateTime.Minute > 15)))
+                String sLastUpdateTime = Utils.GetSysInfo(DB.Global(), "SucRunRuntimeScriptTime", "2005-01-01");
+                DateTime lastUpdateTime;
+                if (DateTime.TryParse(sLastUpdateTime, out lastUpdateTime))
                 {
-                    return true;
-                }
-                var span = DateTime.Now - lastUpdateTime;
-                if (span.TotalMinutes < 2)
-                {
-                    if (DialogResult.No == MessageBox.Show("Update runtime Now?", "Selector", MessageBoxButtons.YesNo))
+                    var now = DateTime.Now;
+                    if (lastUpdateTime.Year == now.Year && lastUpdateTime.Day == now.Day &&
+                        (lastUpdateTime.Hour > 15 || (lastUpdateTime.Hour == 15 && lastUpdateTime.Minute > 15)))
                     {
                         return true;
                     }
+                    var span = DateTime.Now - lastUpdateTime;
+                    if (span.TotalMinutes < 2)
+                    {
+                        if (DialogResult.No == MessageBox.Show("Update runtime Now?", "Selector", MessageBoxButtons.YesNo))
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
+       
             if (!updateRuntime())
                 return false;
 
@@ -379,7 +383,7 @@ namespace SelectImpl
                     }
                     if (Setting.IsAcceptableRuntimeCode(code))
                     {
-                        MessageBox.Show(String.Format("{0} is not in history database!", code));
+                        App.host_.uiReportSelectMsg(String.Format("{0} is not in history database!", code), false);
                     }
                     continue;
                 }

@@ -13,5 +13,7 @@ namespace SelectImpl
         void uiFinishProcessBar();
         void uiSetMsg(string msgIn);
         void uiSetTradeDay();
+        void uiReportSelectMsg(String sMsg, bool bImportant);
+        bool uiAutoSelectMode();
     }
 }

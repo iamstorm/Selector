@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "主页";
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selector</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="~/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/bootstrap-table/dist/bootstrap-table.min.css">
+    <script src="~/assets/jquery.min.js"></script>
+    <script src="~/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/assets/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script src="~/assets/layer-v3.1.1/layer/layer.js"></script>
+    <style type="text/css">
+        .btn
+        {
+            margin-top: 10px;
+            padding: 32px 32px;
+            font-size: 32px;
+            line-height: 2.66;
+            border-radius: 12px;
+        }
+        .complete
+        {
+            color: blue
+        }
+        .error
+        {
+            color: red
+        }
+        #table thead > tr > th > div:first-child
+        {
+            color: white;
+            background-color: #428bca;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="msg">Select:</h1>
+        <p></p>
+        <table id="table">
+        </table>
+        <button type="button" class="btn btn-primary" onclick="refresh()">Refresh</button>
+    </div>
+<script>
+    var $msg = $('#msg');
+    var $table = $('#table');
+
+    function ColumnInfo(field) {
+        return {
+            field: field, title: field,
+            align: 'center',
+            halign: 'center'
+        }
+    }
+    function InitColumn() {
+        var cols = ['code', 'name', 'zf', 'close', 'strategy', 'pubrank', 'prirank'];
+        var colinfos = [];
+        for (var i = 0; i < cols.length; i++) {
+            colinfos.push(ColumnInfo(cols[i]));
+        }
+        return colinfos;
+    }
+
+    $msg.text("");
+    $table.bootstrapTable({
+        columns: InitColumn(),
+        data: [],
+        striped: true,
+        cache: false,
+        rowStyle: function rowStyle(row, index) {
+            var zf = parseFloat(row["zf"]);
+            var color = zf > 0 ? "red" : "green";
+            return {
+                css: { "color": color, "font-size": "20px" }
+            };
+        }
+    });
+
+    function refresh() {
+        $msg.text("");
+        $table.bootstrapTable('load', []);
+
+        layer.msg('Refreshing', { time: 1000 });
+        $.ajax({
+            url: "/Select/GetSelectItems",
+            type: "get",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.isComplete) {
+                    $msg.addClass("complete");
+                } else {
+                    $msg.removeClass("complete");
+                }
+                if (data.isError) {
+                    $msg.addClass("error");
+                } else {
+                    $msg.removeClass("error");
+                }
+                $msg.text(data.msg);
+                $table.bootstrapTable('load', data.items);
+            }
+        });
+    }
+
+    $(function () {
+        refresh();
+    });
+    
+</script>
+</body>
+</html>

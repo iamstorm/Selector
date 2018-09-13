@@ -107,6 +107,9 @@ namespace SelectImpl
         public SelectResult selectNow()
         {
             DataStoreHelper dsh = new DataStoreHelper();
+//             List<IStrategy> strategyList = new List<IStrategy>();
+//             strategyList.Add(App.grp_.strategy("LStopUp"));
+
             List<IStrategy> strategyList = App.Solution("good").straList_;
             SelectResult re = select(dsh, Utils.NowDate(), strategyList);
             foreach (var item in re.selItems_)

@@ -27,6 +27,10 @@ namespace SelectorForm
         public bool isClosing_;
         public int sortColumn_;
         DateTime startupTime_;
+        bool bHasAutoSelect_ = false;
+        bool bAutoSelectMode_ = false;
+        bool bHasSendSms_ = false;
+        bool bHasReportAutoSelectModeError_ = false;
         public MainForm()
         {
             Me = this;
@@ -49,6 +53,9 @@ namespace SelectorForm
 
             startupTime_ = DateTime.Now;
             timer_.Start();
+            DB.Global().Execute(String.Format("Delete From autoselect"));
+            Utils.SetSysInfo(DB.Global(), "Select.msg", "Not yet");
+            Utils.SetSysInfo(DB.Global(), "Select.starttime", "");
         }
         void IHost.uiStartProcessBar()
         {
@@ -122,6 +129,22 @@ namespace SelectorForm
                         toolStripStatusLabel2_.Text = "holiday " + DateTime.Now.ToLongDateString();
                     }
                 });
+        }
+        void IHost.uiReportSelectMsg(String msgIn, bool bImportantIn)
+        {
+            if (isClosing_)
+            {
+                return;
+            }
+            Action<string, bool> action;
+            Invoke(action = (msg, bImportant) =>
+            {
+                reportSelectMsg(msg, bImportant);
+            }, msgIn, bImportantIn);
+        }
+        bool IHost.uiAutoSelectMode()
+        {
+            return bAutoSelectMode_;
         }
         public Form createTabPage(string name, Form form)
         {
@@ -245,6 +268,12 @@ namespace SelectorForm
             }
             isBusy_ = false;
         }
+        void doSelectWork()
+        {
+            DB.Global().Execute(String.Format("Delete From autoselect"));
+            LUtils.RemoveAllListRow(selectListView_);
+            selectWorker.RunWorkerAsync();
+        }
         private void selectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (isBusy_)
@@ -256,8 +285,23 @@ namespace SelectorForm
             {
                 return;
             }
-            LUtils.RemoveAllListRow(selectListView_);
-            selectWorker.RunWorkerAsync();
+            doSelectWork();
+        }
+        public void reportSelectMsg(string sMsg, bool bImportant)
+        {
+            if (bAutoSelectMode_)
+            {
+                if (bImportant && !bHasSendSms_)
+                {
+     //               Sms.SendMsg(sMsg);
+                    bHasSendSms_ = true;
+                    App.host_.uiSetMsg(sMsg);
+                }
+            }
+            else
+            {
+                MessageBox.Show(sMsg);
+            }
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -268,7 +312,12 @@ namespace SelectorForm
                 LUtils.RemoveAllListRow(selectListView_);
                 if (!App.ds_.prepareForSelect())
                 {
-                    MessageBox.Show("准备数据工作失败，无法继续执行！");
+                    reportSelectMsg("准备数据工作失败，无法继续执行！", true);
+                    if (bAutoSelectMode_)
+                    {
+                        Utils.SetSysInfo(DB.Global(), "Select.msg", "Select error: prepare work fail.");
+                        bHasReportAutoSelectModeError_ = true;
+                    }
                     isBusy_ = false;
                     return;
                 }
@@ -278,7 +327,12 @@ namespace SelectorForm
             catch (Exception ex)
             {
                 reSelect_ = null;
-                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                reportSelectMsg(String.Format("执行发生异常：{0}", ex.Message), true);
+                if (bAutoSelectMode_)
+                {
+                    Utils.SetSysInfo(DB.Global(), "Select.msg", "Select error: raise exception: " + ex.Message);
+                    bHasReportAutoSelectModeError_ = true;
+                }
                 isBusy_ = false;
                 throw;
             }
@@ -337,15 +391,16 @@ namespace SelectorForm
         }
         private void selectWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (reSelect_ != null)
+            if (reSelect_ != null && reSelect_.selItems_.Count > 0)
             {
+                if (bAutoSelectMode_)
+                {
+                    var item = reSelect_.selItems_[0];
+                    String sSelectMsg = String.Format("{0} {1}", item.code_, item.getColumnVal("name"));
+                    reportSelectMsg(sSelectMsg, true);
+                }
                 LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
-                if (Utils.NowIsTradeDay())
-	            {
-                    showRuntimeInfo();
-	            }
 
-                DB.Global().Execute(String.Format("Delete From autoselect"));
                 DateTime curTime = DateTime.Now;
                 foreach (var item in reSelect_.selItems_)
                 {
@@ -363,8 +418,27 @@ namespace SelectorForm
                     DB.Global().Insert("autoselect", selectItem);
                 }
             }
+            else
+            {
+                if (bAutoSelectMode_)
+                {
+                    reportSelectMsg("No candidate", true);
+                }
+            }
+            if (reSelect_ != null)
+            {
+                if (Utils.NowIsTradeDay())
+	            {
+                    showRuntimeInfo();
+	            }
+            }
             showForm("TabSelect");
-            MessageBox.Show("Select complete.", "Selector");
+            reportSelectMsg("Select complete.", false);
+            if (bAutoSelectMode_ && !bHasReportAutoSelectModeError_)
+            {
+                Utils.SetSysInfo(DB.Global(), "Select.msg", "Select completed.");
+            }
+            bAutoSelectMode_ = false;
         }
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -512,13 +586,32 @@ namespace SelectorForm
 
         private void timer__Tick(object sender, EventArgs e)
         {
+            if (isBusy_)
+            {
+                return;
+            }
             DateTime curTime = DateTime.Now;
+            if (!bHasAutoSelect_ && Utils.NowIsTradeDay() &&
+                curTime.Hour == 14 && curTime.Minute >= 57)
+            {
+                bHasAutoSelect_ = true;
+                bAutoSelectMode_ = true;
+                Utils.SetSysInfo(DB.Global(), "Select.msg", "Selecting");
+                Utils.SetSysInfo(DB.Global(), "Select.starttime", Utils.ToTimeDesc(curTime));
+                doSelectWork();
+            }
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
                                 curTime.Day != startupTime_.Day) && curTime.Hour > 9)
             {
                 Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
                 Close();
             }
+        }
+
+        private void addUserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddUserForm form = new AddUserForm();
+            form.ShowDialog();
         }
 
     }
