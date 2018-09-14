@@ -34,6 +34,7 @@
             this.basicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,7 +57,7 @@
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
-            this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoSelectModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -83,7 +84,8 @@
             this.basicToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.solutionSettingToolStripMenuItem,
             this.dateRangeSettingToolStripMenuItem,
-            this.addUserToolStripMenuItem});
+            this.addUserToolStripMenuItem,
+            this.autoSelectModeToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -101,6 +103,13 @@
             this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
             this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
+            // 
+            // addUserToolStripMenuItem
+            // 
+            this.addUserToolStripMenuItem.Name = "addUserToolStripMenuItem";
+            this.addUserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addUserToolStripMenuItem.Text = "AddUser";
+            this.addUserToolStripMenuItem.Click += new System.EventHandler(this.addUserToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -279,12 +288,12 @@
             this.timer_.Interval = 1000;
             this.timer_.Tick += new System.EventHandler(this.timer__Tick);
             // 
-            // addUserToolStripMenuItem
+            // autoSelectModeToolStripMenuItem
             // 
-            this.addUserToolStripMenuItem.Name = "addUserToolStripMenuItem";
-            this.addUserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.addUserToolStripMenuItem.Text = "AddUser";
-            this.addUserToolStripMenuItem.Click += new System.EventHandler(this.addUserToolStripMenuItem_Click);
+            this.autoSelectModeToolStripMenuItem.Name = "autoSelectModeToolStripMenuItem";
+            this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autoSelectModeToolStripMenuItem.Text = "AutoSelectMode";
+            this.autoSelectModeToolStripMenuItem.Click += new System.EventHandler(this.autoSelectModeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -343,6 +352,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.Timer timer_;
         private System.Windows.Forms.ToolStripMenuItem addUserToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem autoSelectModeToolStripMenuItem;
     }
 }
 

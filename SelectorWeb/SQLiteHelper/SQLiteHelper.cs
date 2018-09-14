@@ -24,6 +24,10 @@ namespace System.Data.SQLite
     {
         public SQLiteCommand cmd = null;
 
+        public SQLiteHelper()
+        {
+        }
+
         public SQLiteHelper(SQLiteCommand command)
         {
             cmd = command;

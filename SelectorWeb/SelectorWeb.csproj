@@ -195,7 +195,6 @@
     <Compile Include="SQLiteHelper\SQLiteColumnList.cs" />
     <Compile Include="SQLiteHelper\SQLiteHelper.cs" />
     <Compile Include="SQLiteHelper\SQLiteTable.cs" />
-    <Compile Include="Utils\DB.cs" />
     <Compile Include="Utils\Dist.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>

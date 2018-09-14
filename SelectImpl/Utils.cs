@@ -68,6 +68,26 @@ namespace SelectImpl
         {
             return DB.Global().ExecuteScalar<int>(String.Format("SELECT cal_date from trade_date where cal_date < {0}  order by cal_date desc limit 1", NowDate()));
         }
+        public static bool IsTradeTime(int hour, int minute)
+        {
+            if (hour == 9)
+            {
+                return minute >= 14;
+            }
+            if (hour == 15)
+            {
+                return minute <= 1;
+            }
+            if (hour == 11)
+            {
+                return minute <= 31;
+            }
+            if (hour == 12)
+            {
+                return false;
+            }
+            return hour > 9 && hour < 15;
+        }
         public static int Year(int date)
         {
             return date / 10000;

@@ -46,17 +46,22 @@ namespace NFine.Web.Controllers
                 {
                     throw new Exception("验证码错误，请重新输入");
                 }
-                DataTable dt = DB.Global().Select(String.Format("Select * From User Where name = '{0}'", username));
-                if (dt.Rows.Count == 0)
+                DataTable dt;
+                using (SH sh = new SH())
                 {
-                    throw new Exception("用户不存在");
+                    dt = sh.Select(String.Format("Select * From User Where name = '{0}'", username));
+                    if (dt.Rows.Count == 0)
+                    {
+                        throw new Exception("用户不存在");
+                    }
+                    String sKey = dt.Rows[0]["key"].ToString();
+                    string dbPassword = Md5.md5(DESEncrypt.Encrypt(password.ToLower(), sKey).ToLower(), 32).ToLower();
+                    if (dbPassword != dt.Rows[0]["psw"].ToString())
+                    {
+                        throw new Exception("密码不正确");
+                    }    
                 }
-                String sKey = dt.Rows[0]["key"].ToString();
-                string dbPassword = Md5.md5(DESEncrypt.Encrypt(password.ToLower(), sKey).ToLower(), 32).ToLower();
-                if (dbPassword != dt.Rows[0]["psw"].ToString())
-                {
-                    throw new Exception("密码不正确");
-                }
+            
 
                 OperatorModel operatorModel = new OperatorModel();
                 operatorModel.UserId = dt.Rows[0]["id"].ToString();

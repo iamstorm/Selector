@@ -28,8 +28,7 @@ namespace SelectorForm
         public int sortColumn_;
         DateTime startupTime_;
         bool bHasSendSms_ = false;
-        SelectTask selectTask_;
-        DateTime lastFinishTime_;
+        public SelectTask selectTask_;
         public MainForm()
         {
             Me = this;
@@ -50,16 +49,10 @@ namespace SelectorForm
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
+            autoSelectModeToolStripMenuItem.Checked = true;
             startupTime_ = DateTime.Now;
             timer_.Start();
-            DB.Global().Execute(String.Format("Delete From autoselect"));
-            Utils.SetSysInfo(DB.Global(), "Select.msg", "Not yet");
-            Utils.SetSysInfo(DB.Global(), "Select.starttime", "");
-            DateTime.TryParse(Utils.GetSysInfo(DB.Global(), "Select.finishTime"), out lastFinishTime_);
-            if (lastFinishTime_ == null)
-            {
-                lastFinishTime_ = new DateTime(2005, 1, 1);
-            }
+            SelectTask.Init();
         }
         void IHost.uiStartProcessBar()
         {
@@ -146,9 +139,13 @@ namespace SelectorForm
                 reportSelectMsg(msg, bImportant);
             }, msgIn, bImportantIn);
         }
+        bool autoSelectMode()
+        {
+            return selectTask_ != null && selectTask_.bHasStart_;
+        }
         bool IHost.uiAutoSelectMode()
         {
-            return selectTask_ != null;
+            return autoSelectMode();
         }
         public Form createTabPage(string name, Form form)
         {
@@ -272,7 +269,7 @@ namespace SelectorForm
             }
             isBusy_ = false;
         }
-        void doSelectWork()
+        public void doSelectWork()
         {
             DB.Global().Execute(String.Format("Delete From autoselect"));
             LUtils.RemoveAllListRow(selectListView_);
@@ -293,7 +290,7 @@ namespace SelectorForm
         }
         public void reportSelectMsg(string sMsg, bool bImportant)
         {
-            if (selectTask_ != null)
+            if (autoSelectMode())
             {
                 if (bImportant && !bHasSendSms_)
                 {
@@ -317,7 +314,7 @@ namespace SelectorForm
                 if (!App.ds_.prepareForSelect())
                 {
                     reportSelectMsg("准备数据工作失败，无法继续执行！", true);
-                    if (selectTask_ != null)
+                    if (autoSelectMode())
                     {
                         selectTask_.reportError("prepare work fail");
                     }
@@ -331,7 +328,7 @@ namespace SelectorForm
             {
                 reSelect_ = null;
                 reportSelectMsg(String.Format("执行发生异常：{0}", ex.Message), true);
-                if (selectTask_ != null)
+                if (autoSelectMode())
                 {
                     selectTask_.reportError("raise exception: " + ex.Message);
                 }
@@ -395,7 +392,7 @@ namespace SelectorForm
         {
             if (reSelect_ != null && reSelect_.selItems_.Count > 0)
             {
-                if (selectTask_ != null)
+                if (autoSelectMode())
                 {
                     var item = reSelect_.selItems_[0];
                     String sSelectMsg = String.Format("{0} {1}", item.code_, item.getColumnVal("name"));
@@ -422,7 +419,7 @@ namespace SelectorForm
             }
             else
             {
-                if (selectTask_ != null)
+                if (autoSelectMode())
                 {
                     reportSelectMsg("No candidate", true);
                 }
@@ -436,9 +433,9 @@ namespace SelectorForm
             }
             showForm("TabSelect");
             reportSelectMsg("Select completed", false);
-            if (selectTask_ != null)
+            if (autoSelectMode())
             {
-                lastFinishTime_ = selectTask_.end();
+                selectTask_.end();
                 selectTask_ = null;
             }
         }
@@ -592,21 +589,12 @@ namespace SelectorForm
             {
                 return;
             }
+            if (!Utils.NowIsTradeDay())
+            {
+                return;
+            }
             DateTime curTime = DateTime.Now;
-            if (Utils.NowIsTradeDay() &&
-                curTime.Hour == 14 && curTime.Minute >= 57)
-            {
-                SelectTask.AddTask();
-            }
-            if (selectTask_ == null)
-            {
-                DateTime canStartTime = lastFinishTime_.AddMinutes(1);
-                if (DateTime.Now > canStartTime && (selectTask_ = SelectTask.QueryTask()) != null)
-                {
-                    selectTask_.startSelecting();
-                    doSelectWork();
-                }
-            }
+            SelectTask.AutoSelect(autoSelectModeToolStripMenuItem.Checked && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
                                 curTime.Day != startupTime_.Day) && curTime.Hour > 9)
             {
@@ -619,6 +607,11 @@ namespace SelectorForm
         {
             AddUserForm form = new AddUserForm();
             form.ShowDialog();
+        }
+
+        private void autoSelectModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            autoSelectModeToolStripMenuItem.Checked = !autoSelectModeToolStripMenuItem.Checked;
         }
 
     }

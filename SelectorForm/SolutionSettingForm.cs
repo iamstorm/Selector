@@ -142,6 +142,8 @@ namespace SelectorForm
             }
             BindingSource bs = (BindingSource)(nameListBox_.DataSource);
             bs.Add(setting);
+            App.ReadSolutionSetting();
+            MessageBox.Show("Add success", "Selector");
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -160,6 +162,7 @@ namespace SelectorForm
                 row["strategy"] = name;
                 DB.Global().Insert("SolutionSetting", row);
             }
+            App.ReadSolutionSetting();
             MessageBox.Show("Save success", "Selector");
         }
 

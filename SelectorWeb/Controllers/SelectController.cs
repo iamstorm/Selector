@@ -27,14 +27,20 @@ namespace SelectorWeb.Controllers
             public String ID;
             public String AddTime;
             public String StartAfter;
-            public String Msg;
-            public String HasError;
+            public String Message;
         }
-        List<SelectItem> querySelectItems(out String time)
+        struct ErrTaskItem
+        {
+            public String ID;
+            public String AddTime;
+            public String FinishTime;
+            public String Message;
+        }
+        List<SelectItem> querySelectItems(SQLiteHelper sh, out String time)
         {
             time = "";
             var selItems = new List<SelectItem>();
-            var dt = DB.Global().Select(String.Format("Select * From autoselect Where Date = '{0}' Order by id", U.NowDate()));
+            var dt = sh.Select(String.Format("Select * From autoselect Where Date = '{0}' Order by id", U.NowDate()));
             foreach (DataRow row in dt.Rows)
             {
                 SelectItem item = new SelectItem();
@@ -53,40 +59,64 @@ namespace SelectorWeb.Controllers
             }
             return selItems;
         }
-        List<TaskItem> queryTaskItems()
+        List<TaskItem> queryTaskItems(SQLiteHelper sh)
         {
             DateTime lastFinishTime;
-            DateTime.TryParse(U.GetSysInfo(DB.Global(), "Select.finishTime"), out lastFinishTime);
+            DateTime.TryParse(U.GetSysInfo(sh, "Select.finishTime"), out lastFinishTime);
             if (lastFinishTime == null)
             {
                 lastFinishTime = new DateTime(2005, 1, 1);
             }
             var taskItems = new List<TaskItem>();
-            var dt = DB.Global().Select(String.Format("Select * From select_task Where finishTime is null Order by id"));
+            var dt = sh.Select(String.Format("Select * From select_task Where finishTime is null Order by id"));
             bool bIsTopTask = true;
             foreach (DataRow row in dt.Rows)
             {
                 TaskItem item = new TaskItem();
                 item.ID = row["id"].ToString();
                 item.AddTime = row["addTime"].ToString();
-                item.Msg = row["msg"].ToString();
-                item.HasError = row["hasError"].ToString();
+                item.Message = row["msg"].ToString();
 
                 if (bIsTopTask)
                 {
                     DateTime willStartTime = lastFinishTime.AddMinutes(1);
                     if (DateTime.Now > willStartTime)
                     {
-                        item.StartAfter = "Already Start";
+                        var span = DateTime.Now - willStartTime;
+
+                        if (item.Message == "Selecting")
+                        {
+                            item.StartAfter = "Already Start " + span.TotalSeconds.ToString("F0") + "s";
+                        }
+                        else
+                        {
+                            item.StartAfter = "Will Start " + span.TotalSeconds.ToString("F0") + "s";
+                        }
                     }
                     else
                     {
                         var span = willStartTime - DateTime.Now;
-                        item.StartAfter = span.Seconds.ToString() + "s";
+                        item.StartAfter = span.TotalSeconds.ToString("F0") + "s";
                     }
                     bIsTopTask = false;
                 }
 
+
+                taskItems.Add(item);
+            }
+            return taskItems;
+        }
+        List<ErrTaskItem> queryErrTaskItems(SQLiteHelper sh)
+        {
+            var taskItems = new List<ErrTaskItem>();
+            var dt = sh.Select(String.Format("Select * From select_task Where finishTime is not null And hasError = 1 Order by id desc"));
+            foreach (DataRow row in dt.Rows)
+            {
+                ErrTaskItem item = new ErrTaskItem();
+                item.ID = row["id"].ToString();
+                item.AddTime = row["addTime"].ToString();
+                item.FinishTime = row["finishTime"].ToString();
+                item.Message = row["msg"].ToString();
 
                 taskItems.Add(item);
             }
@@ -98,54 +128,65 @@ namespace SelectorWeb.Controllers
         [HandlerAjaxOnly]
         public ActionResult GetSelectInfo()
         {
-            if (!U.NowIsTradeDay())
+            using (SH sh = new SH())
             {
-                var invalidData = new
+                if (!U.NowIsTradeDay(sh))
                 {
-                    time = "Not available",
-                    msg = "Holiday",
-                    selectItems = new List<SelectItem>(),
-                    taskItems = new List<TaskItem>(),
-                };
-                return Content(invalidData.ToJson());
-            }
-            String time;
-            var selItems = querySelectItems(out time);
-            var taskItems = queryTaskItems();
-            if (time == "")
-            {
-                time = U.ToTimeDesc(DateTime.Now);
-            }
-            String sSelectMsg = U.GetSysInfo(DB.Global(), "Select.msg");
-            if (sSelectMsg == "Selecting")
-            {
-                String sStartTime = U.GetSysInfo(DB.Global(), "Select.starttime");
-                DateTime startTime;
-                if (DateTime.TryParse(sStartTime, out startTime))
-                {
-                    var span = DateTime.Now - startTime;
-                    sSelectMsg += " Elapse: " + span.Seconds + "s";
+                    var invalidData = new
+                    {
+                        time = "Not available",
+                        msg = "Holiday",
+                        selectItems = new List<SelectItem>(),
+                        taskItems = new List<TaskItem>(),
+                    };
+                    return Content(invalidData.ToJson());
                 }
-            }
-            String sMsg = String.Format("{0}: {1} items, {2}", time, selItems.Count, sSelectMsg);
+                String time;
+                var selItems = querySelectItems(sh, out time);
+                var taskItems = queryTaskItems(sh);
+                var errTaskItems = queryErrTaskItems(sh);
+                if (time == "")
+                {
+                    time = U.ToTimeDesc(DateTime.Now);
+                }
+                String sSelectMsg = U.GetSysInfo(sh, "Select.msg");
+                if (sSelectMsg == "Selecting")
+                {
+                    String sStartTime = U.GetSysInfo(sh, "Select.starttime");
+                    DateTime startTime;
+                    if (DateTime.TryParse(sStartTime, out startTime))
+                    {
+                        var span = DateTime.Now - startTime;
+                        sSelectMsg += " Elapse: " + span.TotalSeconds.ToString("F0") + "s";
+                    }
+                }
+                String sMsg = String.Format("{0}: {1} items, {2}", time, selItems.Count, sSelectMsg);
 
-            var data = new {
-                       isComplete = sSelectMsg == "Select completed",
-                       isError = sSelectMsg.StartsWith("Select error:"),
-                       msg = sMsg,
-                       selItems = selItems,
-                       taskItems = taskItems
-                       };
-            return Content(data.ToJson());
+                var data = new
+                {
+                    isComplete = sSelectMsg == "Select completed",
+                    isError = sSelectMsg.StartsWith("Select error:"),
+                    msg = sMsg,
+                    selItems = selItems,
+                    taskItems = taskItems,
+                    errTaskItems = errTaskItems,
+                    finshTaskCount = sh.ExecuteScalar<int>("Select Count(*) From select_task Where finishTime is not null")
+                };
+                return Content(data.ToJson());
+            }
+      
         }
         [HttpPost]
         [HandlerAjaxOnly]
         public ActionResult AddTask()
         {
-            var row = new Dictionary<String, Object>();
-            row["addTime"] = U.ToTimeDesc(DateTime.Now);
-            DB.Global().Insert("select_task", row);
-            return Content(new { suc = "1" }.ToJson());
+            using (SH sh = new SH())
+            {
+                var row = new Dictionary<String, Object>();
+                row["addTime"] = U.ToTimeDesc(DateTime.Now);
+                sh.Insert("select_task", row);
+                return Content(new { suc = "1" }.ToJson());
+            }
         }
     }
 }

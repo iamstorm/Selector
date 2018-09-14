@@ -64,15 +64,31 @@
         <table id="table_task" class="clear">
         </table>
         <div  id="autorefresh" class="checkbox"  style="zoom:300%;">
-        <label>
-            <input type="checkbox" name="autorefresh" value="">
-            <span>AutoRefresh</span>
-        </label>
-    </div>
+            <label>
+                <input type="checkbox" name="autorefresh" value="">
+                <span>AutoRefresh</span>
+            </label>
+            <span id="finshTaskCount" class="right"></span>
+        </div>
+        <table id="table_errorTask">
+        </table>
+<script>
+    String.format = function() {
+        var s = arguments[0];
+        for (var i = 0; i < arguments.length - 1; i++) {       
+            var reg = new RegExp("\\{" + i + "\\}", "gm");             
+            s = s.replace(reg, arguments[i + 1]);
+        }
+
+        return s;
+    }
+</script>
 <script>
     var $msg = $('#msg');
     var $tableResult = $('#table_result');
     var $tableTask = $('#table_task');
+    var $tableErrTask = $('#table_errorTask');
+    var $finshTaskCount = $('#finshTaskCount');
 
     function ColumnInfo(field) {
         return {
@@ -106,7 +122,7 @@
     });
 
     function InitTaskColumn() {
-        var cols = ['ID', 'AddTime', 'StartAfter', 'Msg', 'HasError'];
+        var cols = ['ID', 'AddTime', 'StartAfter', 'Message'];
         var colinfos = [];
         for (var i = 0; i < cols.length; i++) {
             colinfos.push(ColumnInfo(cols[i]));
@@ -120,23 +136,44 @@
         striped: true,
         cache: false,
         rowStyle: function rowStyle(row, index) {
-            if (row["HasError"] == "") {
+            if (row["Message"] == "Selecting") {
+                return {
+                    css: { "background-color": "#33CC33", "color": "white", "font-size": "20px" }
+                };
+            } else {
                 return {
                     css: { "font-size": "20px" }
                 };
-            } else {
-                var hasError = parseInt(row["HasError"]);
-                var color = hasError == 1 ? "red" : "green";
-                return {
-                    css: { "background-color": color, "font-size": "20px" }
-                };
             }
+        }
+    });
+
+    function InitErrTaskColumn() {
+        var cols = ['ID', 'AddTime', 'FinishTime', 'Message'];
+        var colinfos = [];
+        for (var i = 0; i < cols.length; i++) {
+            colinfos.push(ColumnInfo(cols[i]));
+        }
+        return colinfos;
+    }
+
+    $tableErrTask.bootstrapTable({
+        columns: InitErrTaskColumn(),
+        data: [],
+        striped: true,
+        cache: false,
+        rowStyle: function rowStyle(row, index) {
+            return {
+                css: { "background-color": "red", "color": "white", "font-size": "20px" }
+            };
         }
     });
 
     function refresh(showLayerMsg) {
         $msg.text("");
         $tableResult.bootstrapTable('load', []);
+        $tableTask.bootstrapTable('load', []);
+        $tableErrTask.bootstrapTable('load', []);
 
         if (showLayerMsg)
             layer.msg('Refreshing', { time: 1000 });
@@ -159,6 +196,8 @@
                 $msg.text(data.msg);
                 $tableResult.bootstrapTable('load', data.selItems);
                 $tableTask.bootstrapTable('load', data.taskItems);
+                $tableErrTask.bootstrapTable('load', data.errTaskItems);
+                $finshTaskCount.text(String.format("Finish {0} tasks",  data.finshTaskCount));
             }
         });
     }
@@ -183,11 +222,11 @@
         var intervalRet = null;
         $('#autorefresh input').click(function () {
             if ($('input[name="autorefresh"]').prop("checked")) {
-                $('#autorefresh span').addClass("auto");
-                intervalRet = setInterval(autoRefresh, 1000);
+                $('#autorefresh label span').addClass("auto");
+                intervalRet = setInterval(autoRefresh, 2000);
             }
             else {
-                $('#autorefresh span').removeClass("auto");
+                $('#autorefresh label span').removeClass("auto");
                 clearInterval(intervalRet);
             }
         });
