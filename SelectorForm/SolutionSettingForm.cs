@@ -210,5 +210,15 @@ namespace SelectorForm
             }
         }
 
+        private void straGrid__RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            GUtils.UpdateGridRowNum(straGrid_);
+        }
+
+        private void straGrid__RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            GUtils.UpdateGridRowNum(straGrid_);
+        }
+
     }
 }

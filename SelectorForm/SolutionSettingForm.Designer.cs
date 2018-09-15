@@ -99,6 +99,8 @@
             this.straGrid_.TabIndex = 9;
             this.straGrid_.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.straGrid__CellClick);
             this.straGrid_.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.straGrid__ColumnWidthChanged);
+            this.straGrid_.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.straGrid__RowsAdded);
+            this.straGrid_.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.straGrid__RowsRemoved);
             this.straGrid_.Scroll += new System.Windows.Forms.ScrollEventHandler(this.straGrid__Scroll);
             // 
             // btnRemove

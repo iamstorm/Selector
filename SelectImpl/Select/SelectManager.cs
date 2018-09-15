@@ -8,27 +8,12 @@ namespace SelectImpl
     public class SelectHint
     {
         public Dictionary<Stock, int> nextWantedIndexHintDict_ = new Dictionary<Stock,int>();
-        public List<Dictionary<String, String>> straParamList_ = new List<Dictionary<String, String>>();
     }
     public class SelectManager
     {
-        public SelectResult select(DataStoreHelper dsh, int date, List<IStrategy> strategyList, SelectHint hint = null)
+        public SelectResult select(DataStoreHelper dsh, bool bSelectMode, int date, List<IStrategy> strategyList, SelectHint hint = null)
         {
             SelectResult re = new SelectResult();
-            List<Dictionary<String, String> > paramList;
-            if (hint != null)
-            {
-                paramList = hint.straParamList_;
-            }
-            else
-            {
-                paramList = new List<Dictionary<String, String>>();
-                foreach (IStrategy stra in strategyList)
-                {
-                    Dictionary<String, String> param = stra.setup();
-                    paramList.Add(param);
-                }
-            }
             dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, date);
             foreach (Stock sk in App.ds_.stockList_)
             {
@@ -82,7 +67,7 @@ namespace SelectImpl
                                 throw new ArgumentException("Unknown focusOn");
                         }
 
-                        rateItemDict = stra.select(dsh, paramList[i], ref sigDate);
+                        rateItemDict = stra.select(dsh, bSelectMode, ref sigDate);
                         if (rateItemDict == null)
                         {
                             continue;
@@ -110,8 +95,19 @@ namespace SelectImpl
 //             List<IStrategy> strategyList = new List<IStrategy>();
 //             strategyList.Add(App.grp_.strategy("LStopUp"));
 
-            List<IStrategy> strategyList = App.Solution("good").straList_;
-            SelectResult re = select(dsh, Utils.NowDate(), strategyList);
+            List<IStrategy> strategyList;
+            if (Utils.IsCloseTime(DateTime.Now))
+            {
+                strategyList = App.Solution("close_good").straList_;
+            } else
+            {
+                strategyList = App.Solution("lf_good").straList_;
+            }
+            if (strategyList.Count == 0)
+            {
+                throw new Exception("No strategy provide!");
+            }
+            SelectResult re = select(dsh, true, Utils.NowDate(), strategyList);
             foreach (var item in re.selItems_)
             {
                 item.allSelectItems_ = re.selItems_;

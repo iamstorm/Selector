@@ -20,17 +20,9 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        Dictionary<String, String> IStrategy.paramters()
-        {
-            return null;
-        }
         #endregion
-        Dictionary<String, String> IStrategy.setup()
-        {
-            return null;
-        }
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -47,8 +39,8 @@ namespace SelectImpl
             bool bMeetRealUp = false;
             bool bHasUpShadowTooHight = false;
             bool bHasDownShadowTooLow = false;
-            float otherMaxVol = 0;
-            float otherMaxZF = 0;
+            float otherMaxVol = float.MinValue;
+            float otherMaxZF = float.MinValue;
             float otherMaxC = 0;
             float otherMaxH = 0;
             float sigDateVol = 0;
@@ -133,6 +125,22 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (bHasUpShadowTooHight || bHasDownShadowTooLow)
+            {
+                return null;
+            }
+            if (
+                 dsh.Ref(Info.ZF, 2) < 0.005 &&
+                 dsh.Ref(Info.ZF, 3) < 0.005)
+            {
+                return null;
+            }
+
+            if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
+            {
+                return null;
+            }
+
             if (sigDateVol < otherMaxVol * 1.2)
             {
                 return null;
@@ -146,32 +154,17 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (bHasUpShadowTooHight || bHasDownShadowTooLow)
-            {
-                return null;
-            }
 //             if (dsh.Ref(Info.OF) < -0.02)
 //             {
 //                 return null;
 //             }
 
-             if (
-                  dsh.Ref(Info.ZF, 2) < 0.005 &&
-                  dsh.Ref(Info.ZF, 3) < 0.005)
-             {
-                 return null;
-             }
 
 //              if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
 //                   dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
 //              {
 //                  return null;
 //              }
-
-             if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
-             {
-                 return null;
-             }
 
              var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1))/dsh.Ref(Info.C, 1);
              if (delta > -0.01)

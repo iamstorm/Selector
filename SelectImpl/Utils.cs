@@ -88,6 +88,19 @@ namespace SelectImpl
             }
             return hour > 9 && hour < 15;
         }
+        public static bool IsCloseTime(DateTime time)
+        {
+            int hour = time.Hour;
+            int minute = time.Minute;
+            if (hour == 14 && minute >= 55)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public static int Year(int date)
         {
             return date / 10000;

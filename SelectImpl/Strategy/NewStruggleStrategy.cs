@@ -24,15 +24,8 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        Dictionary<String, String> IStrategy.paramters()
-        {
-            return null;
-        }
         #endregion
-        Dictionary<String, String> IStrategy.setup()
-        {
-            return null;
-        }
+
         String IStrategy.computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate)
         {
             IStrategy stra = (IStrategy)this;
@@ -145,7 +138,7 @@ namespace SelectImpl
             }
             return null;
         }
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
         {
             IStrategy stra = (IStrategy)this;
             var zf = dsh.Ref(Info.ZF);

@@ -27,13 +27,12 @@ namespace SelectorForm
         public bool isClosing_;
         public int sortColumn_;
         DateTime startupTime_;
-        bool bHasSendSms_ = false;
         public SelectTask selectTask_;
         public MainForm()
         {
             Me = this;
             InitializeComponent();
-            this.WindowState = FormWindowState.Maximized; 
+            this.WindowState = FormWindowState.Maximized;
 
             var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
             if (skinName != "")
@@ -53,6 +52,12 @@ namespace SelectorForm
             startupTime_ = DateTime.Now;
             timer_.Start();
             SelectTask.Init();
+            int nSendCount = DB.Global().ExecuteScalar<int>("Select Count(*) From already_send_sms");
+            int nAllCount = Utils.ToType<int>(Utils.GetSysInfo(DB.Global(), "Sms.Count", "0"));
+            if (nSendCount > nAllCount - 100)
+            {
+                Sms.SendMsgIfTodayNotSend("No sms quickly!");
+            }
         }
         void IHost.uiStartProcessBar()
         {
@@ -288,14 +293,13 @@ namespace SelectorForm
             }
             doSelectWork();
         }
-        public void reportSelectMsg(string sMsg, bool bImportant)
+        public void reportSelectMsg(string sMsg, bool bSendSms)
         {
             if (autoSelectMode())
             {
-                if (bImportant && !bHasSendSms_)
+                if (bSendSms && !Utils.IsCloseTime(DateTime.Now))
                 {
-     //               Sms.SendMsg(sMsg);
-                    bHasSendSms_ = true;
+                    Sms.SendMsgIfTodayNotSend(sMsg);
                     App.host_.uiSetMsg(sMsg);
                 }
             }
@@ -313,7 +317,7 @@ namespace SelectorForm
                 LUtils.RemoveAllListRow(selectListView_);
                 if (!App.ds_.prepareForSelect())
                 {
-                    reportSelectMsg("准备数据工作失败，无法继续执行！", true);
+                    reportSelectMsg("准备数据工作失败，无法继续执行！", false);
                     if (autoSelectMode())
                     {
                         selectTask_.reportError("prepare work fail");
@@ -327,7 +331,7 @@ namespace SelectorForm
             catch (Exception ex)
             {
                 reSelect_ = null;
-                reportSelectMsg(String.Format("执行发生异常：{0}", ex.Message), true);
+                reportSelectMsg(String.Format("执行发生异常：{0}", ex.Message), false);
                 if (autoSelectMode())
                 {
                     selectTask_.reportError("raise exception: " + ex.Message);
@@ -395,7 +399,7 @@ namespace SelectorForm
                 if (autoSelectMode())
                 {
                     var item = reSelect_.selItems_[0];
-                    String sSelectMsg = String.Format("{0} {1}", item.code_, item.getColumnVal("name"));
+                    String sSelectMsg = String.Format("验证码: {0}", item.code_);
                     reportSelectMsg(sSelectMsg, true);
                 }
                 LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
@@ -421,7 +425,7 @@ namespace SelectorForm
             {
                 if (autoSelectMode())
                 {
-                    reportSelectMsg("No candidate", true);
+                    reportSelectMsg("No candidate", false);
                 }
             }
             if (reSelect_ != null)
@@ -589,12 +593,10 @@ namespace SelectorForm
             {
                 return;
             }
-            if (!Utils.NowIsTradeDay())
-            {
-                return;
-            }
             DateTime curTime = DateTime.Now;
-            SelectTask.AutoSelect(autoSelectModeToolStripMenuItem.Checked && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
+            SelectTask.AutoSelect(autoSelectModeToolStripMenuItem.Checked && 
+                        Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
+            
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
                                 curTime.Day != startupTime_.Day) && curTime.Hour > 9)
             {

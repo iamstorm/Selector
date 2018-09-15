@@ -15,6 +15,7 @@ namespace SelectorForm
     using System.Windows.Forms;
     using System.Net;
     using System.IO;
+    using SelectImpl;
 
     public class Sms
     {
@@ -58,9 +59,9 @@ namespace SelectorForm
                 StreamReader ser = new StreamReader(sr, Encoding.Default);
                 strRet = ser.ReadToEnd();
             }
-            catch (Exception )
+            catch (Exception ex)
             {
-                strRet = null;
+                strRet = "Exception: " + ex.Message;
             }
             return strRet;
         }
@@ -125,6 +126,22 @@ namespace SelectorForm
         {
             Sms sms = new Sms();
             return sms.PostSmsInfo(sms.GetPostUrl("13570427002", sMsg));
+        }
+        public static void SendMsgIfTodayNotSend(string sMsg)
+        {
+            int date = Utils.NowDate();
+            bool bAlreadySend = DB.Global().ExecuteScalar<int>(
+                String.Format("Select Count(*) From already_send_sms Where date = '{0}' and msg = '{1}'", date, sMsg)) > 0;
+            if (!bAlreadySend)
+            {
+                var ret = Sms.SendMsg(sMsg);
+                Dictionary<String, Object> row = new Dictionary<String, Object>();
+                row["date"] = date;
+                row["msg"] = sMsg;
+                row["sendTime"] = DateTime.Now;
+                row["sendRet"] = ret;
+                DB.Global().Insert("already_send_sms", row);
+            }
         }
     }
 

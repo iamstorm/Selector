@@ -16,7 +16,16 @@ namespace SelectorForm
             {
                 grid.Rows[i].HeaderCell.Value = (i + 1).ToString();
             }
-            grid.TopLeftHeaderCell.Value = grid.Rows.Count.ToString() + "Rows";
+            int rowCount;
+            if (grid.AllowUserToAddRows)
+            {
+                rowCount = grid.Rows.Count - 1;
+            }
+            else
+            {
+                rowCount = grid.Rows.Count;
+            }
+            grid.TopLeftHeaderCell.Value = rowCount.ToString() + "Rows";
         }
         public static void RemoveAllGridRow(DataGridView grid)
         {

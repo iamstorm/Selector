@@ -24,18 +24,10 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        Dictionary<String, String> IStrategy.paramters()
-        {
-            return null;
-        }
         #endregion
-        Dictionary<String, String> IStrategy.setup()
-        {
-            return null;
-        }
         const int SearchDayCount = 15;
         const int EveryUpCount = 3;
-        Dictionary<String, String> selectFor(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate, int iIndex, out bool isTwoDownMode)
+        Dictionary<String, String> selectFor(DataStoreHelper dsh, bool bSelectMode, ref String sigDate, int iIndex, out bool isTwoDownMode)
         {
             isTwoDownMode = false;
             var zf = dsh.Ref(Info.ZF, iIndex);
@@ -188,14 +180,14 @@ namespace SelectImpl
             return ret;
         }
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
         {
             float zf = dsh.Ref(Info.ZF);
             bool bIsTwoDownMode = false;
             Dictionary<String, String> ret;
             if (zf < -0.04 && zf > -0.095)
             {
-                ret = selectFor(dsh, param, ref sigDate, 1, out bIsTwoDownMode);
+                ret = selectFor(dsh, bSelectMode, ref sigDate, 1, out bIsTwoDownMode);
                 if (ret == null && bIsTwoDownMode)
                 {
                     var retDict = new Dictionary<String, String>();
@@ -203,7 +195,7 @@ namespace SelectImpl
                     return retDict;
                 }
             }
-            ret = selectFor(dsh, param, ref sigDate, 0, out bIsTwoDownMode);
+            ret = selectFor(dsh, bSelectMode, ref sigDate, 0, out bIsTwoDownMode);
             if (ret == null)
             {
                 return null;

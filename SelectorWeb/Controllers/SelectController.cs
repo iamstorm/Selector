@@ -130,17 +130,6 @@ namespace SelectorWeb.Controllers
         {
             using (SH sh = new SH())
             {
-                if (!U.NowIsTradeDay(sh))
-                {
-                    var invalidData = new
-                    {
-                        time = "Not available",
-                        msg = "Holiday",
-                        selectItems = new List<SelectItem>(),
-                        taskItems = new List<TaskItem>(),
-                    };
-                    return Content(invalidData.ToJson());
-                }
                 String time;
                 var selItems = querySelectItems(sh, out time);
                 var taskItems = queryTaskItems(sh);
@@ -161,6 +150,10 @@ namespace SelectorWeb.Controllers
                     }
                 }
                 String sMsg = String.Format("{0}: {1} items, {2}", time, selItems.Count, sSelectMsg);
+                if (!U.NowIsTradeDay(sh))
+                {
+                    sMsg = "Holiday " + sMsg;
+                }
 
                 var data = new
                 {

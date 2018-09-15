@@ -20,19 +20,11 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        Dictionary<String, String> IStrategy.paramters()
-        {
-            return null;
-        }
         #endregion
-        Dictionary<String, String> IStrategy.setup()
-        {
-            return null;
-        }
 
         float vRate_ = 2f;
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, Dictionary<String, String> param, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
 

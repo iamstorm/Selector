@@ -112,7 +112,7 @@
     <Compile Include="Asset\RateComputer.cs" />
     <Compile Include="Asset\StrategyAsset.cs" />
     <Compile Include="Asset\HistoryData.cs" />
-    <Compile Include="Strategy\BaseStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\BaseStrategy.cs" />
     <Compile Include="BuyDesider\BuyDesider.cs" />
     <Compile Include="BuyDesider\RankBuyDesider.cs" />
     <Compile Include="DataStore.cs" />
@@ -131,17 +131,20 @@
     <Compile Include="SQLiteHelper\SQLiteColumnList.cs" />
     <Compile Include="SQLiteHelper\SQLiteHelper.cs" />
     <Compile Include="SQLiteHelper\SQLiteTable.cs" />
-    <Compile Include="Strategy\IStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\IStrategy.cs" />
     <Compile Include="Strategy\LStopUpStrategy.cs" />
     <Compile Include="Strategy\EveryThreeUpStategy.cs" />
-    <Compile Include="Strategy\Solution.cs" />
-    <Compile Include="Strategy\StrategyGroup.cs" />
-    <Compile Include="Strategy\TodayBuyTomorowSellStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\Solution.cs" />
+    <Compile Include="Strategy\BaseImpl\StrategyGroup.cs" />
+    <Compile Include="Strategy\BaseImpl\TodayBuyTomorowSellStrategy.cs" />
     <Compile Include="Strategy\UStopDownStrategy.cs" />
     <Compile Include="Strategy\UUDownStrategy.cs" />
-    <Compile Include="Strategy\TodayBuy2DaySellStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\TodayBuy2DaySellStrategy.cs" />
     <Compile Include="Strategy\NewStruggleStrategy.cs" />
     <Compile Include="Strategy\VUpDownStrategy.cs" />
+    <Compile Include="Strategy\LF_UStopDownStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\LF_TodayBuyTomorowSellStrategy.cs" />
+    <Compile Include="Strategy\LF_UUDownStrategy.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

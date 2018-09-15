@@ -20,18 +20,13 @@ namespace SelectImpl
             int nTotalCount = dateList.Count;
 
             SelectHint hint = new SelectHint();
-            foreach (IStrategy stra in regressRe.strategyList_)
-            {
-                Dictionary<String, String> param = stra.setup();
-                hint.straParamList_.Add(param);
-            }
             foreach (Stock sk in App.ds_.stockList_)
             {
                 hint.nextWantedIndexHintDict_[sk] = -1;
             }
             foreach (int date in dateList)
             {
-                SelectResult re = selManager.select(dsh, date, regressRe.strategyList_, hint);
+                SelectResult re = selManager.select(dsh, false, date, regressRe.strategyList_, hint);
                 regressRe.selItems_.AddRange(re.selItems_);
                 App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，选择阶段：完成{2}的选择，当前选中记录数：{3}",
                     dateList.Last(), dateList.First(), date, regressRe.selItems_.Count), 
