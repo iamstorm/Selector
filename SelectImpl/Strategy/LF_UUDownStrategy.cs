@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class UUDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class LF_UUDownStrategy : LF_TodayBuyTomorowSellStrategy, IStrategy_LF
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,9 +14,17 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "UUDown";
+            return "LF_UUDown";
         }
         public override float bounusLimit()
+        {
+            return 0.095f;
+        }
+        public float buyLimit()
+        {
+            return -0.05f;
+        }
+        public float ofBonusLimit()
         {
             return 0.095f;
         }
@@ -24,16 +32,16 @@ namespace SelectImpl
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
-            var zf = dsh.Ref(Info.ZF);
+            if (!meetBuyChance(dsh, selectMode))
+            {
+                return null;
+            }
 
-            if (zf > 0 || zf < -0.06)
+            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.05)
             {
                 return null;
             }
-            if (!dsh.IsReal())
-            {
-                return null;
-            }
+
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -135,16 +143,16 @@ namespace SelectImpl
             if (sigDateVol < otherMaxVol * 1.2)
             {
                 return null;
-            }
-            if (otherMaxZF + zf > 0)
-            {
-                return null;
-            }
-
-            if (dsh.Ref(Info.LF) < -0.06)
-            {
-                return null;
-            }
+             }
+//             if (otherMaxZF + zf > 0)
+//             {
+//                 return null;
+//             }
+// 
+//             if (dsh.Ref(Info.LF) < -0.06)
+//             {
+//                 return null;
+//             }
             if (bHasUpShadowTooHight || bHasDownShadowTooLow)
             {
                 return null;
@@ -175,18 +183,18 @@ namespace SelectImpl
             {
                 return null;
             }
-
-            var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
-            if (delta > -0.01)
-            {
-                return null;
-            }
-            var ret = new Dictionary<String, String>();
-            ret[String.Format("sumSig/{0}", sumOfSigDateZF>0.12 ? "1": "0")] = "";
-            ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
-            ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
-            ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
-            return ret;
+            return EmptyRateItemButSel;
+//             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
+//             if (delta > -0.01)
+//             {
+//                 return null;
+//             }
+//             var ret = new Dictionary<String, String>();
+//             ret[String.Format("sumSig/{0}", sumOfSigDateZF>0.12 ? "1": "0")] = "";
+//             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
+//             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+//             ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
+//             return ret;
         }
     }
 }

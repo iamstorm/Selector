@@ -16,13 +16,13 @@ namespace SelectImpl
         {
             return "LStopUp";
         }
-        public float bounusLimit()
+        public override float bounusLimit()
         {
             return 0.095f;
         }
         #endregion
 
-        Dictionary<String, String> selectForCrossLL(DataStoreHelper dsh, bool bSelectMode, int iIndex, out int iLLIndex)
+        Dictionary<String, String> selectForCrossLL(DataStoreHelper dsh, SelectMode selectMode, int iIndex, out int iLLIndex)
         {
             iLLIndex = -1;
             var zf = dsh.Ref(Info.ZF, iIndex);
@@ -59,7 +59,7 @@ namespace SelectImpl
             }
             return EmptyRateItemButSel;
         }
-        Dictionary<String, String> selectForVol(DataStoreHelper dsh, int iIndex, bool bSelectMode, ref String sigDate)
+        Dictionary<String, String> selectForVol(DataStoreHelper dsh, int iIndex, SelectMode selectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF, iIndex);
             var preZF = dsh.Ref(Info.ZF, iIndex + 1);
@@ -110,7 +110,7 @@ namespace SelectImpl
 
             return EmptyRateItemButSel;
         }
-        Dictionary<String, String> selectForLargeSample(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
+        Dictionary<String, String> selectForLargeSample(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
             var preZF = dsh.Ref(Info.ZF, 1);
@@ -319,7 +319,7 @@ namespace SelectImpl
 //              }
             return EmptyRateItemButSel;
         }
-        Dictionary<String, String> selectForHH(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
+        Dictionary<String, String> selectForHH(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
             if (dsh.Ref(Info.ZF, 1) > 0.095)
             {
@@ -406,7 +406,7 @@ namespace SelectImpl
             //             }
             return EmptyRateItemButSel;
         }
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
             if (zf > 0.095)

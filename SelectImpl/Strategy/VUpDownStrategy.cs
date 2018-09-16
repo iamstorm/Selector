@@ -16,7 +16,7 @@ namespace SelectImpl
         {
             return "VUpDown";
         }
-        public float bounusLimit()
+        public override float bounusLimit()
         {
             return 0.095f;
         }
@@ -24,7 +24,7 @@ namespace SelectImpl
 
         float vRate_ = 2f;
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, bool bSelectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
 

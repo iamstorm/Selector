@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class UStopDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class LF_UStopDownStrategy : LF_TodayBuyTomorowSellStrategy, IStrategy_LF
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,9 +14,17 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "UStopDown";
+            return "LF_UStopDown";
         }
         public override float bounusLimit()
+        {
+            return 0.095f;
+        }
+        public float buyLimit()
+        {
+            return -0.05f;
+        }
+        public float ofBonusLimit()
         {
             return 0.095f;
         }
@@ -24,15 +32,19 @@ namespace SelectImpl
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
-            var zf = dsh.Ref(Info.ZF);
+            if (!meetBuyChance(dsh, selectMode))
+            {
+                return null;
+            }
 
-            if (zf > 0 || zf < -0.06)
+            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.05)
             {
                 return null;
             }
 
             int iSigDateIndex = -1;
             int nUpCount = 0;
+            int nDownCount = 0;
             int nUStopCount = 0;
             int nDStopCount = 0;
             bool bMeetTradeSigAllready = false;
@@ -40,9 +52,8 @@ namespace SelectImpl
             bool bHasUpShadowTooHight = false;
             bool bHasDownShadowTooLow = false;
             float otherMaxVol = float.MinValue;
+            float otherMaxC = float.MinValue;
             float otherMaxZF = float.MinValue;
-            float otherMaxC = 0;
-            float otherMaxH = 0;
             float sigDateVol = 0;
             float sigZF = 0;
             float minDownShadow = float.MaxValue;
@@ -54,6 +65,10 @@ namespace SelectImpl
                 var curZf = dsh.Ref(Info.ZF, i);
                 var curPreZf = dsh.Ref(Info.ZF, i+1);
                 var vol = dsh.Ref(Info.V, i);
+                if (curZf > 0.095)
+                {
+                    return null;
+                }
                 if (curOf < 0.04 && curHf > 0.095 && curZf < 0.095 && curZf > 0)
                 {
                     iSigDateIndex = i;
@@ -64,6 +79,10 @@ namespace SelectImpl
                 if (curZf > 0 && dsh.IsReal(i))
                 {
                     nUpCount++;
+                }
+                if (curZf < 0 && dsh.IsReal(i))
+                {
+                    nDownCount++;
                 }
                 if (curZf > 0.095)
                 {
@@ -91,9 +110,8 @@ namespace SelectImpl
                     minDownShadow = downShadow;
                 }
                 otherMaxVol = Math.Max(vol, otherMaxVol);
-                otherMaxZF = Math.Max(otherMaxZF, curZf);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
-                otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
+                otherMaxZF = Math.Max(otherMaxZF, curZf);
             }
             if (iSigDateIndex == -1)
             {
@@ -114,43 +132,26 @@ namespace SelectImpl
             {
                 return null;
             }
-
             if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */bMeetTradeSigAllready || !bMeetRealUp)
             {
                 return null;
             }
 
-            float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
-            if (maxUpF < 0.015/* || maxUpF > 0.04*/)
-            {
-                return null;
-            }
+             float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
+             if (maxUpF < 0.02/* || maxUpF > 0.04*/)
+             {
+                 return null;
+             }
+//             if (sigDateVol < otherMaxVol * 1.2)
+//             {
+//                 return null;
+//             }
+
+//             if (dsh.Ref(Info.LF) < -0.06)
+//             {
+//                 return null;
+//             }
             if (bHasUpShadowTooHight || bHasDownShadowTooLow)
-            {
-                return null;
-            }
-            if (
-                 dsh.Ref(Info.ZF, 2) < 0.005 &&
-                 dsh.Ref(Info.ZF, 3) < 0.005)
-            {
-                return null;
-            }
-
-            if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
-            {
-                return null;
-            }
-
-            if (sigDateVol < otherMaxVol * 1.2)
-            {
-                return null;
-            }
-            if (otherMaxZF + zf > 0)
-            {
-                return null;
-            }
-
-            if (dsh.Ref(Info.LF) < -0.06)
             {
                 return null;
             }
@@ -159,6 +160,12 @@ namespace SelectImpl
 //                 return null;
 //             }
 
+             if (
+                  dsh.Ref(Info.ZF, 2) < 0.005 &&
+                  dsh.Ref(Info.ZF, 3) < 0.005)
+             {
+                 return null;
+             }
 
 //              if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
 //                   dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
@@ -166,15 +173,14 @@ namespace SelectImpl
 //                  return null;
 //              }
 
-             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1))/dsh.Ref(Info.C, 1);
-             if (delta > -0.01)
+             if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
              {
                  return null;
              }
-   
+
              var ret = new Dictionary<String, String>();
-             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
-             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+             ret[String.Format("vol/{0}", sigDateVol < otherMaxVol*1.5 ? "1" : "0")] = "";
+   //          ret[String.Format("maxUp/{0}", maxUpF > 0.03 ? "1" : "0")] = "";
              return ret;
         }
     }
