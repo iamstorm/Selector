@@ -28,6 +28,48 @@ namespace SelectorWeb.Utils
         {
             return IsTradeDay(sh, NowDate());
         }
+        public static bool IsTradeTime(int hour, int minute)
+        {
+            if (hour == 9)
+            {
+                return minute >= 14;
+            }
+            if (hour == 15)
+            {
+                return minute <= 1;
+            }
+            if (hour == 11)
+            {
+                return minute <= 31;
+            }
+            if (hour == 12)
+            {
+                return false;
+            }
+            return hour > 9 && hour < 15;
+        }
+        public static bool IsOpenTime(int hour, int minute)
+        {
+            if (hour == 9 && minute >= 15)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static bool IsCloseTime(int hour, int minute)
+        {
+            if (hour == 14 && minute >= 55)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public static void SetSysInfo(SQLiteHelper sh, String sKey, String sVal, bool bInsertIfNotExist = true)
         {
             int ret = sh.Execute(String.Format("Update SysInfo Set Val = '{0}' Where Key = '{1}'", sVal, sKey));

@@ -134,9 +134,26 @@ namespace SelectorWeb.Controllers
                 var selItems = querySelectItems(sh, out time);
                 var taskItems = queryTaskItems(sh);
                 var errTaskItems = queryErrTaskItems(sh);
+                DateTime curTime = DateTime.Now;
                 if (time == "")
                 {
-                    time = U.ToTimeDesc(DateTime.Now);
+                    time = U.ToTimeDesc(curTime);
+                }
+                if (U.IsOpenTime(curTime.Hour, curTime.Minute))
+                {
+                    time = "O " + time;
+                }
+                else if (U.IsCloseTime(curTime.Hour, curTime.Minute))
+                {
+                    time = "C " + time;
+                } 
+                else if (U.IsTradeTime(curTime.Hour, curTime.Minute))
+                {
+                    time = "T " + time;
+                }
+                else
+                {
+                    time = "N " + time;
                 }
                 String sSelectMsg = U.GetSysInfo(sh, "Select.msg");
                 if (sSelectMsg == "Selecting")

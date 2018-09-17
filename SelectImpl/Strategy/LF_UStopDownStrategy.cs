@@ -136,7 +136,6 @@ namespace SelectImpl
             {
                 return null;
             }
-
              float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
              if (maxUpF < 0.02/* || maxUpF > 0.04*/)
              {

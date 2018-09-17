@@ -80,7 +80,7 @@ namespace SelectImpl
             }
             if (hour == 11)
             {
-                return minute <= 31;
+                return minute <= 35;
             }
             if (hour == 12)
             {
@@ -88,17 +88,39 @@ namespace SelectImpl
             }
             return hour > 9 && hour < 15;
         }
-        public static bool IsCloseTime(DateTime time)
+        public static bool IsOpenTime(int hour, int minute)
         {
-            int hour = time.Hour;
-            int minute = time.Minute;
-            if (hour == 14 && minute >= 55)
+            if (hour == 9 && minute >= 15)
+            {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public static bool IsCloseTime(int hour, int minute)
+        {
+            if (hour == 14 && minute >= 54)
             {
                 return true;
             }
             else
             {
                 return false;
+            }
+        }
+        public static bool IsInDayTime(int hour, int minute)
+        {
+            if (!IsTradeTime(hour, minute))
+            {
+                return false;
+            }
+            if (IsOpenTime(hour, minute) || IsCloseTime(hour, minute))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
         public static int Year(int date)

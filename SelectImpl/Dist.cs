@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Configuration;
 
 namespace SelectImpl
 {
@@ -18,11 +19,28 @@ namespace SelectImpl
         public static String manualStraPath_;
         static Dist()
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            UriBuilder uri = new UriBuilder(codeBase);
-            string path = Uri.UnescapeDataString(uri.Path);
 
-            binPath_ = Path.GetDirectoryName(path).TrimEnd(new char[] { '\\', '/' }) + "\\";
+            String sBinPathConfig = ConfigurationManager.AppSettings["BinPath"].ToString().Trim();
+            if (sBinPathConfig == "")
+            {
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+
+                binPath_ = Path.GetDirectoryName(path).TrimEnd(new char[] { '\\', '/' }) + "\\";
+            }
+            else
+            {
+                if (!sBinPathConfig.EndsWith("\\") && !sBinPathConfig.EndsWith("/"))
+                {
+                    binPath_ = sBinPathConfig + "\\";
+                }
+                else
+                {
+                    binPath_ = sBinPathConfig;
+                }
+            }
+
             scriptPath_ = binPath_ + "Script\\";
             dataPath_ = binPath_ + "data\\";
             dayPath_ = dataPath_ + "day\\";

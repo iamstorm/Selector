@@ -11,7 +11,7 @@ namespace SelectImpl
     }
     public class SelectManager
     {
-        public SelectResult select(DataStoreHelper dsh, bool bSelectMode, int date, List<IStrategy> strategyList, SelectHint hint = null)
+        public SelectResult select(DataStoreHelper dsh, SelectMode selectMode, int date, List<IStrategy> strategyList, SelectHint hint = null)
         {
             SelectResult re = new SelectResult();
             dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, date);
@@ -67,7 +67,7 @@ namespace SelectImpl
                                 throw new ArgumentException("Unknown focusOn");
                         }
 
-                        rateItemDict = stra.select(dsh, bSelectMode, ref sigDate);
+                        rateItemDict = stra.select(dsh, selectMode, ref sigDate);
                         if (rateItemDict == null)
                         {
                             continue;
@@ -96,18 +96,34 @@ namespace SelectImpl
 //             strategyList.Add(App.grp_.strategy("LStopUp"));
 
             List<IStrategy> strategyList;
-            if (Utils.IsCloseTime(DateTime.Now))
-            {
-                strategyList = App.Solution("close_good").straList_;
-            } else
+            SelectMode selectMode = SelectMode.SM_SelectInDay;
+            DateTime curTime = DateTime.Now;
+
+            if (Utils.IsOpenTime(curTime.Hour, curTime.Minute))
             {
                 strategyList = App.Solution("lf_good").straList_;
+                selectMode = SelectMode.SM_SelectOpen;
+            }
+            else if (Utils.IsCloseTime(curTime.Hour, curTime.Minute))
+            {
+                strategyList = App.Solution("close_good").straList_;
+                selectMode = SelectMode.SM_SelectClose;
+            }
+            else if (Utils.IsTradeTime(curTime.Hour, curTime.Minute))
+            {
+                strategyList = App.Solution("lf_good").straList_;
+                selectMode = SelectMode.SM_SelectInDay;
+            }
+            else
+            {
+                strategyList = App.Solution("close_good").straList_;
+                selectMode = SelectMode.SM_SelectClose;
             }
             if (strategyList.Count == 0)
             {
                 throw new Exception("No strategy provide!");
             }
-            SelectResult re = select(dsh, true, Utils.NowDate(), strategyList);
+            SelectResult re = select(dsh, selectMode, Utils.NowDate(), strategyList);
             foreach (var item in re.selItems_)
             {
                 item.allSelectItems_ = re.selItems_;

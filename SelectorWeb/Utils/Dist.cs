@@ -18,7 +18,7 @@ namespace SelectorWeb.Utils
         public static String manualStraPath_;
         static Dist()
         {
-            binPath_ = ConfigurationManager.AppSettings["binPath"];
+            binPath_ = ConfigurationManager.AppSettings["BinPath"];
             if (!binPath_.EndsWith("\\"))
             {
                 binPath_ += "\\";

@@ -297,7 +297,8 @@ namespace SelectorForm
         {
             if (autoSelectMode())
             {
-                if (bSendSms && !Utils.IsCloseTime(DateTime.Now))
+                DateTime curTime = DateTime.Now;
+                if (bSendSms && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
                 {
                     Sms.SendMsgIfTodayNotSend(sMsg);
                     App.host_.uiSetMsg(sMsg);

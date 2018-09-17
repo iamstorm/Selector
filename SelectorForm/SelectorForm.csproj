@@ -73,17 +73,9 @@
     <ApplicationIcon>data_analytic.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IrisSkin4">
+    <Reference Include="IrisSkin4, Version=2006.3.22.45, Culture=neutral, PublicKeyToken=127be25a6db25e07, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\IrisSkin4.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython">
-      <HintPath>..\ThirdParty\PythonDLL\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\ThirdParty\PythonDLL\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPythonTest">
-      <HintPath>..\ThirdParty\PythonDLL\IronPythonTest.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
       <HintPath>..\ThirdParty\PythonDLL\Microsoft.Dynamic.dll</HintPath>
