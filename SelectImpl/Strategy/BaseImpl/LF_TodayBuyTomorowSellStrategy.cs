@@ -50,7 +50,7 @@ namespace SelectImpl
                     }
                     if (hf + buyZF > bonusLimit)//达到盈利顶额
                     {
-                        onemoney *= 1 + bonusLimit;
+                        onemoney = 1 + bonusLimit;
                         break;
                     }
                     if (Utils.IsDownStop(zf))//尾盘跌停，卖不了

@@ -40,7 +40,7 @@ namespace SelectorWeb.Utils
             }
             if (hour == 11)
             {
-                return minute <= 31;
+                return minute <= 35;
             }
             if (hour == 12)
             {
@@ -61,7 +61,7 @@ namespace SelectorWeb.Utils
         }
         public static bool IsCloseTime(int hour, int minute)
         {
-            if (hour == 14 && minute >= 55)
+            if (hour == 14 && minute >= 54)
             {
                 return true;
             }

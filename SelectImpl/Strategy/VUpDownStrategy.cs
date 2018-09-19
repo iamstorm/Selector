@@ -58,7 +58,9 @@ namespace SelectImpl
             float otherMaxH = 0;
             float sumOfSigDateZF = 0;
             float otherMaxDownV = 0;
-            float minSigV = float.MaxValue;
+            float minSigV = float.MaxValue; 
+            float totalUp = 0;
+            float totalDown = 0;
             for (int i = 1; i < 8; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -110,7 +112,14 @@ namespace SelectImpl
                 {
                     bMeetTradeSigAllready = true;
                 }
-                
+                if (curZf > 0)
+                {
+                    totalUp += curZf;
+                }
+                else
+                {
+                    totalDown += curZf;
+                }
                 if (curZf > 0.012)
                 {
                     bMeetRealUp = true;
@@ -139,6 +148,10 @@ namespace SelectImpl
                 return null;
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
+            if (totalDown + totalUp < -0.01)
+            {
+                return null;
+            }
             if (zf < 0)
             {
                 if (nUpCount < 2)

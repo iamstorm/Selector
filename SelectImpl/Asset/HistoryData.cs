@@ -175,7 +175,7 @@ namespace SelectImpl
             }
             else
             {
-                selectSucProbility_ = nSelectSucCount_ * 1.0f / nGoodSampleSelectCount_;
+                selectSucProbility_ = nSelectSucCount_ * 1.0f / nAllSampleSelectCount_;
             }
             if (nAntiEnvCheckCount_ == 0)
             {

@@ -48,7 +48,7 @@ namespace SelectorForm
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
-            autoSelectModeToolStripMenuItem.Checked = true;
+       //     autoSelectModeToolStripMenuItem.Checked = true;
             startupTime_ = DateTime.Now;
             timer_.Start();
             SelectTask.Init();
@@ -599,7 +599,7 @@ namespace SelectorForm
                         Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
             
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
-                                curTime.Day != startupTime_.Day) && curTime.Hour > 9)
+                                curTime.Day != startupTime_.Day) && curTime.Hour >= 8)
             {
                 Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
                 Close();

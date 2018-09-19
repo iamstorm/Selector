@@ -118,7 +118,7 @@ namespace SelectImpl
                 }
                 data.nGoodSampleSelectCount_ += dayData.goodSampleSelItems_.Count;
                 data.nAllSampleSelectCount_ += dayData.selItems_.Count;
-                foreach (var selItem in dayData.goodSampleSelItems_)
+                foreach (var selItem in dayData.selItems_)
                 {
                     var bonus = selItem.getColumnVal("bonus");
                     if (bonus == "")

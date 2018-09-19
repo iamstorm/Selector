@@ -76,6 +76,19 @@ namespace SelectImpl
                             return null;
                         }
                     }
+                    bool bHasDown = false;
+                    for (int j = i + 2; j < i + 7; j++ )
+                    {
+                        if (dsh.Ref(Info.ZF, j) < 0)
+                        {
+                            bHasDown = true;
+                            break;
+                        }
+                    }
+                    if (!bHasDown)
+                    {
+                        return null;
+                    }
                     sumOfSigDateZF = curZf + dsh.Ref(Info.ZF, i+1);
                     if (sumOfSigDateZF > 0.1)
                     {
@@ -129,7 +142,10 @@ namespace SelectImpl
             {
                 return null;
             }
-
+            if (dsh.Ref(Info.C, 1) * (1 + buyLimit() - 0.01) < dsh.Ref(Info.L, iSigDateIndex))
+            {
+                return null;
+            }
             if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */bMeetTradeSigAllready || !bMeetRealUp)
             {
                 return null;

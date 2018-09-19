@@ -48,6 +48,8 @@ namespace SelectImpl
             float otherMaxC = 0;
             float otherMaxH = 0;
             float sumOfSigDateZF = 0;
+            float totalUp = 0;
+            float totalDown = 0;
             for (int i = 1; i < 8; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -98,6 +100,14 @@ namespace SelectImpl
                     bMeetRealUp = true;
                 }
 
+                if (curZf > 0)
+                {
+                    totalUp += curZf;
+                }
+                else
+                {
+                    totalDown += curZf;
+                }
                 if (dsh.UpShadow(i) > 0.03)
                 {
                     bHasUpShadowTooHight = true;
@@ -116,7 +126,14 @@ namespace SelectImpl
                 return null;
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
-
+            if (dsh.Ref(Info.C) < dsh.Ref(Info.L, iSigDateIndex))
+            {
+                return null;
+            }
+            if (totalDown + totalUp < -0.01)
+            {
+                return null;
+            }
             if (nUpCount < 2)
             {
                 return null;

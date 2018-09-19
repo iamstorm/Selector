@@ -42,6 +42,7 @@ namespace SelectImpl
                 return null;
             }
 
+
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nDownCount = 0;
@@ -58,6 +59,7 @@ namespace SelectImpl
             float sigZF = 0;
             float minDownShadow = float.MaxValue;
             float maxUpShadow = float.MinValue;
+            float otherMinZF = float.MaxValue;
             for (int i = 1; i < 8; ++i )
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -112,6 +114,7 @@ namespace SelectImpl
                 otherMaxVol = Math.Max(vol, otherMaxVol);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
                 otherMaxZF = Math.Max(otherMaxZF, curZf);
+                otherMinZF = Math.Min(otherMinZF, curZf);
             }
             if (iSigDateIndex == -1)
             {
@@ -119,6 +122,14 @@ namespace SelectImpl
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
 
+            if (otherMinZF > 0.03)
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.C, 1)*(1+buyLimit()-0.01) < dsh.Ref(Info.L, iSigDateIndex))
+            {
+                return null;
+            }
             if (maxUpShadow > 0.03)
             {
                 bHasUpShadowTooHight = true;
@@ -158,14 +169,17 @@ namespace SelectImpl
 //             {
 //                 return null;
 //             }
-
              if (
                   dsh.Ref(Info.ZF, 2) < 0.005 &&
                   dsh.Ref(Info.ZF, 3) < 0.005)
              {
                  return null;
              }
-
+             if (dsh.Ref(Info.ZF, iSigDateIndex - 1) < 0 && dsh.IsReal(iSigDateIndex - 1) && 
+                 dsh.Ref(Info.H, iSigDateIndex - 1) > dsh.Ref(Info.H, iSigDateIndex))
+             {
+                 return null;
+             }
 //              if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
 //                   dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
 //              {
