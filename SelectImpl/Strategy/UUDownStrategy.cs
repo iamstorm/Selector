@@ -34,6 +34,10 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (dsh.Ref(Info.OF, 1) < -0.03)
+            {
+                return null;
+            }
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -70,6 +74,15 @@ namespace SelectImpl
                             return null;
                         }
                     }
+                    float preVol = dsh.Ref(Info.V, i+1);
+                    float chkVol = Math.Max(vol, preVol);
+                    for (int j = i + 2; j < i + 6; ++j)
+                    {
+                        if (dsh.Ref(Info.V, j) > chkVol * 2)
+                        {
+                            return null;
+                        }
+                    }
                     sumOfSigDateZF = curZf + dsh.Ref(Info.ZF, i+1);
                     if (sumOfSigDateZF > 0.1)
                     {
@@ -83,6 +96,7 @@ namespace SelectImpl
                 {
                     nUpCount++;
                 }
+  
                 if (curZf > 0.095)
                 {
                     nUStopCount++;
@@ -127,6 +141,10 @@ namespace SelectImpl
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
             if (dsh.Ref(Info.C) < dsh.Ref(Info.L, iSigDateIndex))
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.ZF) + Math.Min(dsh.Ref(Info.ZF, iSigDateIndex), dsh.Ref(Info.ZF, iSigDateIndex+1)) < -0.01)
             {
                 return null;
             }
@@ -192,7 +210,8 @@ namespace SelectImpl
             {
                 return null;
             }
-
+ 
+           
             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
             if (delta > -0.01)
             {

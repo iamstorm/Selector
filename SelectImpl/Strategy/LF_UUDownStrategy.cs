@@ -37,7 +37,7 @@ namespace SelectImpl
                 return null;
             }
 
-            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.05)
+            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.03)
             {
                 return null;
             }
@@ -83,6 +83,15 @@ namespace SelectImpl
                         {
                             bHasDown = true;
                             break;
+                        }
+                    }
+                    float preVol = dsh.Ref(Info.V, i + 1);
+                    float chkVol = Math.Max(vol, preVol);
+                    for (int j = i + 2; j < i + 6; ++j)
+                    {
+                        if (dsh.Ref(Info.V, j) > chkVol * 2)
+                        {
+                            return null;
                         }
                     }
                     if (!bHasDown)
@@ -160,23 +169,12 @@ namespace SelectImpl
             {
                 return null;
              }
-//             if (otherMaxZF + zf > 0)
-//             {
-//                 return null;
-//             }
-// 
-//             if (dsh.Ref(Info.LF) < -0.06)
-//             {
-//                 return null;
-//             }
+
             if (bHasUpShadowTooHight || bHasDownShadowTooLow)
             {
                 return null;
             }
-            //             if (dsh.Ref(Info.OF) < -0.02)
-            //             {
-            //                 return null;
-            //             }
+        
 
             if (
                  dsh.Ref(Info.ZF, 2) < 0.005 &&
@@ -184,12 +182,11 @@ namespace SelectImpl
             {
                 return null;
             }
-
-            //             if (dsh.Ref(Info.ZF, iSigDateIndex-1) < 0 &&
-            //                  dsh.Ref(Info.ZF, iSigDateIndex - 2) < 0)
-            //             {
-            //                 return null;
-            //             }
+            if (Math.Min(dsh.Ref(Info.ZF, iSigDateIndex), dsh.Ref(Info.ZF, iSigDateIndex+1)) + dsh.Ref(Info.ZF, iSigDateIndex+2) < -0.01)
+            {
+                return null;
+            }
+           
 
             if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
             {

@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.chart_ = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.straListView_ = new System.Windows.Forms.ListView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -47,13 +47,13 @@
             // 
             // chart_
             // 
-            chartArea2.AxisX.LabelAutoFitStyle = System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.None;
-            chartArea2.AxisX.LabelStyle.Interval = 1D;
-            chartArea2.Name = "ChartArea1";
-            this.chart_.ChartAreas.Add(chartArea2);
+            chartArea1.AxisX.LabelAutoFitStyle = System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.None;
+            chartArea1.AxisX.LabelStyle.Interval = 1D;
+            chartArea1.Name = "ChartArea1";
+            this.chart_.ChartAreas.Add(chartArea1);
             this.chart_.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend2.Name = "Legend1";
-            this.chart_.Legends.Add(legend2);
+            legend1.Name = "Legend1";
+            this.chart_.Legends.Add(legend1);
             this.chart_.Location = new System.Drawing.Point(0, 0);
             this.chart_.Name = "chart_";
             this.chart_.Size = new System.Drawing.Size(767, 360);
@@ -98,6 +98,7 @@
             this.historyView.Size = new System.Drawing.Size(767, 35);
             this.historyView.TabIndex = 2;
             this.historyView.UseCompatibleStateImageBehavior = false;
+            this.historyView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.historyView_ColumnClick);
             // 
             // menuStrip1
             // 

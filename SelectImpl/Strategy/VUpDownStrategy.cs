@@ -36,7 +36,10 @@ namespace SelectImpl
             {
                 return null;
             }
-
+            if (dsh.Ref(Info.OF, 1) < -0.03)
+            {
+                return null;
+            }
             if (dsh.Ref(Info.LF) < -0.06)
             {
                 return null;
@@ -108,6 +111,7 @@ namespace SelectImpl
                 {
                     nDStopCount++;
                 }
+
                 if (curZf < -0.03)
                 {
                     bMeetTradeSigAllready = true;
@@ -204,12 +208,19 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (Math.Min(dsh.Ref(Info.ZF, iSigDateIndex), dsh.Ref(Info.ZF, iSigDateIndex + 1)) + dsh.Ref(Info.ZF, iSigDateIndex + 2) < -0.01)
+            {
+                return null;
+            }
+
+
             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
 
             if (delta > -0.01)
             {
                 return null;
             }
+            
             var ret = new Dictionary<String, String>();
             ret[String.Format("sumSig/{0}", sumOfSigDateZF > 0.12 ? "1" : "0")] = "";
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";

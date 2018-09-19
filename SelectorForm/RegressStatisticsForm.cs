@@ -14,7 +14,7 @@ namespace SelectorForm
     public enum WantDataType
     {
         WD_BonusData,
-        WD_RawHistory,
+        WD_StrategyData,
         WD_RateItemData,
         WD_HistoryData,
     }
@@ -23,6 +23,7 @@ namespace SelectorForm
         public WantDataType wd_;
         public RegressResult re_;
         public Dictionary<String, HistoryData> strategyRateItemHistoryData_;
+        public int sortColumn_;
         public RegressStatisticsForm(RegressResult re, WantDataType wd)
         {
             InitializeComponent();
@@ -40,8 +41,8 @@ namespace SelectorForm
                 case WantDataType.WD_BonusData:
                     fillBonusChart();
                     break;
-                case WantDataType.WD_RawHistory:
-                    fillRawHistoryChart();
+                case WantDataType.WD_StrategyData:
+                    fillStrategyDataChart();
                     break;
                 case WantDataType.WD_RateItemData:
                     fillRateItemChart();
@@ -60,17 +61,21 @@ namespace SelectorForm
                     LUtils.InitListView(historyView, HistoryData.ShowColumnInfos);
                     historyView.Items.Add(re_.reHistory_.toListViewItem(historyView, re_.solutionName_));
 
-                    DataTable straHisTable = DB.Global().Select(String.Format("Select * From stra_opt Where straname = '{0}'", re_.solutionName_));
-                    foreach (DataRow row in straHisTable.Rows)
-                    {
-                        HistoryData data = HistoryData.FromDataRow(row);
-                        historyView.Items.Add(data.toListViewItem(historyView, "best"));
-                    }
+                    addSolutionBestDataToHistoryView(re_.solutionName_, "best");
                     break;
                 default:
                     throw new ArgumentException("Unknown data type!");
             }
 
+        }
+        void addSolutionBestDataToHistoryView(String sName, String sNameInHistoryView)
+        {
+            DataTable straHisTable = DB.Global().Select(String.Format("Select * From stra_opt Where straname = '{0}'", sName));
+            foreach (DataRow row in straHisTable.Rows)
+            {
+                HistoryData data = HistoryData.FromDataRow(row);
+                historyView.Items.Add(data.toListViewItem(historyView, sNameInHistoryView));
+            }
         }
         public void selItemsHistoryDataToChart(Chart chart, List<SelectItem> selItems, List<DateRange> dateRangeList, RunMode runMode, out ChartXUnit xUnit)
         {
@@ -242,14 +247,86 @@ namespace SelectorForm
                 strategyRateItemHistoryData_[rateItemList[i]] = dataList[i];
             }
         }
-        void fillRawHistoryChart()
+        void fillStrategyDataChart()
         {
-            if (re_.runMode_ != RunMode.RM_Asset)
+            if (re_.strategyList_.Count < 2)
             {
                 return;
             }
-            ChartXUnit xUnit;
-            selItemsHistoryDataToChart(chart_, re_.selItems_, re_.dateRangeList_, RunMode.RM_Raw, out xUnit);
+            Dictionary<String, int> straBuyItemCount = new Dictionary<String, int>();
+            Dictionary<String, float> straBonusDict = new Dictionary<String, float>();
+            int nTotalCount = 0;
+            float totalBonus = 0;
+            foreach (var item in re_.selItems_)
+            {
+                if (!item.iamBuyItem_)
+                {
+                    continue;
+                }
+                ++nTotalCount;
+                if (straBuyItemCount.ContainsKey(item.strategyName_))
+                {
+                    straBuyItemCount[item.strategyName_]++;
+                }
+                else
+                {
+                    straBuyItemCount[item.strategyName_] = 1;
+                }
+                var bonus = item.getColumnVal("bonus");
+                if (bonus != "")
+                {
+                    float bonusValue = Utils.GetBonusValue(bonus);
+                    if (straBonusDict.ContainsKey(item.strategyName_))
+                    {
+                        straBonusDict[item.strategyName_] += bonusValue;
+                    }
+                    else
+                    {
+                        straBonusDict[item.strategyName_] = bonusValue;
+                    }
+                    totalBonus += bonusValue;
+                }
+            }
+            historyView.Columns.Add("strategy", 80);
+            LUtils.InitListView(historyView, HistoryData.ShowColumnInfos);
+            foreach (var kv in straBuyItemCount)
+            {
+                addSolutionBestDataToHistoryView("$" + kv.Key, kv.Key);
+            }
+            DataTable dt = new DataTable();
+            dt.Columns.Add("xDesc");
+            dt.Columns.Add("count");
+            dt.Columns.Add("bonusValue"); 
+            foreach (var kv in straBuyItemCount)
+            {
+                DataRow row = dt.NewRow();
+                row["xDesc"] = kv.Key;
+                row["count"] = kv.Value;
+                float bonus;
+                if (straBonusDict.TryGetValue(kv.Key, out bonus))
+                {
+                    row["bonusValue"] = bonus;
+                }
+                dt.Rows.Add(row);
+            }
+            chart_.ChartAreas[0].Name = dt.Columns[1].ColumnName;
+            ChartArea area = new ChartArea(dt.Columns[2].ColumnName);
+            chart_.ChartAreas.Add(area);
+            for (int i = 1; i < dt.Columns.Count; ++i)
+            {
+                var col = dt.Columns[i];
+                var series = new Series();
+                series.Name = col.ColumnName;
+                series.XValueMember = "xDesc";
+                series.YValueMembers = col.ColumnName;
+                series.ToolTip = col.ColumnName;
+                series.ChartType = SeriesChartType.Pie;
+
+                series.ChartArea = col.ColumnName;
+
+                chart_.Series.Add(series);
+            }
+            chart_.DataSource = dt;
         }
 
         private void straListView__SelectedIndexChanged(object sender, EventArgs e)
@@ -276,6 +353,11 @@ namespace SelectorForm
             straDataDict["straname"] = re_.solutionName_;
             DB.Global().Insert("stra_opt", straDataDict);
             MessageBox.Show("Save success!", "Selector");
+        }
+
+        private void historyView_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            LUtils.OnColumnClick(historyView, e.Column, ref sortColumn_);
         }
 
     }

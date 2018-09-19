@@ -89,11 +89,11 @@ namespace SelectImpl
                 return name_ + "_Bonus";
             }
         }
-        public String StatisRawHistoryFormName
+        public String StatisStrategyDataFormName
         {
             get
             {
-                return name_ + "_RawHistory";
+                return name_ + "_StraData";
             }
         }
         public String StatisRateItemFormName
@@ -115,7 +115,7 @@ namespace SelectImpl
             get
             {
                 return new String[] { SelectFormName, BuyFormName, 
-                    StatisBonusFormName, StatisRawHistoryFormName, StatisRateItemFormName, StatisHistoryFormName };
+                    StatisBonusFormName, StatisStrategyDataFormName, StatisRateItemFormName, StatisHistoryFormName };
             }
         }
         public int getTradeDayCount()

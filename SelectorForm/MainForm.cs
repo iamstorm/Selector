@@ -48,7 +48,7 @@ namespace SelectorForm
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
-       //     autoSelectModeToolStripMenuItem.Checked = true;
+            autoSelectModeToolStripMenuItem.Checked = true;
             startupTime_ = DateTime.Now;
             timer_.Start();
             SelectTask.Init();
@@ -501,9 +501,12 @@ namespace SelectorForm
                 App.regressList_.Add(regressingRe_);
                 RegressSelectForm selectform = (RegressSelectForm)createTabPage(regressingRe_.SelectFormName, new RegressSelectForm());
                 RegressBuyForm buyform = (RegressBuyForm)createTabPage(regressingRe_.BuyFormName, new RegressBuyForm());
+                if (regressingRe_.strategyList_.Count > 1)
+                {
+                    createTabPage(regressingRe_.StatisStrategyDataFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_StrategyData));
+                }
                 if (regressingRe_.runMode_ == RunMode.RM_Asset)
                 {
-                    createTabPage(regressingRe_.StatisRawHistoryFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_RawHistory));
                     createTabPage(regressingRe_.StatisBonusFormName, new RegressStatisticsForm(regressingRe_, WantDataType.WD_BonusData));
                 }
                 else
@@ -599,7 +602,7 @@ namespace SelectorForm
                         Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
             
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
-                                curTime.Day != startupTime_.Day) && curTime.Hour >= 8)
+                                curTime.Day != startupTime_.Day) && curTime.Hour >= 7)
             {
                 Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
                 Close();

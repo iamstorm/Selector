@@ -84,7 +84,11 @@ namespace SelectImpl
             float maxRankC = 0;
             foreach (var item in selItems)
             {
-                int rank = Utils.ToType<int>(item.getColumnVal("prirank"));
+                int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
+                if (item.strategyName_.StartsWith("LF_"))
+                {
+                    rank += 100;
+                }
                 if (rank > maxRank)
                 {
                     maxRank = rank;

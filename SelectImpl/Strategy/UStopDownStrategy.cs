@@ -30,13 +30,16 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (dsh.Ref(Info.OF, 1) < -0.03)
+            {
+                return null;
+            }
 
 
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
             int nDStopCount = 0;
-            bool bMeetTradeSigAllready = false;
             bool bMeetRealUp = false;
             bool bHasUpShadowTooHight = false;
             bool bHasDownShadowTooLow = false;
@@ -51,6 +54,7 @@ namespace SelectImpl
             float totalUp = 0;
             float totalDown = 0;
             float otherMinZF = float.MaxValue;
+            bool bMeetTradeSigAllready = false;
             for (int i = 1; i < 8; ++i )
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -63,7 +67,18 @@ namespace SelectImpl
                     iSigDateIndex = i;
                     sigDateVol = vol;
                     sigZF = curZf;
+                    for (int j = i + 1; j < i + 5; ++j)
+                    {
+                        if (dsh.Ref(Info.V, j) > vol * 2 && dsh.Ref(Info.ZF, j) < 0)
+                        {
+                            return null;
+                        }
+                    }
                     break;
+                }
+                if (curOf < -0.04)
+                {
+                    return null;
                 }
                 if (curZf > 0 && dsh.IsReal(i))
                 {
@@ -76,13 +91,13 @@ namespace SelectImpl
                 {
                     nDStopCount++;
                 }
-                if (curZf < -0.03)
-                {
-                    bMeetTradeSigAllready = true;
-                }
                 else if (curZf > 0.012)
                 {
                     bMeetRealUp = true;
+                }
+                if (curZf < -0.03 && dsh.Ref(Info.ZF, i-1) > 0)
+                {
+                    bMeetTradeSigAllready = true;
                 }
                 float upShadow = dsh.UpShadow(i);
                 float downShadow = dsh.DownShadow(i);
@@ -109,16 +124,16 @@ namespace SelectImpl
                 otherMinZF = Math.Min(otherMinZF, curZf);
 
             }
-            if (totalDown + totalUp < -0.01)
-            {
-                return null;
-            }
             if (iSigDateIndex == -1)
             {
                 return null;
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
             if (otherMinZF > 0.02)
+            {
+                return null;
+            }
+            if (totalDown + totalUp < -0.01)
             {
                 return null;
             }
@@ -136,7 +151,7 @@ namespace SelectImpl
                 return null;
             }
 
-            if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */bMeetTradeSigAllready || !bMeetRealUp)
+            if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */ bMeetTradeSigAllready || !bMeetRealUp)
             {
                 return null;
             }
@@ -150,7 +165,6 @@ namespace SelectImpl
             {
                 return null;
             }
-
             if (bHasUpShadowTooHight || bHasDownShadowTooLow)
             {
                 return null;

@@ -37,7 +37,7 @@ namespace SelectImpl
                 return null;
             }
 
-            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.05)
+            if (dsh.Ref(Info.OF) > 0.04 || dsh.Ref(Info.OF) < -0.015 || dsh.Ref(Info.ZF, 1) < -0.02 || dsh.Ref(Info.OF, 1) < -0.03)
             {
                 return null;
             }
@@ -76,7 +76,18 @@ namespace SelectImpl
                     iSigDateIndex = i;
                     sigDateVol = vol;
                     sigZF = curZf;
+                    for (int j = i + 1; j < i + 5; ++j )
+                    {
+                        if (dsh.Ref(Info.V, j) > vol*2)
+                        {
+                            return null;
+                        }
+                    }
                     break;
+                }
+                if (curOf < -0.04)
+                {
+                    return null;
                 }
                 if (curZf > 0 && dsh.IsReal(i))
                 {
@@ -122,6 +133,11 @@ namespace SelectImpl
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
 
+            if (dsh.Ref(Info.ZF, iSigDateIndex) + dsh.Ref(Info.ZF, iSigDateIndex+1) < -0.01)
+            {
+                return null;
+            }
+
             if (otherMinZF > 0.03)
             {
                 return null;
@@ -130,6 +146,7 @@ namespace SelectImpl
             {
                 return null;
             }
+
             if (maxUpShadow > 0.03)
             {
                 bHasUpShadowTooHight = true;
