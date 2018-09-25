@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class VUpDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class MaxCOStrategy : TodayBuyTomorowSellStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,25 +14,19 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "VUpDown";
+            return "MaxCO";
         }
         public override float bounusLimit()
         {
             return 0.095f;
         }
         #endregion
-
-        float vRate_ = 2f;
-
+        
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
         {
             var zf = dsh.Ref(Info.ZF);
 
-            if (zf > 0 || zf < -0.095)
-            {
-                return null;
-            }
-            if (!dsh.IsReal())
+            if (zf > 0 || zf < -0.06)
             {
                 return null;
             }
@@ -40,72 +34,79 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.LF) < -0.06)
+            if (dsh.Ref(Info.ZF, 1) > 0)
             {
                 return null;
             }
+
             int iSigDateIndex = -1;
             int nUpCount = 0;
-            int nDownCount = 0;
             int nUStopCount = 0;
             int nDStopCount = 0;
-            bool bMeetTradeSigAllready = false;
             bool bMeetRealUp = false;
-            float sigDateVol = 0;
-            float otherMaxVol = 0;
             bool bHasUpShadowTooHight = false;
             bool bHasDownShadowTooLow = false;
-            float otherMaxZF = 0;
-            float otherMinZF = float.MaxValue;
+            float otherMaxVol = float.MinValue;
+            float otherMaxZF = float.MinValue;
             float otherMaxC = 0;
             float otherMaxH = 0;
-            float sumOfSigDateZF = 0;
-            float otherMaxDownV = 0;
-            float minSigV = float.MaxValue; 
+            float sigDateVol = 0;
+            float sigZF = 0;
+            float minDownShadow = float.MaxValue;
+            float maxUpShadow = float.MinValue;
             float totalUp = 0;
             float totalDown = 0;
+            float otherMinZF = float.MaxValue;
+            float otherMaxCO = float.MinValue;
+            bool bMeetTradeSigAllready = false;
+            int nNotRealCount = 0;
             for (int i = 1; i < 8; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
                 var curHf = dsh.Ref(Info.HF, i);
+                var curLf = dsh.Ref(Info.LF, i);
                 var curZf = dsh.Ref(Info.ZF, i);
                 var curPreZf = dsh.Ref(Info.ZF, i + 1);
                 var vol = dsh.Ref(Info.V, i);
-                var preVol = dsh.Ref(Info.V, i + 1);
-                if (dsh.Ref(Info.OF, i) > 0.03 && curZf < 0)
+                var coRate = dsh.Ref(Info.CO, i) / dsh.Ref(Info.C, i + 1);
+                if (curZf > 0 && curZf < 0.095 && coRate > 0.05 &&
+                    vol > dsh.MA(Info.V, 5, i + 1)  && dsh.HH(Info.CO, 30, i) == i)
                 {
-                    return null;
-                }
-                float ma5 = dsh.MA(Info.V, 10, i + 2);
-                float hhv = dsh.Ref(Info.V, dsh.HH(Info.V, 5, i + 2));
-                if (curZf > 0.01 && curPreZf > 0.01 && vol > 1.3 * hhv && preVol > 1.3 * hhv && (vol < vRate_ * preVol && preVol < vRate_ * vol) && vol / ma5 > vRate_ &&
-                 preVol / ma5 > vRate_ && dsh.Ref(Info.ZF, i + 2) < 0.05
-                    && dsh.Ref(Info.V, i + 2) / dsh.MA(Info.V, 5, i + 3) < vRate_)
-                {
-                    for (int j = i + 2; j < i + 7; j++)
+                    for (int j = i + 1; j < i + 6; ++j)
                     {
-                        if (dsh.Ref(Info.ZF, j) < -0.095)
+                        if (dsh.Ref(Info.V, j) > vol && dsh.Ref(Info.C, j) < dsh.Ref(Info.O, j))
+                        {
                             return null;
+                        }
                     }
-                    if (dsh.AccZF(2, i) < 0.05)
+                    if (dsh.AccZF(8, i + 1) < -0.1)
                     {
                         return null;
                     }
+                    if (dsh.AccZF(3, i+1) > 0.095)
+                    {
+                        return null;
+                    }
+                    int iMaxVolIndex = dsh.HH(Info.V, 20, i);
+                    if (dsh.Ref(Info.C, iMaxVolIndex) > dsh.Ref(Info.O, iMaxVolIndex))
                     {
                         iSigDateIndex = i;
-                        sigDateVol = Math.Max(dsh.Ref(Info.V, i + 1), vol);
-                        minSigV = Math.Min(dsh.Ref(Info.V, i + 1), vol);
+                        sigDateVol = vol;
+                        sigZF = curZf;
                         break;
                     }
                 }
-                otherMaxVol = Math.Max(vol, otherMaxVol);
-                if (curZf > 0.005 && dsh.IsReal(i))
+                if (curOf < -0.04)
+                {
+                    return null;
+                }
+                if (curZf > 0 && dsh.IsReal(i))
                 {
                     nUpCount++;
                 }
-                else if (curZf < -0.005 && dsh.IsReal(i))
+                if (!dsh.IsReal(i))
                 {
-                    nDownCount++;
+                    ++nNotRealCount;
                 }
                 if (curZf > 0.095)
                 {
@@ -115,10 +116,23 @@ namespace SelectImpl
                 {
                     nDStopCount++;
                 }
-
-                if (curZf < -0.03)
+                else if (curZf > 0.012)
+                {
+                    bMeetRealUp = true;
+                }
+                if (curZf < -0.03 && dsh.Ref(Info.ZF, i - 1) > 0)
                 {
                     bMeetTradeSigAllready = true;
+                }
+                float upShadow = dsh.UpShadow(i);
+                float downShadow = dsh.DownShadow(i);
+                if (upShadow > maxUpShadow)
+                {
+                    maxUpShadow = upShadow;
+                }
+                if (downShadow < minDownShadow)
+                {
+                    minDownShadow = downShadow;
                 }
                 if (curZf > 0)
                 {
@@ -128,65 +142,62 @@ namespace SelectImpl
                 {
                     totalDown += curZf;
                 }
-                if (curZf > 0.012)
-                {
-                    bMeetRealUp = true;
-                }
-
-                if (dsh.UpShadow(i) > 0.03)
-                {
-                    bHasUpShadowTooHight = true;
-                }
-
-                if (dsh.DownShadow(i) < -0.03)
-                {
-                    bHasDownShadowTooLow = true;
-                }
+                otherMaxVol = Math.Max(vol, otherMaxVol);
                 otherMaxZF = Math.Max(otherMaxZF, curZf);
-                otherMinZF = Math.Min(otherMinZF, curZf);
                 otherMaxC = Math.Max(dsh.Ref(Info.C, i), otherMaxC);
                 otherMaxH = Math.Max(dsh.Ref(Info.H, i), otherMaxH);
-                if (curZf < 0)
-                {
-                    otherMaxDownV = Math.Max(otherMaxDownV, vol);
-                }
+                otherMinZF = Math.Min(otherMinZF, curZf);
+                otherMaxCO = Math.Max(otherMaxCO, dsh.Ref(Info.CO, i));
             }
             if (iSigDateIndex == -1)
             {
                 return null;
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
+            if (otherMinZF > 0.02)
+            {
+                return null;
+            }
+            if (nNotRealCount > 1)
+            {
+                return null;
+            }
             if (totalDown + totalUp < -0.01)
             {
                 return null;
+            }
+            if (maxUpShadow > 0.03)
+            {
+                bHasUpShadowTooHight = true;
+            }
+
+            if (minDownShadow < -0.03)
+            {
+                bHasDownShadowTooLow = true;
             }
             if (nUpCount < 2)
             {
                 return null;
             }
-            if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */bMeetTradeSigAllready || !bMeetRealUp)
+            if (otherMaxH < dsh.Ref(Info.H, iSigDateIndex))
             {
                 return null;
             }
+
+            if (/*nUStopCount > 0 ||*//* nDStopCount > 0 || */ bMeetTradeSigAllready || !bMeetRealUp)
+            {
+                return null;
+            }
+
             float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
             if (maxUpF < 0.015/* || maxUpF > 0.04*/)
             {
                 return null;
             }
-            if (sigDateVol < otherMaxVol * 1.2)
+            if (dsh.Ref(Info.C) < dsh.Ref(Info.L, iSigDateIndex))
             {
                 return null;
             }
-            if (otherMaxZF + zf > 0)
-            {
-                return null;
-            }
-
-            if (otherMaxZF + zf < -0.02)
-            {
-                return null;
-            }
-  
             if (bHasUpShadowTooHight || bHasDownShadowTooLow)
             {
                 return null;
@@ -198,33 +209,37 @@ namespace SelectImpl
                 return null;
             }
 
-            if (dsh.Ref(Info.C, iSigDateIndex) < dsh.Ref(Info.O, iSigDateIndex))
+
+            if (sigDateVol < otherMaxVol * 1.2)
             {
                 return null;
             }
-            if (dsh.Ref(Info.C, iSigDateIndex + 1) < dsh.Ref(Info.O, iSigDateIndex + 1))
+            if (sigDateVol > otherMaxVol*2)
             {
                 return null;
             }
-            if (Math.Min(dsh.Ref(Info.ZF, iSigDateIndex), dsh.Ref(Info.ZF, iSigDateIndex + 1)) + dsh.Ref(Info.ZF, iSigDateIndex + 2) < -0.01)
+            if (otherMaxZF + zf > 0)
+            {
+                return null;
+            }
+            if (otherMaxZF + zf < -0.02)
             {
                 return null;
             }
 
-
+            if (dsh.Ref(Info.LF) < -0.06)
+            {
+                return null;
+            }
             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
-
             if (delta > -0.01)
             {
                 return null;
             }
-            
-            
+
             var ret = new Dictionary<String, String>();
-            ret[String.Format("sumSig/{0}", sumOfSigDateZF > 0.12 ? "1" : "0")] = "";
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
-            ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
             return ret;
         }
     }

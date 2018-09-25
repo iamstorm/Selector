@@ -48,7 +48,7 @@ namespace SelectorForm
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
-            autoSelectModeToolStripMenuItem.Checked = true;
+ //           autoSelectModeToolStripMenuItem.Checked = true;
             startupTime_ = DateTime.Now;
             timer_.Start();
             SelectTask.Init();

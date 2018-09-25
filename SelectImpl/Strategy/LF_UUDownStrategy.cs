@@ -41,7 +41,10 @@ namespace SelectImpl
             {
                 return null;
             }
-
+            if (dsh.Ref(Info.CO, 1) / dsh.Ref(Info.C, 1) < 0.01)
+            {
+                return null;
+            }
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -84,6 +87,10 @@ namespace SelectImpl
                             bHasDown = true;
                             break;
                         }
+                    }
+                    if (dsh.AccZF(8, i + 2) < -0.15)
+                    {
+                        return null;
                     }
                     float preVol = dsh.Ref(Info.V, i + 1);
                     float chkVol = Math.Max(vol, preVol);
@@ -147,6 +154,11 @@ namespace SelectImpl
             }
             sigDate = dsh.Date(iSigDateIndex).ToString();
 
+            int iMaxCOIndex = dsh.HH(Info.CO, 30, 1);
+            if (dsh.Ref(Info.ZF, iMaxCOIndex) < 0)
+            {
+                return null;
+            }
             if (nUpCount < 2)
             {
                 return null;
@@ -159,7 +171,10 @@ namespace SelectImpl
             {
                 return null;
             }
-
+            if (sigDateVol > otherMaxVol * 2)
+            {
+                return null;
+            }
             float maxUpF = (otherMaxC - dsh.Ref(Info.C, iSigDateIndex)) / dsh.Ref(Info.C, iSigDateIndex);
             if (maxUpF < 0.015/* || maxUpF > 0.04*/)
             {

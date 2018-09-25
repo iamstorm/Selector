@@ -35,7 +35,6 @@ namespace SelectImpl
                 return null;
             }
 
-
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -73,7 +72,7 @@ namespace SelectImpl
                         {
                             return null;
                         }
-                    }
+                    } 
                     break;
                 }
                 if (curOf < -0.04)
@@ -181,6 +180,10 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (sigDateVol > otherMaxVol * 2)
+            {
+                return null;
+            }
             if (otherMaxZF + zf > 0)
             {
                 return null;
@@ -190,16 +193,16 @@ namespace SelectImpl
             {
                 return null;
             }
-
             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1))/dsh.Ref(Info.C, 1);
             if (delta > -0.01)
             {
                 return null;
             }
-   
             var ret = new Dictionary<String, String>();
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+            ret[String.Format("prezf/{0}", dsh.Ref(Info.ZF, 1) > 0 ? "1" : "0")] = "";
+            ret[String.Format("maxco/{0}", dsh.Ref(Info.CO, 1) / dsh.Ref(Info.C, 1) > 0.01 ? "1" : "0")] = "";
             return ret;
         }
     }

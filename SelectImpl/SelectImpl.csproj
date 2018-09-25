@@ -136,6 +136,10 @@
     <Compile Include="Strategy\LF_UStopDownStrategy.cs" />
     <Compile Include="Strategy\BaseImpl\LF_TodayBuyTomorowSellStrategy.cs" />
     <Compile Include="Strategy\LF_UUDownStrategy.cs" />
+    <Compile Include="Strategy\FlatStepStrategy.cs" />
+    <Compile Include="Strategy\MaxCOStrategy.cs" />
+    <Compile Include="Strategy\DownUpStrategy.cs" />
+    <Compile Include="Strategy\EveryDownUpStrategy.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

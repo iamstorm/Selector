@@ -35,6 +35,7 @@ namespace SelectImpl
         {
             SelectItem maxRankItem = null;
             maxRank = int.MinValue;
+            float maxRankC = 0;
             foreach (var item in selItems)
             {
                 int rank = Utils.ToType<int>(item.getColumnVal("prirank"));
@@ -42,6 +43,17 @@ namespace SelectImpl
                 {
                     maxRank = rank;
                     maxRankItem = item;
+                    maxRankC = Utils.ToType<float>(item.getColumnVal("close"));
+                }
+                else if (rank == maxRank)
+                {
+                    float curC = Utils.ToType<float>(item.getColumnVal("close"));
+                    if (curC > maxRankC)
+                    {
+                        maxRank = rank;
+                        maxRankItem = item;
+                        maxRankC = curC;
+                    }
                 }
             }
             return maxRankItem;
@@ -59,30 +71,18 @@ namespace SelectImpl
         }
         SelectItem IBuyDesider.makeDeside(List<SelectItem> selItems)
         {
-//             var straDict = descomposeByStrategy(selItems);
-//             List<SelectItem> priCompeteSucList = new List<SelectItem>();
-//             foreach (var kv in straDict)
-//             {
-//                 float maxPriRate;
-//                 SelectItem item = priCompete(kv.Value, out maxPriRate);
-//                 priCompeteSucList.Add(item);
-//             }
-//             SelectItem maxRankItem = null;
-//             int maxRank = int.MinValue;
-//             foreach (var item in priCompeteSucList)
-//             {
-//                 int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
-//                 if (rank > maxRank)
-//                 {
-//                     maxRank = rank;
-//                     maxRankItem = item;
-//                 }
-//             }
-//             return maxRankItem;
+            var straDict = descomposeByStrategy(selItems);
+            List<SelectItem> priCompeteSucList = new List<SelectItem>();
+            foreach (var kv in straDict)
+            {
+                float maxPriRate;
+                SelectItem item = priCompete(kv.Value, out maxPriRate);
+                priCompeteSucList.Add(item);
+            }
             SelectItem maxRankItem = null;
             int maxRank = int.MinValue;
             float maxRankC = 0;
-            foreach (var item in selItems)
+            foreach (var item in priCompeteSucList)
             {
                 int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
                 if (item.strategyName_.StartsWith("LF_"))
@@ -106,7 +106,37 @@ namespace SelectImpl
                     }
                 }
             }
-            return maxRankItem;
+             return maxRankItem;
+
+
+//             SelectItem maxRankItem = null;
+//             int maxRank = int.MinValue;
+//             float maxRankC = 0;
+//             foreach (var item in selItems)
+//             {
+//                 int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
+//                 if (item.strategyName_.StartsWith("LF_"))
+//                 {
+//                     rank += 100;
+//                 }
+//                 if (rank > maxRank)
+//                 {
+//                     maxRank = rank;
+//                     maxRankItem = item;
+//                     maxRankC = Utils.ToType<float>(item.getColumnVal("close"));
+//                 }
+//                 else if (rank == maxRank)
+//                 {
+//                     float curC = Utils.ToType<float>(item.getColumnVal("close"));
+//                     if (curC > maxRankC)
+//                     {
+//                         maxRank = rank;
+//                         maxRankItem = item;
+//                         maxRankC = curC;
+//                     }
+//                 }
+//             }
+//             return maxRankItem;
         }
     }
 }

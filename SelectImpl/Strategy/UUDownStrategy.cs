@@ -37,7 +37,7 @@ namespace SelectImpl
             if (dsh.Ref(Info.OF, 1) < -0.03)
             {
                 return null;
-            }
+            } 
             int iSigDateIndex = -1;
             int nUpCount = 0;
             int nUStopCount = 0;
@@ -73,6 +73,10 @@ namespace SelectImpl
                         {
                             return null;
                         }
+                    }
+                    if (dsh.AccZF(8, i + 2) < -0.15)
+                    {
+                        return null;
                     }
                     float preVol = dsh.Ref(Info.V, i+1);
                     float chkVol = Math.Max(vol, preVol);
@@ -171,6 +175,10 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (sigDateVol > otherMaxVol * 2)
+            {
+                return null;
+            }
             if (otherMaxZF + zf > 0)
             {
                 return null;
@@ -210,18 +218,16 @@ namespace SelectImpl
             {
                 return null;
             }
- 
-           
+
             var delta = (dsh.Ref(Info.C) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
             if (delta > -0.01)
             {
                 return null;
             }
             var ret = new Dictionary<String, String>();
-            ret[String.Format("sumSig/{0}", sumOfSigDateZF>0.12 ? "1": "0")] = "";
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
-            ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
+            ret[String.Format("prezf/{0}", dsh.Ref(Info.ZF, 1) > 0 ? "1" : "0")] = "";
             return ret;
         }
     }

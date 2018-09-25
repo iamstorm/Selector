@@ -21,6 +21,8 @@ namespace SelectImpl
         LF,
         V,
         A,
+        CO,
+        HL
     }
     public class Data
     {
@@ -55,21 +57,21 @@ namespace SelectImpl
             return Utils.ToBonus(App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date)));
         }
 
-        public float of(int date)
+        public float of(int date, int iDateIndexHint = -1)
         {
-            return App.ds_.Ref(Info.OF, dataList_, App.ds_.index(this, date));
+            return App.ds_.Ref(Info.OF, dataList_, App.ds_.index(this, date, iDateIndexHint));
         }
-        public float zf(int date)
+        public float zf(int date, int iDateIndexHint = -1)
         {
-            return App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date));
+            return App.ds_.Ref(Info.ZF, dataList_, App.ds_.index(this, date, iDateIndexHint));
         }
-        public float hf(int date)
+        public float hf(int date, int iDateIndexHint = -1)
         {
-            return App.ds_.Ref(Info.HF, dataList_, App.ds_.index(this, date));
+            return App.ds_.Ref(Info.HF, dataList_, App.ds_.index(this, date, iDateIndexHint));
         }
-        public float lf(int date)
+        public float lf(int date, int iDateIndexHint = -1)
         {
-            return App.ds_.Ref(Info.LF, dataList_, App.ds_.index(this, date));
+            return App.ds_.Ref(Info.LF, dataList_, App.ds_.index(this, date, iDateIndexHint));
         }
         public int nextTradeDate(int date)
         {
@@ -501,6 +503,10 @@ namespace SelectImpl
                     return d.vol_;
                 case Info.A:
                     return d.amount_;
+                case Info.CO:
+                    return Math.Abs(d.close_ - d.open_);
+                case Info.HL:
+                    return d.high_ - d.low_;
                 default:
                     throw new ArgumentException(string.Format("invalid info {0}", info));
             }
@@ -736,6 +742,58 @@ namespace SelectImpl
         public float MaxCO(int dayCount = 0)
         {
             return Math.Max(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
+        }
+        public bool IsLikeSTStop(int dayCount = 0)
+        {
+            if (Ref(Info.ZF, dayCount) < 0.06 && Ref(Info.ZF, dayCount) > 0.04 && Ref(Info.C, dayCount) == Ref(Info.H, dayCount))
+            {
+                return true;
+            }
+
+            if (Ref(Info.ZF, dayCount) < -0.04 && Ref(Info.ZF, dayCount) > -0.06 && Ref(Info.C, dayCount) == Ref(Info.L, dayCount))
+            {
+                return true;
+            }
+            return false;
+        }
+        public float AccZF(int count, int dayCount = 0)
+        {
+            float accZF = 0;
+            for (int i = 0; i < count; ++i )
+            {
+                accZF += Ref(Info.ZF, i + dayCount);
+            }
+            return accZF;
+        }
+        public int EveryDown(int dayCount = 0)
+        {
+            int nCount = 0;
+            int i = 0;
+            do 
+            {
+                if (Ref(Info.ZF, dayCount+i) >= 0)
+                {
+                    break;
+                }
+                ++nCount;
+                ++i;
+            } while (true);
+            return nCount;
+        }
+        public int EveryUp(int dayCount = 0)
+        {
+            int nCount = 0;
+            int i = 0;
+            do
+            {
+                if (Ref(Info.ZF, dayCount + i) <= 0)
+                {
+                    break;
+                }
+                ++nCount;
+                ++i;
+            } while (true);
+            return nCount;
         }
     }
 }

@@ -18,6 +18,10 @@ namespace SelectImpl
             strategyList_.Add(new VUpDownStrategy());
             strategyList_.Add(new LF_UStopDownStrategy());
             strategyList_.Add(new LF_UUDownStrategy());
+            strategyList_.Add(new FlatStepStrategy());
+            strategyList_.Add(new MaxCOStrategy());
+            strategyList_.Add(new DownUpStrategy());
+            strategyList_.Add(new EveryDownUpStrategy());
         }
         public IStrategy strategy(String straName)
         {

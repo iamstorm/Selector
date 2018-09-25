@@ -55,7 +55,7 @@ namespace SelectorForm
                     }
                     if (re_.buyItems_.Contains(rhs))
                     {
-                        return -1;
+                        return 1;
                     }
                     return rhs.getColumnVal("bonus").CompareTo(lhs.getColumnVal("bonus"));
                 });

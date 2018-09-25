@@ -21,9 +21,10 @@ namespace SelectImpl
             }
             do
             {
-                float of = stock.of(sellDate);
-                float hf = stock.hf(sellDate);
-                float zf = stock.zf(sellDate);
+                int iDateIndex = App.ds_.index(stock, sellDate);
+                float of = stock.of(sellDate, iDateIndex);
+                float hf = stock.hf(sellDate, iDateIndex);
+                float zf = stock.zf(sellDate, iDateIndex);
                 if (hf < -0.11 || hf > 0.111)
                 {//除权了
                     return "";

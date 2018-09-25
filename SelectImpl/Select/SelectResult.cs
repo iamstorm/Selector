@@ -241,7 +241,14 @@ namespace SelectImpl
             }
             else if (colName == "pubrank")
             {
-                return straData == null ? "-1" : straData.rank_.ToString();
+                if (straData == null)
+                {
+                    return "-1";
+                }
+//                 float priRank = Utils.ToType<float>(getColumnVal("prirank"));
+//                 float priPercent = priRank / straData.rank_;
+//                 return (priPercent * 55.0f + 45.0f * straData.rank_ / 100.0f).ToString("F0");
+                return straData.rank_.ToString();
             }
             else if (colName == "prirank")
             {
