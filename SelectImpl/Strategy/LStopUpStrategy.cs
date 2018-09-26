@@ -47,31 +47,41 @@ namespace SelectImpl
             {
                 return null;
             }
-//             if (zf < 0.02 || zf > 0.03)
-//             {
-//                 return null;
-//             }
-            if (!dsh.IsReal())
+             if (zf < 0.02 || zf > 0.03)
+             {
+                 return null;
+             }
+            if (dsh.Ref(Info.OF) > 0.04 || dsh.UpShadow() > 0.04)
             {
                 return null;
             }
-            if (dsh.UpShadow() > 0.04)
+
+            int iSigIndex = -1;
+            for (int i = 1; i < 8; ++i)
+            {
+                if (dsh.DownShadow(i) < -0.05)
+                {
+                    iSigIndex = i;
+                    if (dsh.AccZF(8, iSigIndex) > -0.15)
+                    {
+                        return null;
+                    }
+                    break;
+                }
+            }
+            if (iSigIndex == -1)
             {
                 return null;
             }
-            if (dsh.Ref(Info.V) < dsh.MA(Info.V, 5, 1)*5)
+            if (dsh.Ref(Info.ZF, 1) > 0.05)
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF) < 0 || dsh.Ref(Info.ZF) > 0.03)
+            if (dsh.Ref(Info.C) < dsh.Ref(Info.H, iSigIndex))
             {
                 return null;
             }
-            if (dsh.Ref(Info.C) < dsh.Ref(Info.O, 1))
-            {
-                return null;
-            }
-            
+
             return EmptyRateItemButSel;
         }
     }
