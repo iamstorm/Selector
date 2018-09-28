@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class DownUpStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class DownUpStrategy : CloseBuyStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()

@@ -127,7 +127,7 @@
     <Compile Include="Strategy\EveryThreeUpStategy.cs" />
     <Compile Include="Strategy\BaseImpl\Solution.cs" />
     <Compile Include="Strategy\BaseImpl\StrategyGroup.cs" />
-    <Compile Include="Strategy\BaseImpl\TodayBuyTomorowSellStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\CloseBuyStrategy.cs" />
     <Compile Include="Strategy\UStopDownStrategy.cs" />
     <Compile Include="Strategy\UUDownStrategy.cs" />
     <Compile Include="Strategy\BaseImpl\TodayBuy2DaySellStrategy.cs" />

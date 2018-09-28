@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class UUDownStrategy : TodayBuyTomorowSellStrategy, IStrategy
+    public class UUDownStrategy : CloseBuyStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()

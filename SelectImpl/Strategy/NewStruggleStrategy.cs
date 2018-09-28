@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class NewStruggleStrategy : BaseStrategyImpl, IStrategy
+    public class NewStruggleStrategy : CloseBuyStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()
@@ -22,83 +22,14 @@ namespace SelectImpl
         }
         public override float bounusLimit()
         {
-            return 0.095f;
+            return 0.045f;
+        }
+        public override int buySpan()
+        {
+            return 2;
         }
         #endregion
 
-        String IStrategy.computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate)
-        {
-            IStrategy stra = (IStrategy)this;
-            sellDate = stock.nextTradeDate(buyDate);
-            float firstDayBonusLimit = 0.045f;
-            float otherDayBonusLimit = 0.045f;
-            float onemoney = 1.0f;
-            bSellWhenMeetMyBounusLimit = true;
-            if (sellDate == -1 || (Utils.NowIsTradeDay() && sellDate > Utils.NowDate()))
-            {
-                return "";// 还未遇到交易日，不知道盈亏
-            }
-            bool bFirstSellDate = true;
-            int nDaySpan = 0;
-            do
-            {
-                float of = stock.of(sellDate);
-                float hf = stock.hf(sellDate);
-                float zf = stock.zf(sellDate);
-                float bonusLimit = bFirstSellDate ? firstDayBonusLimit : otherDayBonusLimit;
-                if (hf < -0.11 || hf > 0.111)
-                {//除权了
-                    return "";
-                }
-                if (Utils.IsDownStop(hf))//一直跌停
-                {
-                    sellDate = stock.nextTradeDate(sellDate);
-                    onemoney *= 1 + hf;
-                    bSellWhenMeetMyBounusLimit = false;
-                    bFirstSellDate = false;
-                    ++nDaySpan;
-                    continue;
-                }
-                //今天没一直跌停，大概率能卖出
-                if (bSellWhenMeetMyBounusLimit)
-                {
-                    if (onemoney * (1 + of) - 1 > bonusLimit)//开盘超出盈利顶额
-                    {
-                        onemoney *= 1 + of;
-                        break;
-                    }
-                    if (onemoney * (1 + hf) - 1 > bonusLimit)//达到盈利顶额
-                    {
-                        onemoney = 1 + bonusLimit;
-                        break;
-                    }
-                    if (Utils.IsDownStop(zf))//尾盘跌停，卖不了
-                    {
-                        bSellWhenMeetMyBounusLimit = false;
-                    }
-                    onemoney *= 1 + zf;
-                    bFirstSellDate = false;
-                    ++nDaySpan;
-                    if (nDaySpan > 1)
-                    {
-                        break;
-                    }
-                    sellDate = stock.nextTradeDate(sellDate);
-                }
-                else
-                {//逃命模式
-                    if (!Utils.IsDownStop(of))//开盘没跌停
-                    {//跑了
-                        onemoney *= 1 + of;
-                        break;
-                    }
-                    //开盘跌停但因为没一直跌停，所以肯定可以以跌停价卖出
-                    onemoney *= 1 - 0.095f;
-                    break;
-                }
-            } while (sellDate != -1);
-            return Utils.ToBonus((onemoney - 1 - 0.002f) * 0.5f);
-        }
         Dictionary<String, String> selectForHStrugle(DataStoreHelper dsh, float topMostC, float maxUpZF)
         {
             if (dsh.MaxCO(1) > dsh.MaxCO())
