@@ -16,10 +16,6 @@ namespace SelectImpl
         {
             return "LF_UStopDown";
         }
-        public override float bounusLimit()
-        {
-            return 0.095f;
-        }
         public float buyLimit()
         {
             return -0.05f;

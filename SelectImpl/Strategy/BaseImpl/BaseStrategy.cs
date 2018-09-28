@@ -23,7 +23,7 @@ namespace SelectImpl
         }
         virtual public float bounusLimit()
         {
-            return Setting.MyDefBounusLimit;
+            return 0.095f;
         }
         public static Dictionary<String, String> EmptyRateItemButSel = new Dictionary<string, string>();
     }

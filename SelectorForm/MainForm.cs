@@ -32,7 +32,8 @@ namespace SelectorForm
         {
             Me = this;
             InitializeComponent();
-            this.WindowState = FormWindowState.Maximized;
+
+
 
             var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
             if (skinName != "")

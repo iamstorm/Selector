@@ -16,10 +16,6 @@ namespace SelectImpl
         {
             return "VUpDown";
         }
-        public override float bounusLimit()
-        {
-            return 0.095f;
-        }
         #endregion
 
         float vRate_ = 2f;

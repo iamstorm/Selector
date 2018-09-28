@@ -16,10 +16,6 @@ namespace SelectImpl
         {
             return "EnvUp";
         }
-        public override float bounusLimit()
-        {
-            return 0.095f;
-        }
         #endregion
         
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)

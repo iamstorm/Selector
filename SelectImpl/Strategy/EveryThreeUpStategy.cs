@@ -20,10 +20,6 @@ namespace SelectImpl
         {
             return FocusOn.FO_Old;
         }
-        public override float bounusLimit()
-        {
-            return 0.095f;
-        }
         #endregion
         const int SearchDayCount = 15;
         const int EveryUpCount = 3;

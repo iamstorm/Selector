@@ -40,7 +40,6 @@ namespace SelectImpl
         public static float MyGoodSampleEnvBounsMin = -0.005f;
         public static float MyGoodSampleEnvBounsMax = 0.005f;
         public static float MyGoodSampleUpRateThreshold = 0.5f;
-        public static float MyDefBounusLimit = 0.022f;
         public static float MyBuyRateLimit = 0.7f;
         public static float MyNewStockLimit = 100;
     }
