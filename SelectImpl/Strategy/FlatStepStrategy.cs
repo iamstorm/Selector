@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         #endregion
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
             if (zf > 0.095 || zf < -0.095)

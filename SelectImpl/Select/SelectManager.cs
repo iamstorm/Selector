@@ -27,7 +27,7 @@ namespace SelectImpl
                 {
                     IStrategy stra = strategyList[i];
                     Dictionary<String, String> rateItemDict = null;
-                    String sigDate = "";
+                    String sigInfo = "";
                     try
                     {
                         int iIndex = App.ds_.index(sk, date, iDateIndexHint);
@@ -67,7 +67,7 @@ namespace SelectImpl
                                 throw new ArgumentException("Unknown focusOn");
                         }
 
-                        rateItemDict = stra.select(dsh, selectMode, ref sigDate);
+                        rateItemDict = stra.select(dsh, selectMode, ref sigInfo);
                         if (rateItemDict == null)
                         {
                             continue;
@@ -80,7 +80,7 @@ namespace SelectImpl
                     SelectItem selItem = new SelectItem();
                     selItem.code_ = sk.code_;
                     selItem.date_ = date;
-                    selItem.sigDate_ = sigDate;
+                    selItem.sigInfo_ = sigInfo;
                     selItem.strategyName_ = stra.name();
                     selItem.rateItemDict_ = rateItemDict;
                     re.selItems_.Add(selItem);

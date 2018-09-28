@@ -10,7 +10,7 @@ namespace SelectImpl
     public class SelectItem
     {
         public int date_;
-        public String sigDate_;
+        public String sigInfo_;
         public String code_;
         public String strategyName_;
         public Dictionary<String, String> rateItemDict_;
@@ -56,7 +56,7 @@ namespace SelectImpl
                 return new ColumnInfo[]
                 {
                     new ColumnInfo() { name_ = "date", width_ = 60 },
-                    new ColumnInfo() { name_ = "sigdate", width_ = 60 },
+                    new ColumnInfo() { name_ = "siginfo", width_ = 60 },
                     new ColumnInfo() { name_ = "code", width_ = 50 },
                     new ColumnInfo() { name_ = "name", width_ = 60 },
                     new ColumnInfo() { name_ = "zf", width_ = 60 },
@@ -272,9 +272,9 @@ namespace SelectImpl
             {
                 return straData == null ? "0" : straData.nGoodSampleSelectCount_.ToString();
             }
-            else if (colName == "sigdate")
+            else if (colName == "siginfo")
             {
-                return sigDate_;
+                return sigInfo_;
             }
             else if (colName == "a")
             {

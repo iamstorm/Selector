@@ -21,7 +21,7 @@ namespace SelectImpl
             return 0.095f;
         }
         #endregion
-        Dictionary<String, String> selectPre(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> selectPre(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -65,7 +65,7 @@ namespace SelectImpl
             return EmptyRateItemButSel;
         }
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -104,7 +104,7 @@ namespace SelectImpl
                 var curZf = dsh.Ref(Info.ZF, i);
                 var curPreZf = dsh.Ref(Info.ZF, i + 1);
                 var vol = dsh.Ref(Info.V, i);
-                if (selectPre(dsh.newDsh(i), selectMode, ref sigDate) != null)
+                if (selectPre(dsh.newDsh(i), selectMode, ref sigInfo) != null)
                 {
                     iSigDateIndex = i;
                     sigDateVol = vol;
@@ -171,7 +171,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            sigDate = dsh.Date(iSigDateIndex).ToString();
+            sigInfo = dsh.Date(iSigDateIndex).ToString();
             if (otherMinZF > 0.02)
             {
                 return null;

@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         #endregion
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -143,7 +143,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            sigDate = dsh.Date(iSigDateIndex).ToString();
+  //          sigInfo = dsh.Date(iSigDateIndex).ToString();
             if (dsh.Ref(Info.C) < dsh.Ref(Info.L, iSigDateIndex))
             {
                 return null;
@@ -183,6 +183,8 @@ namespace SelectImpl
             {
                 return null;
             }
+            sigInfo = (otherMaxZF + zf).ToString("F4");
+
 
             if (dsh.Ref(Info.LF) < -0.06)
             {
@@ -227,6 +229,7 @@ namespace SelectImpl
             var ret = new Dictionary<String, String>();
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+            ret[String.Format("maxZF/{0}", otherMaxZF + zf > -0.01 ? "1" : "0")] = "";
             ret[String.Format("prezf/{0}", dsh.Ref(Info.ZF, 1) > 0 ? "1" : "0")] = "";
             return ret;
         }

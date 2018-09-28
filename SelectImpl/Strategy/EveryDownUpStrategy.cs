@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         #endregion
         
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -77,7 +77,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.EveryUp(3+nTotalDownDays) > 4)
+            if (dsh.EveryUp(3 + nTotalDownDays) > nTotalDownDays)
             {
                 return null;
             }

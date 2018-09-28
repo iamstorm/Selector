@@ -22,7 +22,7 @@ namespace SelectImpl
         V,
         A,
         CO,
-        HL
+        HL,
     }
     public class Data
     {
@@ -611,13 +611,55 @@ namespace SelectImpl
         {
             return Math.Abs(Ref(Info.C, dayCount) - Ref(Info.O, dayCount));
         }
-        public int LL(Info info, int count, int dayCount = 0)
+
+        public int SZLL(Info info, int count, int dayCount = 0)
         {
             float minVal = float.MaxValue;
             int iLastDay = dayCount + count;
             int iMinIndex = -1;
             for (int i = dayCount; i < iLastDay; i++)
             {
+                float val = SZRef(info, i);
+                if (val < minVal)
+                {
+                    minVal = val;
+                    iMinIndex = i;
+                }
+            }
+            return iMinIndex;
+        }
+        public int SZHH(Info info, int count, int dayCount = 0)
+        {
+            float maxVal = float.MinValue;
+            int iLastDay = dayCount + count;
+            int iMaxIndex = -1;
+            for (int i = dayCount; i < iLastDay; i++)
+            {
+                float val = SZRef(info, i);
+                if (val > maxVal)
+                {
+                    maxVal = val;
+                    iMaxIndex = i;
+                }
+            }
+            return iMaxIndex;
+        }
+        public int LL(Info info, int count, int dayCount = 0, int upOrDown = 0)
+        {
+            float minVal = float.MaxValue;
+            int iLastDay = dayCount + count;
+            int iMinIndex = -1;
+            for (int i = dayCount; i < iLastDay; i++)
+            {
+                var curZF = Ref(Info.ZF, i);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
                 float val = Ref(info, i);
                 if (val < minVal)
 	            {
@@ -627,13 +669,22 @@ namespace SelectImpl
             }
             return iMinIndex;
         }
-        public int HH(Info info, int count, int dayCount = 0)
+        public int HH(Info info, int count, int dayCount = 0, int upOrDown = 0)
         {
             float maxVal = float.MinValue;
             int iLastDay = dayCount + count;
             int iMaxIndex = -1;
             for (int i = dayCount; i < iLastDay; i++)
             {
+                var curZF = Ref(Info.ZF, i);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
                 float val = Ref(info, i);
                 if (val > maxVal)
                 {

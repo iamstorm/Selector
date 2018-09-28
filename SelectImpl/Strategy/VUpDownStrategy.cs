@@ -24,7 +24,7 @@ namespace SelectImpl
 
         float vRate_ = 2f;
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -155,7 +155,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            sigDate = dsh.Date(iSigDateIndex).ToString();
+  //          sigInfo = dsh.Date(iSigDateIndex).ToString();
             if (totalDown + totalUp < -0.01)
             {
                 return null;
@@ -181,6 +181,7 @@ namespace SelectImpl
             {
                 return null;
             }
+            sigInfo = (otherMaxZF + zf).ToString("F4");
 
             if (otherMaxZF + zf < -0.02)
             {
@@ -224,6 +225,7 @@ namespace SelectImpl
             ret[String.Format("sumSig/{0}", sumOfSigDateZF > 0.12 ? "1" : "0")] = "";
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";
+            ret[String.Format("maxZF/{0}", otherMaxZF + zf > -0.01 ? "1" : "0")] = "";
             ret[String.Format("diffzf/{0}", otherMaxZF + zf > -0.02 ? "1" : "0")] = "";
             return ret;
         }

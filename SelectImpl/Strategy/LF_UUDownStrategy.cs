@@ -30,7 +30,7 @@ namespace SelectImpl
         }
         #endregion
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             if (!meetBuyChance(dsh, selectMode))
             {
@@ -152,7 +152,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            sigDate = dsh.Date(iSigDateIndex).ToString();
+            sigInfo = dsh.Date(iSigDateIndex).ToString();
 
             int iMaxCOIndex = dsh.HH(Info.CO, 30, 1);
             if (dsh.Ref(Info.ZF, iMaxCOIndex) < 0)

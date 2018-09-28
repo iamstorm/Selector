@@ -118,6 +118,10 @@ namespace SelectImpl
             {
                 return false;
             }
+            else if (hour == 15)
+            {
+                return false;
+            }
             else
             {
                 return true;

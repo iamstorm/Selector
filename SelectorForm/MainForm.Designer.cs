@@ -35,6 +35,7 @@
             this.solutionSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoSelectModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +58,6 @@
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
-            this.autoSelectModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -110,6 +110,13 @@
             this.addUserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addUserToolStripMenuItem.Text = "AddUser";
             this.addUserToolStripMenuItem.Click += new System.EventHandler(this.addUserToolStripMenuItem_Click);
+            // 
+            // autoSelectModeToolStripMenuItem
+            // 
+            this.autoSelectModeToolStripMenuItem.Name = "autoSelectModeToolStripMenuItem";
+            this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autoSelectModeToolStripMenuItem.Text = "AutoSelectMode";
+            this.autoSelectModeToolStripMenuItem.Click += new System.EventHandler(this.autoSelectModeToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -288,13 +295,6 @@
             this.timer_.Interval = 1000;
             this.timer_.Tick += new System.EventHandler(this.timer__Tick);
             // 
-            // autoSelectModeToolStripMenuItem
-            // 
-            this.autoSelectModeToolStripMenuItem.Name = "autoSelectModeToolStripMenuItem";
-            this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.autoSelectModeToolStripMenuItem.Text = "AutoSelectMode";
-            this.autoSelectModeToolStripMenuItem.Click += new System.EventHandler(this.autoSelectModeToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -307,6 +307,7 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Selector";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);

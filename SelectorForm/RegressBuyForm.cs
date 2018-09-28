@@ -49,8 +49,18 @@ namespace SelectorForm
                 daySelectItems_ = SelectResult.OfDate(selDate, re_.selItems_);
                 daySelectItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
                 {
-                    return Utils.GetBonusValue(rhs.getColumnVal("bonus")).CompareTo(
-                               Utils.GetBonusValue(lhs.getColumnVal("bonus")));
+                    var lhsBonus = lhs.getColumnVal("bonus");
+                    var rhsBonus = rhs.getColumnVal("bonus");
+                    if (lhsBonus == "")
+                    {
+                        return 1;
+                    }
+                    if (rhsBonus == "")
+                    {
+                        return -1;
+                    }
+                    return Utils.GetBonusValue(rhsBonus).CompareTo(
+                               Utils.GetBonusValue(lhsBonus));
                 });
                 LUtils.FillListViewData(subListView_, daySelectItems_);
             }

@@ -27,7 +27,7 @@ namespace SelectImpl
         #endregion
         const int SearchDayCount = 15;
         const int EveryUpCount = 3;
-        Dictionary<String, String> selectFor(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate, int iIndex, out bool isTwoDownMode)
+        Dictionary<String, String> selectFor(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo, int iIndex, out bool isTwoDownMode)
         {
             isTwoDownMode = false;
             var zf = dsh.Ref(Info.ZF, iIndex);
@@ -180,14 +180,14 @@ namespace SelectImpl
             return ret;
         }
 
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             float zf = dsh.Ref(Info.ZF);
             bool bIsTwoDownMode = false;
             Dictionary<String, String> ret;
             if (zf < -0.04 && zf > -0.095)
             {
-                ret = selectFor(dsh, selectMode, ref sigDate, 1, out bIsTwoDownMode);
+                ret = selectFor(dsh, selectMode, ref sigInfo, 1, out bIsTwoDownMode);
                 if (ret == null && bIsTwoDownMode)
                 {
                     var retDict = new Dictionary<String, String>();
@@ -195,7 +195,7 @@ namespace SelectImpl
                     return retDict;
                 }
             }
-            ret = selectFor(dsh, selectMode, ref sigDate, 0, out bIsTwoDownMode);
+            ret = selectFor(dsh, selectMode, ref sigInfo, 0, out bIsTwoDownMode);
             if (ret == null)
             {
                 return null;

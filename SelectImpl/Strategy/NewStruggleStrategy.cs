@@ -138,7 +138,7 @@ namespace SelectImpl
             }
             return null;
         }
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate)
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             IStrategy stra = (IStrategy)this;
             var zf = dsh.Ref(Info.ZF);
@@ -220,7 +220,7 @@ namespace SelectImpl
 
             int iSearchIndex2 = iSerarchBeginIndex;
             float topMostC = topMostSimpleC;
-            sigDate = dsh.Date(iTopMostIndex).ToString();
+            sigInfo = dsh.Date(iTopMostIndex).ToString();
 
             int iStruggleUpIndex = -1;
             float maxUpZF = float.MinValue;

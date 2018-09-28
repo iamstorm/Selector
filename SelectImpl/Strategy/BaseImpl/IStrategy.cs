@@ -35,7 +35,7 @@ namespace SelectImpl
         SQLiteHelper sh();
 
 
-        Dictionary<String, String> select(DataStoreHelper dsh, SelectMode selectMode, ref String sigDate);
+        Dictionary<String, String> select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo);
         String computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate);
         float bounusLimit();
     }

@@ -140,6 +140,8 @@
     <Compile Include="Strategy\MaxCOStrategy.cs" />
     <Compile Include="Strategy\DownUpStrategy.cs" />
     <Compile Include="Strategy\EveryDownUpStrategy.cs" />
+    <Compile Include="Strategy\EnvUpStrategy.cs" />
+    <Compile Include="Strategy\SigEnvDownStrategy.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

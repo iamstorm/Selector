@@ -169,7 +169,7 @@ namespace SelectImpl
             {
                 tradeSucProbility_ = nTradeSucCount_ * 1.0f / nTradeCount_;
             }
-            if (nGoodSampleSelectCount_ == 0)
+            if (nAllSampleSelectCount_ == 0)
             {
                 selectSucProbility_ = -1;
             }
@@ -210,18 +210,18 @@ namespace SelectImpl
         }
         public float priority()
         {
-            int bonusValueRank/*25*/, antiRateRank/*30*/, tradeDayRateRank/*25*/, dontBuyRank/*20*/;
-            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 25);
+            int bonusValueRank/*30*/, antiRateRank/*35*/, tradeDayRateRank/*15*/, dontBuyRank/*20*/;
+            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 30);
             if (antiRate_ > 0)
             {
-                antiRateRank = (int)(antiRate_ * 30);
+                antiRateRank = (int)(antiRate_ * 35);
             }
             else
             {
                 antiRateRank = 10;
             }
-            tradeDayRateRank = (int)(tradeDayRate_ * 25);
-            dontBuyRank = (int)(dontBuyRate_ * 25);
+            tradeDayRateRank = (int)(tradeDayRate_ * 15);
+            dontBuyRank = (int)(dontBuyRate_ * 20);
 
             return (bonusValueRank + antiRateRank + tradeDayRateRank + dontBuyRank) / 100.0f;
         }
