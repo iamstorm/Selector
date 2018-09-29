@@ -18,53 +18,18 @@ namespace SelectImpl
         }
         public override float bonusLimit()
         {
+            return 0.052f;
+        }
+        public override float firstDayBonusLimit()
+        {
             return 0.095f;
         }
-        #endregion
-        Dictionary<String, String> selectPre(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
+        public override int buySpan()
         {
-            var zf = dsh.Ref(Info.ZF);
-
-            if (zf > 0.095 || zf < -0.095)
-            {
-                return null;
-            }
-            //              if (zf < 0.02 || zf > 0.03)
-            //              {
-            //                  return null;
-            //              }
-            if (zf < 0.02)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.HF) > 0.095)
-            {
-                return null;
-            }
-            if (dsh.SZRef(Info.ZF) > -0.015)
-            {
-                return null;
-            }
-            if (!dsh.IsReal())
-            {
-                return null;
-            }
-            if (dsh.UpShadow() < 0.04)
-            {
-                return null;
-            }
-             if (dsh.DownShadow() < -0.04)
-             {
-                 return null;
-             }
-             var of = dsh.Ref(Info.OF);
-             if (of > 0.02 || of < -0.04)
-             {
-                 return null;
-             }
-            return EmptyRateItemButSel;
+            return 1;
         }
-
+        #endregion
+      
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
@@ -77,48 +42,11 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF, 1) < 0)
+            if (dsh.Ref(Info.ZF, 1) > -0.05)
             {
                 return null;
             }
-            int iSigIndex = -1;
-            var maxCO = float.MinValue;
-            var minZF = float.MaxValue;
-            for (int i = 1; i < 8; ++i )
-            {
-                var curZF = dsh.Ref(Info.ZF, i);
-                if (curZF < 0 && dsh.HH(Info.CO, 10, i) == i && dsh.Ref(Info.CO, i) / dsh.Ref(Info.CO, dsh.HH(Info.CO, 10, i + 1, -1)) > 3)
-                {
-                    iSigIndex = i;
-                    if (curZF < -0.095)
-                    {
-                        return null;
-                    }
-                    break;
-                }
-                if (i > 1 && curZF > 0)
-                {
-                    return null;
-                }
-                minZF = Math.Min(minZF, curZF);
-                if (curZF < 0)
-                {
-                    maxCO = Math.Max(maxCO, dsh.Ref(Info.CO, i));
-                }
-            }
-            if (iSigIndex == -1)
-            {
-                return null;
-            }
-            if (maxCO > dsh.Ref(Info.CO, iSigIndex))
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.CO) * 2 > dsh.Ref(Info.CO, iSigIndex))
-            {
-                return null;
-            }
-            if (minZF < dsh.Ref(Info.ZF, iSigIndex))
+            if (dsh.Ref(Info.ZF, 2) < 0.03)
             {
                 return null;
             }

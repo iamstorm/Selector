@@ -75,14 +75,24 @@ namespace SelectImpl
                 return null;
             }
         }
-        public static HistoryData GetHistoryData(List<SelectItem> allItems, List<DateSelectItem> dateItems,
+        public static HistoryData GetHistoryData(List<DateSelectItem> dateItems,
             int iStartIndex, int nCount, RunMode runMode)
         {
+            List<SelectItem> allItems = new List<SelectItem>();
+            for (int i = 0; i < nCount; i++)
+            {
+                if (iStartIndex + i >= dateItems.Count)
+                {
+                    break;
+                }
+                DateSelectItem dayData = dateItems[iStartIndex + i];
+                allItems.AddRange(dayData.selItems_);
+            }
             HistoryData data = new HistoryData();
             allItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
-                var lhsBonus = lhs.getColumnVal("allbonus");
-                var rhsBonus = rhs.getColumnVal("allbonus");
+                var lhsBonus = lhs.getColumnVal("bonus");
+                var rhsBonus = rhs.getColumnVal("bonus");
                 if (lhsBonus == "")
                 {
                     return 1;
@@ -95,35 +105,51 @@ namespace SelectImpl
                 float rhsBonusValue = Utils.GetBonusValue(rhsBonus);
                 return lhsBonusValue.CompareTo(rhsBonusValue);
             });
-            int nBackBonusCount = 0;
             float allBackBonusValue = 0;
+            Dictionary<int, int> backBonusDataDict = new Dictionary<int, int>();
             for (int i = 0; i < allItems.Count; ++i)
             {
                 SelectItem item = allItems[i];
-                var allbonus = item.getColumnVal("allbonus");
-                if (allbonus == "")
+                var bonus = item.getColumnVal("bonus");
+                if (bonus == "")
                 {
                     continue;
                 }
-                float allbonusValue = Utils.GetBonusValue(allbonus);
+                float allbonusValue = Utils.GetBonusValue(bonus);
                 if (allbonusValue >= 0)
                 {
                     break;
                 }
+                if (backBonusDataDict.ContainsKey(item.date_))
+                {
+                    continue;
+                }
+                backBonusDataDict[item.date_] = 0;
                 allBackBonusValue += allbonusValue;
-                ++nBackBonusCount;
-                if (nBackBonusCount >= 10)
+                if (backBonusDataDict.Count >= 10)
                 {
                     break;
                 }
             }
-            if (nBackBonusCount > 0)
+            if (backBonusDataDict.Count > 0)
             {
-                data.backBonusValue_ = allBackBonusValue / nBackBonusCount;
+                data.backBonusValue_ = allBackBonusValue / backBonusDataDict.Count;
             }
             else
             {
                 data.backBonusValue_ = 0;
+            }
+            for (int i = 0; i < allItems.Count; ++i)
+            {
+                SelectItem item = allItems[i];
+                var bonus = item.getColumnVal("bonus");
+                if (bonus == "")
+                {
+                    continue;
+                }
+                data.nHoldStockDays_ += Utils.ToType<int>(item.getColumnVal("tradespan"));
+                float allbonusValue = Utils.GetBonusValue(bonus);
+                data.allBonusValue_ += allbonusValue;
             }
 
             data.nDayCount_ = iStartIndex + nCount - 1 >= dateItems.Count ?
@@ -241,6 +267,8 @@ namespace SelectImpl
                                 nAntiEnvCheckCount  INT              NOT NULL,
                                 nSelectSucCount        INT              NOT NULL,
                                 nTradeSucCount         INT              NOT NULL,
+                                nHoldStockDays         INT              NOT NULL,
+                                allBonusValue         NUMERIC( 5, 2 )              NOT NULL,
                                 bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 

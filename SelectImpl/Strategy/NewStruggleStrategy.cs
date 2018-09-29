@@ -22,7 +22,7 @@ namespace SelectImpl
         }
         public override int buySpan()
         {
-            return 5;
+            return 2;
         }
         #endregion
 

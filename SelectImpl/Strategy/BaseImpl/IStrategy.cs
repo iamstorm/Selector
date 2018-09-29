@@ -45,6 +45,5 @@ namespace SelectImpl
     public interface IStrategy_LF : IStrategy
     {
         float buyLimit();
-        float ofBonusLimit();
     }
 }

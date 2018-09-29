@@ -39,7 +39,6 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "name", width_ = 60 },
                     new ColumnInfo() { name_ = "zf", width_ = 60 },
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
-                    new ColumnInfo() { name_ = "allbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
@@ -233,13 +232,6 @@ namespace SelectImpl
                 colValCacheDict_[colName] = ret;
                 return ret;
             }
-            else if (colName == "allbonus")
-	        {
-                BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
-                colValCacheDict_[colName] = info.allBonus_;
-                return info.allBonus_;
-	        }
             else if (colName == "trcount")
             {
                 return straData == null ? "0" : straData.nTradeCount_.ToString();
@@ -293,7 +285,7 @@ namespace SelectImpl
                 ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
                 lvsi.Text = getColumnVal(colName, stock, straData);
                 lvsi.ForeColor = rowColor;
-                if (lvsi.Text != "" && (colName == "bonus" || colName == "allbonus" || colName == "nsh" || colName == "nsc" || colName == "envbonus"))
+                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc" || colName == "envbonus"))
                 {
                     if (Utils.GetBonusValue(lvsi.Text) > 0)
                     {

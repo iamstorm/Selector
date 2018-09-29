@@ -117,7 +117,7 @@ namespace SelectorForm
                         }
                     }
                     iSearchStartHint = iStartIndex + nDaySpan;
-                    HistoryData data = StrategyAsset.GetHistoryData(selItems, items, iStartIndex, nDaySpan, runMode);
+                    HistoryData data = StrategyAsset.GetHistoryData(items, iStartIndex, nDaySpan, runMode);
                     dataList.Add(data);
                 }
             }
@@ -131,7 +131,7 @@ namespace SelectorForm
                     {
                         break;
                     }
-                    HistoryData data = StrategyAsset.GetHistoryData(selItems, items, iStartIndex, nDaySpan, runMode);
+                    HistoryData data = StrategyAsset.GetHistoryData(items, iStartIndex, nDaySpan, runMode);
                     dataList.Add(data);
                     iStartIndex += nDaySpan;
                 } while (iStartIndex < items.Count);
@@ -233,7 +233,7 @@ namespace SelectorForm
                 }
                 rateItemList.Add(kv.Key);
                 List<DateSelectItem> items = RegressResult.ToDaySelectItemList(kv.Value, re_.dateRangeList_);
-                HistoryData data = StrategyAsset.GetHistoryData(kv.Value, items, 0, items.Count, RunMode.RM_Raw);
+                HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
                 dataList.Add(data);
             }
             if (dataList.Count == 0)

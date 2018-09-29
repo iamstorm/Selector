@@ -29,6 +29,8 @@ namespace SelectImpl
         public int nAntiEnvCheckCount_;
         public int nSelectSucCount_;
         public int nTradeSucCount_;
+        public int nHoldStockDays_;
+        public float allBonusValue_;
         public static ColumnInfo[] ShowColumnInfos
         {
             get {
@@ -41,7 +43,6 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "backbonus", width_ = 65 },
                     new ColumnInfo() { name_ = "atr", width_ = 60 },
                     new ColumnInfo() { name_ = "tdr", width_ = 60 },
-                    new ColumnInfo() { name_ = "dbr", width_ = 60 },
                     new ColumnInfo() { name_ = "days", width_ = 60 },
                     new ColumnInfo() { name_ = "trades", width_ = 60 },
                     new ColumnInfo() { name_ = "bpertr", width_ = 60 },
@@ -49,6 +50,8 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "allselects", width_ = 70 },
                     new ColumnInfo() { name_ = "antic", width_ = 60 },
                     new ColumnInfo() { name_ = "anticc", width_ = 60 },
+                    new ColumnInfo() { name_ = "holddays", width_ = 60 },
+                    new ColumnInfo() { name_ = "allbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "startDate", width_ = 60 },
                     new ColumnInfo() { name_ = "endDate", width_ = 60 },
                 };
@@ -71,6 +74,8 @@ namespace SelectImpl
             lvi.SubItems.Add(nAllSampleSelectCount_.ToString());
             lvi.SubItems.Add(nAntiEnvCount_.ToString());
             lvi.SubItems.Add(nAntiEnvCheckCount_.ToString());
+            lvi.SubItems.Add(nHoldStockDays_.ToString());
+            lvi.SubItems.Add(allBonusValue_.ToString("F2") + "%");
             lvi.SubItems.Add(startDate_.ToString());
             lvi.SubItems.Add(endDate_.ToString());
             return lvi;
@@ -96,6 +101,8 @@ namespace SelectImpl
             data.nAntiEnvCheckCount_ = Utils.ToType<int>(row["nAntiEnvCheckCount"]);
             data.nSelectSucCount_ = Utils.ToType<int>(row["nSelectSucCount"]);
             data.nTradeSucCount_ = Utils.ToType<int>(row["nTradeSucCount"]);
+            data.nHoldStockDays_ = Utils.ToType<int>(row["nHoldStockDays"]);
+            data.allBonusValue_ = Utils.ToType<float>(row["allBonusValue"]);
             return data;
         }
         public Dictionary<String, Object> toDictionary(String verTag)
@@ -119,6 +126,8 @@ namespace SelectImpl
             dict["nAntiEnvCheckCount"] = nAntiEnvCheckCount_;
             dict["nSelectSucCount"] = nSelectSucCount_;
             dict["nTradeSucCount"] = nTradeSucCount_;
+            dict["nHoldStockDays"] = nHoldStockDays_;
+            dict["allBonusValue"] = allBonusValue_;
             dict["verTag"] = verTag;
             return dict;
         }
@@ -146,6 +155,8 @@ namespace SelectImpl
                 allData.nAntiEnvCheckCount_ += data.nAntiEnvCheckCount_;
                 allData.nSelectSucCount_ += data.nSelectSucCount_;
                 allData.nTradeSucCount_ += data.nTradeSucCount_;
+                allData.nHoldStockDays_ += data.nHoldStockDays_;
+                allData.allBonusValue_ += data.allBonusValue_;
             }
             allData.refrestStatistics();
             return allData;
@@ -177,12 +188,12 @@ namespace SelectImpl
                 antiRate_ = nAntiEnvCount_ * 1.0f / nAntiEnvCheckCount_;
             }
             tradeDayRate_ = nTradeCount_ * 1.0f/ nDayCount_;
-            if (nTradeCount_ == 0)
+            if (nHoldStockDays_ == 0)
             {
                 bPerTradeDay_ = 0;
             } else
             {
-                bPerTradeDay_ = bonusValue_ / nTradeCount_;
+                bPerTradeDay_ = allBonusValue_ / nHoldStockDays_;
             }
             float probility = tradeSucProbility_ < 0 ? selectSucProbility_ : tradeSucProbility_;
             rank_ = (int)(100 * probility * priority());

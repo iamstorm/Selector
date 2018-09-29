@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class LF_UStopDownStrategy : LF_TodayBuyTomorowSellStrategy, IStrategy_LF
+    public class LF_UStopDownStrategy : LFBuyStrategy, IStrategy_LF
     {
         #region meta data
         String IStrategy.verTag()
@@ -16,18 +16,15 @@ namespace SelectImpl
         {
             return "LF_UStopDown";
         }
-        public float buyLimit()
+        float IStrategy_LF.buyLimit()
         {
             return -0.05f;
-        }
-        public float ofBonusLimit()
-        {
-            return 0.095f;
         }
         #endregion
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
+            IStrategy_LF stra = (IStrategy_LF)this;
             if (!meetBuyChance(dsh, selectMode))
             {
                 return null;
@@ -173,7 +170,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.C, 1)*(1+buyLimit()-0.01) < dsh.Ref(Info.L, iSigDateIndex))
+            if (dsh.Ref(Info.C, 1) * (1 + stra.buyLimit() - 0.01) < dsh.Ref(Info.L, iSigDateIndex))
             {
                 return null;
             }
@@ -238,7 +235,7 @@ namespace SelectImpl
                  return null;
              }
 
-             var delta = (dsh.Ref(Info.C, 1) * (1 + buyLimit() + 0.01) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
+             var delta = (dsh.Ref(Info.C, 1) * (1 + stra.buyLimit() + 0.01) - dsh.Ref(Info.O, 1)) / dsh.Ref(Info.C, 1);
              if (delta > -0.01)
              {
                  return null;

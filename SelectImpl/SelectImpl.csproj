@@ -133,7 +133,7 @@
     <Compile Include="Strategy\NewStruggleStrategy.cs" />
     <Compile Include="Strategy\VUpDownStrategy.cs" />
     <Compile Include="Strategy\LF_UStopDownStrategy.cs" />
-    <Compile Include="Strategy\BaseImpl\LF_TodayBuyTomorowSellStrategy.cs" />
+    <Compile Include="Strategy\BaseImpl\LFBuyStrategy.cs" />
     <Compile Include="Strategy\LF_UUDownStrategy.cs" />
     <Compile Include="Strategy\FlatStepStrategy.cs" />
     <Compile Include="Strategy\MaxCOStrategy.cs" />
