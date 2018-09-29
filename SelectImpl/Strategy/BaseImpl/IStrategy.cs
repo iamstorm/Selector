@@ -19,6 +19,13 @@ namespace SelectImpl
         SM_SelectInDay,
         SM_SelectClose
     }
+    public class BuySellInfo
+    {
+        public bool bSellWhenMeetMyBounusLimit_ = true;
+        public int sellDate_ = -1;
+        public int tradeSpan_ = -1;
+        public String allBonus_ = "";
+    }
     public interface IStrategy
     {
 #region meta data
@@ -31,7 +38,7 @@ namespace SelectImpl
 
 
         Dictionary<String, String> select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo);
-        String computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate);
+        String computeBonus(Stock stock, int buyDate, out BuySellInfo info);
         float bonusLimit();
     }
 

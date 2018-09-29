@@ -39,11 +39,13 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "name", width_ = 60 },
                     new ColumnInfo() { name_ = "zf", width_ = 60 },
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
+                    new ColumnInfo() { name_ = "allbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
                     new ColumnInfo() { name_ = "envbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "sellspan", width_ = 60 },
+                    new ColumnInfo() { name_ = "tradespan", width_ = 60 },
                     new ColumnInfo() { name_ = "close", width_ = 60 },
                     new ColumnInfo() { name_ = "strategy", width_ = 200 },
                     new ColumnInfo() { name_ = "pubrank", width_ = 60 },
@@ -99,37 +101,34 @@ namespace SelectImpl
             }
             else if (colName == "bonus")
             {
-                bool bSellWhenMeetMyBounusLimit;
-                int sellDate;
-                String bonus = stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                BuySellInfo info;
+                String bonus = stra.computeBonus(stock, date_, out info);
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
             else if (colName == "nsh")
             {
-                bool bSellWhenMeetMyBounusLimit;
-                int sellDate;
-                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
-                if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
                 {
                     colValCacheDict_[colName] = "";
                     return "";
                 }
-                String bonus = Utils.ToBonus(stock.hf(sellDate));
+                String bonus = Utils.ToBonus(stock.hf(info.sellDate_));
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
             else if (colName == "nsc")
             {
-                bool bSellWhenMeetMyBounusLimit;
-                int sellDate;
-                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
-                if (sellDate == -1 || !bSellWhenMeetMyBounusLimit)
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
                 {
                     colValCacheDict_[colName] = "";
                     return "";
                 }
-                String bonus = Utils.ToBonus(stock.zf(sellDate));
+                String bonus = Utils.ToBonus(stock.zf(info.sellDate_));
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
@@ -165,26 +164,40 @@ namespace SelectImpl
             }
             else if (colName == "envbonus")
 	        {
-                bool bSellWhenMeetMyBounusLimit;
-                int sellDate;
-                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
-                String ret = sellDate == -1 ? "" : App.ds_.envBonus(sellDate);
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                String ret = info.sellDate_ == -1 ? "" : App.ds_.envBonus(info.sellDate_);
                 colValCacheDict_[colName] = ret;
                 return ret;
 	        }
             else if (colName == "sellspan")
             {
-                bool bSellWhenMeetMyBounusLimit;
-                int sellDate;
-                stra.computeBonus(stock, date_, out bSellWhenMeetMyBounusLimit, out sellDate);
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
                 String ret;
-                if (sellDate == -1)
+                if (info.sellDate_ == -1)
                 {
                     ret = "not yet";
                 }
                 else
                 {
-                    ret = Utils.DateSpan(date_, sellDate);
+                    ret = Utils.DateSpan(date_, info.sellDate_);
+                }
+                colValCacheDict_[colName] = ret;
+                return ret;
+            }
+            else if (colName == "tradespan")
+            {
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                String ret;
+                if (info.tradeSpan_ == -1)
+                {
+                    ret = "not yet";
+                }
+                else
+                {
+                    ret = info.tradeSpan_.ToString();
                 }
                 colValCacheDict_[colName] = ret;
                 return ret;
@@ -220,6 +233,13 @@ namespace SelectImpl
                 colValCacheDict_[colName] = ret;
                 return ret;
             }
+            else if (colName == "allbonus")
+	        {
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                colValCacheDict_[colName] = info.allBonus_;
+                return info.allBonus_;
+	        }
             else if (colName == "trcount")
             {
                 return straData == null ? "0" : straData.nTradeCount_.ToString();
@@ -273,7 +293,7 @@ namespace SelectImpl
                 ListViewItem.ListViewSubItem lvsi = new ListViewItem.ListViewSubItem();
                 lvsi.Text = getColumnVal(colName, stock, straData);
                 lvsi.ForeColor = rowColor;
-                if (lvsi.Text != "" && (colName == "bonus" || colName == "nsh" || colName == "nsc" || colName == "envbonus"))
+                if (lvsi.Text != "" && (colName == "bonus" || colName == "allbonus" || colName == "nsh" || colName == "nsc" || colName == "envbonus"))
                 {
                     if (Utils.GetBonusValue(lvsi.Text) > 0)
                     {

@@ -23,14 +23,24 @@ namespace SelectorForm
             col = column;
             this.order = order;
         }
+        String GetValue(String sMaybeValue)
+        {
+            String sValue = sMaybeValue.TrimEnd('%');
+            int iIndex = sValue.IndexOf("days");
+            if (iIndex != -1)
+            {
+                sValue = sValue.Substring(0, iIndex);
+            }
+            return sValue;
+        }
         public int Compare(object x, object y)
         {
             int returnVal = -1;
             float a = 0, b = 0;
             ListViewItem xlvi = (ListViewItem)x;
             ListViewItem ylvi = (ListViewItem)y;
-            string xStr = xlvi.SubItems[col].Text.TrimEnd('%');
-            string yStr = ylvi.SubItems[col].Text.TrimEnd('%');
+            string xStr = GetValue(xlvi.SubItems[col].Text);
+            string yStr = GetValue(ylvi.SubItems[col].Text);
             if (float.TryParse(xStr, out a) && float.TryParse(yStr, out b))
             {
                 returnVal = a >= b ? (a == b ? 0 : 1) : -1;

@@ -75,10 +75,57 @@ namespace SelectImpl
                 return null;
             }
         }
-        public static HistoryData GetHistoryData(List<DateSelectItem> dateItems,
+        public static HistoryData GetHistoryData(List<SelectItem> allItems, List<DateSelectItem> dateItems,
             int iStartIndex, int nCount, RunMode runMode)
         {
             HistoryData data = new HistoryData();
+            allItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
+            {
+                var lhsBonus = lhs.getColumnVal("allbonus");
+                var rhsBonus = rhs.getColumnVal("allbonus");
+                if (lhsBonus == "")
+                {
+                    return 1;
+                }
+                if (rhsBonus == "")
+                {
+                    return -1;
+                }
+                float lhsBonusValue = Utils.GetBonusValue(lhsBonus);
+                float rhsBonusValue = Utils.GetBonusValue(rhsBonus);
+                return lhsBonusValue.CompareTo(rhsBonusValue);
+            });
+            int nBackBonusCount = 0;
+            float allBackBonusValue = 0;
+            for (int i = 0; i < allItems.Count; ++i)
+            {
+                SelectItem item = allItems[i];
+                var allbonus = item.getColumnVal("allbonus");
+                if (allbonus == "")
+                {
+                    continue;
+                }
+                float allbonusValue = Utils.GetBonusValue(allbonus);
+                if (allbonusValue >= 0)
+                {
+                    break;
+                }
+                allBackBonusValue += allbonusValue;
+                ++nBackBonusCount;
+                if (nBackBonusCount >= 10)
+                {
+                    break;
+                }
+            }
+            if (nBackBonusCount > 0)
+            {
+                data.backBonusValue_ = allBackBonusValue / nBackBonusCount;
+            }
+            else
+            {
+                data.backBonusValue_ = 0;
+            }
+
             data.nDayCount_ = iStartIndex + nCount - 1 >= dateItems.Count ?
                 dateItems.Count - iStartIndex : nCount;
             int date0 = dateItems[iStartIndex].date_;
@@ -181,9 +228,9 @@ namespace SelectImpl
                                 tradeSucProbility      NUMERIC( 5, 2 )  NOT NULL,
                                 selectSucProbility     NUMERIC( 5, 2 )  NOT NULL,
                                 bonusValue             NUMERIC( 5, 2 )  NOT NULL,
+                                backBonusValue     NUMERIC( 5, 2 )  NOT NULL,
                                 antiRate               NUMERIC( 5, 2 )  NOT NULL,
                                 tradeDayRate           NUMERIC( 5, 2 )  NOT NULL,
-                                dontBuyRate            NUMERIC( 5, 2 )  NOT NULL,
                                 startDate              INT              NOT NULL,
                                 endDate                INT              NOT NULL,
                                 nDayCount              INT              NOT NULL,
@@ -194,8 +241,6 @@ namespace SelectImpl
                                 nAntiEnvCheckCount  INT              NOT NULL,
                                 nSelectSucCount        INT              NOT NULL,
                                 nTradeSucCount         INT              NOT NULL,
-                                nDontBuyAndDown        INT              NOT NULL,
-                                nDontBuyButUp          INT              NOT NULL,
                                 bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 

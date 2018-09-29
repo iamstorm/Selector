@@ -13,6 +13,7 @@ namespace SelectImpl
 
         public float selectSucProbility_ = -1;
         public float bonusValue_;
+        public float backBonusValue_;
         public float antiRate_ = -1;
         public float tradeDayRate_ = -1;
         public float bPerTradeDay_ = 0;
@@ -37,6 +38,7 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "tsp", width_ = 60 },
                     new ColumnInfo() { name_ = "ssp", width_ = 60 },
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
+                    new ColumnInfo() { name_ = "backbonus", width_ = 65 },
                     new ColumnInfo() { name_ = "atr", width_ = 60 },
                     new ColumnInfo() { name_ = "tdr", width_ = 60 },
                     new ColumnInfo() { name_ = "dbr", width_ = 60 },
@@ -58,7 +60,8 @@ namespace SelectImpl
             lvi.SubItems.Add(rank_.ToString());
             lvi.SubItems.Add(tradeSucProbility_.ToString("F2"));
             lvi.SubItems.Add(selectSucProbility_.ToString("F2"));
-            lvi.SubItems.Add(bonusValue_.ToString("F2")+"%");
+            lvi.SubItems.Add(bonusValue_.ToString("F2") + "%");
+            lvi.SubItems.Add(backBonusValue_.ToString("F2") + "%");
             lvi.SubItems.Add(antiRate_.ToString("F2"));
             lvi.SubItems.Add(tradeDayRate_.ToString("F2"));
             lvi.SubItems.Add(nDayCount_.ToString());
@@ -78,6 +81,7 @@ namespace SelectImpl
             data.tradeSucProbility_ = Utils.ToType<float>(row["tradeSucProbility"]);
             data.selectSucProbility_ = Utils.ToType<float>(row["selectSucProbility"]);
             data.bonusValue_ = Utils.ToType<float>(row["bonusValue"]);
+            data.backBonusValue_ = Utils.ToType<float>(row["backBonusValue"]);
             data.antiRate_ = Utils.ToType<float>(row["antiRate"]);
             data.tradeDayRate_ = Utils.ToType<float>(row["tradeDayRate"]);
             data.rank_ = Utils.ToType<int>(row["rank"]);
@@ -100,6 +104,7 @@ namespace SelectImpl
             dict["tradeSucProbility"] = tradeSucProbility_;
             dict["selectSucProbility"] = selectSucProbility_;
             dict["bonusValue"] = bonusValue_;
+            dict["backBonusValue"] = backBonusValue_;
             dict["antiRate"] = antiRate_;
             dict["tradeDayRate"] = tradeDayRate_;
             dict["rank"] = rank_;
@@ -128,9 +133,11 @@ namespace SelectImpl
                                 orderby data.endDate_ descending
                                 select data.endDate_).ToList().FirstOrDefault();
 
+            allData.backBonusValue_ = 0;
             foreach (var data in dataList)
             {
                 allData.bonusValue_ += data.bonusValue_;
+                allData.backBonusValue_ = Math.Min(allData.backBonusValue_, data.backBonusValue_);
                 allData.nDayCount_ += data.nDayCount_;
                 allData.nTradeCount_ += data.nTradeCount_;
                 allData.nGoodSampleSelectCount_ += data.nGoodSampleSelectCount_;
@@ -182,19 +189,27 @@ namespace SelectImpl
         }
         public float priority()
         {
-            int bonusValueRank/*45*/, antiRateRank/*40*/, tradeDayRateRank/*15*/;
-            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 45);
-            if (antiRate_ > 0)
+            int bonusValueRank/*40*/, backBonusValueRank/*30*/, antiRateRank/*15*/, tradeDayRateRank/*15*/;
+            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 40);
+            if (backBonusValue_ >= 0)
             {
-                antiRateRank = (int)(antiRate_ * 40);
+                backBonusValueRank = 30;
             }
             else
             {
-                antiRateRank = 10;
+                backBonusValueRank = (int)((20 + backBonusValue_) * 30 / 20);
+            }
+            if (antiRate_ > 0)
+            {
+                antiRateRank = (int)(antiRate_ * 15);
+            }
+            else
+            {
+                antiRateRank = 5;
             }
             tradeDayRateRank = (int)(tradeDayRate_ * 15);
 
-            return (bonusValueRank + antiRateRank + tradeDayRateRank) / 100.0f;
+            return (bonusValueRank + backBonusValueRank + antiRateRank + tradeDayRateRank) / 100.0f;
         }
         public void recalProbilityForRateItem(int occurInUpItem, int occurInDownItem, int nUpSelCount, int nDownSelCount)
         {
