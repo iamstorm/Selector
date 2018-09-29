@@ -16,14 +16,6 @@ namespace SelectImpl
         public Dictionary<String, String> rateItemDict_;
         public List<SelectItem> allSelectItems_;
         public bool iamBuyItem_;
-        public bool isRealSelectItem
-        {
-            get
-            {
-                return strategyName_ != StrategySetting.DontbuyStrategyName &&
-                           strategyName_ != StrategySetting.MissStrategyName;
-            }
-        }
 
         public SelectItem()
         {
@@ -35,20 +27,6 @@ namespace SelectImpl
             code_ = item.code_;
             strategyName_ = item.strategyName_;
             rateItemDict_ = item.rateItemDict_;
-        }
-        public static SelectItem DontBuy(int date)
-        {
-            SelectItem dontBuy = new SelectItem();
-            dontBuy.date_ = date;
-            dontBuy.strategyName_ = StrategySetting.DontbuyStrategyName;
-            return dontBuy;
-        }
-        public static SelectItem MissBuy(int date)
-        {
-            SelectItem missBuy = new SelectItem();
-            missBuy.date_ = date;
-            missBuy.strategyName_ = StrategySetting.MissStrategyName;
-            return missBuy;
         }
         public static ColumnInfo[] ShowColumnInfos
         {
@@ -64,7 +42,6 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
-                    new ColumnInfo() { name_ = "dbuysuc", width_ = 60 },
                     new ColumnInfo() { name_ = "envbonus", width_ = 60 },
                     new ColumnInfo() { name_ = "sellspan", width_ = 60 },
                     new ColumnInfo() { name_ = "close", width_ = 60 },
@@ -183,27 +160,6 @@ namespace SelectImpl
                 {
                     ret = (nPlusCount * 1.0f / nAllCount).ToString("F2");
                 }
-                colValCacheDict_[colName] = ret;
-                return ret;
-            }
-            else if (colName == "dbuysuc")
-            {
-                if (strategyName_ != StrategySetting.DontbuyStrategyName)
-                {
-                    colValCacheDict_[colName] = "";
-                    return "";
-                }
-                List<SelectItem> daySelectItems = SelectResult.OfDate(date_, allSelectItems_);
-                int nNobuySucCount = 0;
-                foreach (var item in daySelectItems)
-                {
-                    String bonus = item.getColumnVal("bonus");
-                    if (Utils.GetBonusValue(bonus) < 0)
-                    {
-                        nNobuySucCount++;
-                    }
-                }
-                String ret = (nNobuySucCount * 1.0f/ daySelectItems.Count).ToString("F02");
                 colValCacheDict_[colName] = ret;
                 return ret;
             }

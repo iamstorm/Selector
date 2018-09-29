@@ -11,7 +11,7 @@ namespace SelectImpl
         public String computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate)
         {
             IStrategy stra = (IStrategy)this;
-            float bonusLimit = stra.bounusLimit();
+            float bonusLimit = stra.bonusLimit();
             float onemoney = 1.0f;
             float totalZF = 0;
             sellDate = stock.nextTradeDate(buyDate);

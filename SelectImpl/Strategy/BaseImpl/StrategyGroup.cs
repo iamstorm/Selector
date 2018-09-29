@@ -40,11 +40,11 @@ namespace SelectImpl
         {
             if (selectItems.Count == 0)
             {
-                return SelectItem.MissBuy(date);
+                return null;
             }
             SelectItem buyItem = desider.makeDeside(selectItems);
             
-            return buyItem == null ? SelectItem.DontBuy(selectItems[0].date_) : buyItem;
+            return buyItem;
         }
         public List<SelectItem> desideToBuy(RegressResult re)
         {
@@ -55,7 +55,6 @@ namespace SelectImpl
             int nFinishCount = 0;
             int nTotalCount = dateList.Count;
             int nMissCount = 0;
-            int nDontCount = 0;
             int nTradeCount = 0;
             foreach (int date in dateList)
             {
@@ -65,7 +64,6 @@ namespace SelectImpl
                 {
                     if (Utils.IsTradeDay(date))
                     {
-        //                buyitems.Add(makeDeside(items, date, RankBuyDesider.buyer_));
                         ++nMissCount;
                     }
                     continue;
@@ -73,19 +71,15 @@ namespace SelectImpl
                 else
                 {
                     var buyItem = makeDeside(items, date, RankBuyDesider.buyer_);
-                    if (buyItem.isRealSelectItem)
+                    if (buyItem != null)
                     {
                         buyItem.iamBuyItem_ = true;
                         ++nTradeCount;
                     }
-                    else
-                    {
-                        ++nDontCount;
-                    }
                     buyitems.Add(buyItem);
                 }
-                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，DontBuy：{5}，Buy：{6}",
-                    dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nDontCount, nTradeCount),
+                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，Buy：{5}",
+                    dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nTradeCount),
                     nFinishCount * 100 / nTotalCount);
             }
             App.host_.uiFinishProcessBar();

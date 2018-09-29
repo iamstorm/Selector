@@ -129,7 +129,10 @@ namespace SelectImpl
                 item.allSelectItems_ = re.selItems_;
             }
             var buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
-            buyItem.iamBuyItem_ = true;
+            if (buyItem != null)
+            {
+                buyItem.iamBuyItem_ = true;
+            }
             re.selItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
                 if (lhs.iamBuyItem_)

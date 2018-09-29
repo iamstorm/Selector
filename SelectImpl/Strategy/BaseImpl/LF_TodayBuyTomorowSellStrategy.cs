@@ -13,7 +13,7 @@ namespace SelectImpl
             IStrategy_LF stra = (IStrategy_LF)this;
             float buyLimit = stra.buyLimit();
             float ofBonusLimit = stra.ofBonusLimit();
-            float bonusLimit = stra.bounusLimit();
+            float bonusLimit = stra.bonusLimit();
             float zfOfBuyDate = App.ds_.Ref(Info.ZF, stock.dataList_, App.ds_.index(stock, buyDate));
             bSellWhenMeetMyBounusLimit = true;
             sellDate = stock.nextTradeDate(buyDate);

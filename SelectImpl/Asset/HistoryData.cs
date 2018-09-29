@@ -15,7 +15,6 @@ namespace SelectImpl
         public float bonusValue_;
         public float antiRate_ = -1;
         public float tradeDayRate_ = -1;
-        public float dontBuyRate_ = 1;//不买确实跌了/不买却涨了
         public float bPerTradeDay_ = 0;
         public int rank_;
 
@@ -29,8 +28,6 @@ namespace SelectImpl
         public int nAntiEnvCheckCount_;
         public int nSelectSucCount_;
         public int nTradeSucCount_;
-        public int nDontBuyAndDown_;
-        public int nDontBuyButUp_;
         public static ColumnInfo[] ShowColumnInfos
         {
             get {
@@ -50,8 +47,6 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "allselects", width_ = 70 },
                     new ColumnInfo() { name_ = "antic", width_ = 60 },
                     new ColumnInfo() { name_ = "anticc", width_ = 60 },
-                    new ColumnInfo() { name_ = "dbad", width_ = 60 },
-                    new ColumnInfo() { name_ = "dbbu", width_ = 60 },
                     new ColumnInfo() { name_ = "startDate", width_ = 60 },
                     new ColumnInfo() { name_ = "endDate", width_ = 60 },
                 };
@@ -66,7 +61,6 @@ namespace SelectImpl
             lvi.SubItems.Add(bonusValue_.ToString("F2")+"%");
             lvi.SubItems.Add(antiRate_.ToString("F2"));
             lvi.SubItems.Add(tradeDayRate_.ToString("F2"));
-            lvi.SubItems.Add(dontBuyRate_.ToString("F2"));
             lvi.SubItems.Add(nDayCount_.ToString());
             lvi.SubItems.Add(nTradeCount_.ToString());
             lvi.SubItems.Add(bPerTradeDay_.ToString("F2") + "%");
@@ -74,8 +68,6 @@ namespace SelectImpl
             lvi.SubItems.Add(nAllSampleSelectCount_.ToString());
             lvi.SubItems.Add(nAntiEnvCount_.ToString());
             lvi.SubItems.Add(nAntiEnvCheckCount_.ToString());
-            lvi.SubItems.Add(nDontBuyAndDown_.ToString());
-            lvi.SubItems.Add(nDontBuyButUp_.ToString());
             lvi.SubItems.Add(startDate_.ToString());
             lvi.SubItems.Add(endDate_.ToString());
             return lvi;
@@ -88,7 +80,6 @@ namespace SelectImpl
             data.bonusValue_ = Utils.ToType<float>(row["bonusValue"]);
             data.antiRate_ = Utils.ToType<float>(row["antiRate"]);
             data.tradeDayRate_ = Utils.ToType<float>(row["tradeDayRate"]);
-            data.dontBuyRate_ = Utils.ToType<float>(row["dontBuyRate"]);
             data.rank_ = Utils.ToType<int>(row["rank"]);
             data.startDate_ = Utils.ToType<int>(row["startDate"]);
             data.endDate_ = Utils.ToType<int>(row["endDate"]);
@@ -101,8 +92,6 @@ namespace SelectImpl
             data.nAntiEnvCheckCount_ = Utils.ToType<int>(row["nAntiEnvCheckCount"]);
             data.nSelectSucCount_ = Utils.ToType<int>(row["nSelectSucCount"]);
             data.nTradeSucCount_ = Utils.ToType<int>(row["nTradeSucCount"]);
-            data.nDontBuyAndDown_ = Utils.ToType<int>(row["nDontBuyAndDown"]);
-            data.nDontBuyButUp_ = Utils.ToType<int>(row["nDontBuyButUp"]);
             return data;
         }
         public Dictionary<String, Object> toDictionary(String verTag)
@@ -113,7 +102,6 @@ namespace SelectImpl
             dict["bonusValue"] = bonusValue_;
             dict["antiRate"] = antiRate_;
             dict["tradeDayRate"] = tradeDayRate_;
-            dict["dontBuyRate"] = dontBuyRate_;
             dict["rank"] = rank_;
             dict["startDate"] = startDate_;
             dict["endDate"] = endDate_;
@@ -126,8 +114,6 @@ namespace SelectImpl
             dict["nAntiEnvCheckCount"] = nAntiEnvCheckCount_;
             dict["nSelectSucCount"] = nSelectSucCount_;
             dict["nTradeSucCount"] = nTradeSucCount_;
-            dict["nDontBuyAndDown"] = nDontBuyAndDown_;
-            dict["nDontBuyButUp"] = nDontBuyButUp_;
             dict["verTag"] = verTag;
             return dict;
         }
@@ -153,8 +139,6 @@ namespace SelectImpl
                 allData.nAntiEnvCheckCount_ += data.nAntiEnvCheckCount_;
                 allData.nSelectSucCount_ += data.nSelectSucCount_;
                 allData.nTradeSucCount_ += data.nTradeSucCount_;
-                allData.nDontBuyAndDown_ += data.nDontBuyAndDown_;
-                allData.nDontBuyButUp_ += data.nDontBuyButUp_;
             }
             allData.refrestStatistics();
             return allData;
@@ -186,18 +170,6 @@ namespace SelectImpl
                 antiRate_ = nAntiEnvCount_ * 1.0f / nAntiEnvCheckCount_;
             }
             tradeDayRate_ = nTradeCount_ * 1.0f/ nDayCount_;
-            if (nDontBuyAndDown_ == 0 && nDontBuyButUp_ == 0)
-            {
-                dontBuyRate_ = 1;
-            }
-            else if (nDontBuyButUp_ == 0)
-            {
-                dontBuyRate_ = 1000;
-            }
-            else
-            {
-                dontBuyRate_ = nDontBuyAndDown_ * 1.0f / nDontBuyButUp_;
-            }
             if (nTradeCount_ == 0)
             {
                 bPerTradeDay_ = 0;
@@ -210,20 +182,19 @@ namespace SelectImpl
         }
         public float priority()
         {
-            int bonusValueRank/*30*/, antiRateRank/*35*/, tradeDayRateRank/*15*/, dontBuyRank/*20*/;
-            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 30);
+            int bonusValueRank/*45*/, antiRateRank/*40*/, tradeDayRateRank/*15*/;
+            bonusValueRank = (int)(bPerTradeDay_ / 2.0f * 45);
             if (antiRate_ > 0)
             {
-                antiRateRank = (int)(antiRate_ * 35);
+                antiRateRank = (int)(antiRate_ * 40);
             }
             else
             {
                 antiRateRank = 10;
             }
             tradeDayRateRank = (int)(tradeDayRate_ * 15);
-            dontBuyRank = (int)(dontBuyRate_ * 20);
 
-            return (bonusValueRank + antiRateRank + tradeDayRateRank + dontBuyRank) / 100.0f;
+            return (bonusValueRank + antiRateRank + tradeDayRateRank) / 100.0f;
         }
         public void recalProbilityForRateItem(int occurInUpItem, int occurInDownItem, int nUpSelCount, int nDownSelCount)
         {

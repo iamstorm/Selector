@@ -21,7 +21,7 @@ namespace SelectImpl
         {
             return FocusOn.FO_All;
         }
-        virtual public float bounusLimit()
+        virtual public float bonusLimit()
         {
             return 0.095f;
         }

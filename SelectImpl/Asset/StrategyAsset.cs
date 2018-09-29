@@ -40,8 +40,6 @@ namespace SelectImpl
                     straRaItemData_[rateItemKey] = HistoryData.FromDataRow(row);
                 }
             }
-            straDataDict_.Add(StrategySetting.DontbuyStrategyName, null);
-            straDataDict_.Add(StrategySetting.MissStrategyName, null);
         }
         public static void WriteStrategyAsset(IStrategy stra, HistoryData straData, Dictionary<String, HistoryData> straRaItemData)
         {
@@ -134,7 +132,7 @@ namespace SelectImpl
                 if (runMode == RunMode.RM_Asset)
                 {
                     var buyItem = dayData.getBuyItem();
-                    if (buyItem != null && buyItem.isRealSelectItem)
+                    if (buyItem != null)
                     {
                         var bonus = buyItem.getColumnVal("bonus");
                         if (bonus != "")
@@ -147,27 +145,6 @@ namespace SelectImpl
                             data.bonusValue_ += bounusValue;
                         }
                         ++data.nTradeCount_;
-                    }
-                    if (buyItem != null && buyItem.strategyName_ == StrategySetting.DontbuyStrategyName)
-                    {
-                        var candidateList = RankBuyDesider.buyer_.getAllPriCompeteSucList(dayData.selItems_);
-                        foreach (var candidate in candidateList)
-                        {
-                            var bonus = candidate.getColumnVal("bonus");
-                            if (bonus == "")
-                            {
-                                continue;
-                            }
-                            float bounusValue = Utils.GetBonusValue(bonus);
-                            if (bounusValue > 0)
-                            {
-                                ++data.nDontBuyButUp_;
-                            }
-                            else
-                            {
-                                ++data.nDontBuyAndDown_;
-                            }
-                        }
                     }
                 }
                 else if (dayData.selItems_.Count > 0)

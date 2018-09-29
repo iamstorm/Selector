@@ -6,11 +6,6 @@ using System.Data.SQLite;
 
 namespace SelectImpl
 {
-    public static class StrategySetting
-    {
-        public static String MissStrategyName = "miss";
-        public static String DontbuyStrategyName = "dontBuy";
-    }
     public enum FocusOn
     {
         FO_New,
@@ -37,7 +32,7 @@ namespace SelectImpl
 
         Dictionary<String, String> select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo);
         String computeBonus(Stock stock, int buyDate, out bool bSellWhenMeetMyBounusLimit, out int sellDate);
-        float bounusLimit();
+        float bonusLimit();
     }
 
     public interface IStrategy_LF : IStrategy

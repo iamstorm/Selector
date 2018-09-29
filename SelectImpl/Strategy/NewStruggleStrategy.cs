@@ -20,7 +20,7 @@ namespace SelectImpl
         {
             return FocusOn.FO_New;
         }
-        public override float bounusLimit()
+        public override float bonusLimit()
         {
             return 0.045f;
         }
