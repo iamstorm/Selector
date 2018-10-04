@@ -123,7 +123,7 @@
     <Compile Include="SQLiteHelper\SQLiteHelper.cs" />
     <Compile Include="SQLiteHelper\SQLiteTable.cs" />
     <Compile Include="Strategy\BaseImpl\IStrategy.cs" />
-    <Compile Include="Strategy\LStopUpStrategy.cs" />
+    <Compile Include="Strategy\TmpStrategy.cs" />
     <Compile Include="Strategy\EveryThreeUpStategy.cs" />
     <Compile Include="Strategy\BaseImpl\Solution.cs" />
     <Compile Include="Strategy\BaseImpl\StrategyGroup.cs" />
@@ -141,6 +141,7 @@
     <Compile Include="Strategy\EveryDownUpStrategy.cs" />
     <Compile Include="Strategy\EnvUpStrategy.cs" />
     <Compile Include="Strategy\SigEnvDownStrategy.cs" />
+    <Compile Include="Strategy\UpDownDownUpStrategy.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

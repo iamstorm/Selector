@@ -20,6 +20,14 @@ namespace SelectImpl
         {
             return FocusOn.FO_New;
         }
+        public override float firstDayBonusLimit()
+        {
+            return 0.045f;
+        }
+        public override float bonusLimit()
+        {
+            return 0.045f;
+        }
         public override int buySpan()
         {
             return 2;

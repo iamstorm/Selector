@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.SQLite;
+using System.Windows.Forms;
 
 namespace SelectImpl
 {
@@ -75,20 +76,8 @@ namespace SelectImpl
                 return null;
             }
         }
-        public static HistoryData GetHistoryData(List<DateSelectItem> dateItems,
-            int iStartIndex, int nCount, RunMode runMode)
+        public static float GetBackBonus(List<SelectItem> allItems)
         {
-            List<SelectItem> allItems = new List<SelectItem>();
-            for (int i = 0; i < nCount; i++)
-            {
-                if (iStartIndex + i >= dateItems.Count)
-                {
-                    break;
-                }
-                DateSelectItem dayData = dateItems[iStartIndex + i];
-                allItems.AddRange(dayData.selItems_);
-            }
-            HistoryData data = new HistoryData();
             allItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
                 var lhsBonus = lhs.getColumnVal("bonus");
@@ -133,12 +122,29 @@ namespace SelectImpl
             }
             if (backBonusDataDict.Count > 0)
             {
-                data.backBonusValue_ = allBackBonusValue / backBonusDataDict.Count;
+                return  allBackBonusValue / backBonusDataDict.Count;
             }
             else
             {
-                data.backBonusValue_ = 0;
+                return 0;
             }
+        }
+        public static HistoryData GetHistoryData(List<DateSelectItem> dateItems,
+            int iStartIndex, int nCount, RunMode runMode)
+        {
+            List<SelectItem> allItems = new List<SelectItem>();
+            for (int i = 0; i < nCount; i++)
+            {
+                if (iStartIndex + i >= dateItems.Count)
+                {
+                    break;
+                }
+                DateSelectItem dayData = dateItems[iStartIndex + i];
+                allItems.AddRange(dayData.selItems_);
+            }
+            HistoryData data = new HistoryData();
+
+            data.backBonusValue_ = GetBackBonus(allItems);
             for (int i = 0; i < allItems.Count; ++i)
             {
                 SelectItem item = allItems[i];
@@ -148,9 +154,34 @@ namespace SelectImpl
                     continue;
                 }
                 data.nHoldStockDays_ += Utils.ToType<int>(item.getColumnVal("tradespan"));
-                float allbonusValue = Utils.GetBonusValue(bonus);
-                data.allBonusValue_ += allbonusValue;
+                float bonusValue = Utils.GetBonusValue(bonus);
+                data.allBonusValue_ += bonusValue;
             }
+
+            allItems.Clear();
+            for (int i = 0; i < nCount; i++)
+            {
+                if (iStartIndex + i >= dateItems.Count)
+                {
+                    break;
+                }
+                DateSelectItem dayData = dateItems[iStartIndex + i];
+                allItems.AddRange(dayData.goodSampleSelItems_);
+            }
+            data.gbackBonusValue_ = GetBackBonus(allItems);
+            for (int i = 0; i < allItems.Count; ++i)
+            {
+                SelectItem item = allItems[i];
+                var bonus = item.getColumnVal("bonus");
+                if (bonus == "")
+                {
+                    continue;
+                }
+                data.nGoodSampleHoldStockDays_ += Utils.ToType<int>(item.getColumnVal("tradespan"));
+                float bonusValue = Utils.GetBonusValue(bonus);
+                data.allGoodSampleBonusValue_ += bonusValue;
+            }
+
 
             data.nDayCount_ = iStartIndex + nCount - 1 >= dateItems.Count ?
                 dateItems.Count - iStartIndex : nCount;
@@ -189,6 +220,7 @@ namespace SelectImpl
                 }
                 data.nGoodSampleSelectCount_ += dayData.goodSampleSelItems_.Count;
                 data.nAllSampleSelectCount_ += dayData.selItems_.Count;
+                data.nDayMaxSelectCount_ = Math.Max(data.nDayMaxSelectCount_, dayData.selItems_.Count);
                 foreach (var selItem in dayData.selItems_)
                 {
                     var bonus = selItem.getColumnVal("bonus");
@@ -215,13 +247,11 @@ namespace SelectImpl
                             {
                                 data.nTradeSucCount_++;
                             }
-                            data.bonusValue_ += bounusValue;
+                            data.tradeBonusValue_ += bounusValue;
                         }
                         ++data.nTradeCount_;
                     }
-                }
-                else if (dayData.selItems_.Count > 0)
-                {
+
                     float dayAllBonusValue = 0;
                     foreach (var item in dayData.selItems_)
                     {
@@ -230,21 +260,120 @@ namespace SelectImpl
                         {
                             float bonusValue = Utils.GetBonusValue(bonus);
                             dayAllBonusValue += bonusValue;
-                        }    
+                        }
                     }
                     if (dayAllBonusValue > 0)
                     {
-                        data.nTradeSucCount_++;
+                        data.nTradeAllSucCount_++;
                     }
-                    data.bonusValue_ += dayAllBonusValue / dayData.selItems_.Count;
+                }
+                else
+                {
                     if (dayData.selItems_.Count > 0)
                     {
-                        data.nTradeCount_++;
+                        float dayAllBonusValue = 0;
+                        foreach (var item in dayData.selItems_)
+                        {
+                            var bonus = item.getColumnVal("bonus");
+                            if (bonus != "")
+                            {
+                                float bonusValue = Utils.GetBonusValue(bonus);
+                                dayAllBonusValue += bonusValue;
+                            }
+                        }
+                        if (dayAllBonusValue > 0)
+                        {
+                            data.nTradeSucCount_++;
+                            data.nTradeAllSucCount_++;
+                        }
+                        data.tradeBonusValue_ += dayAllBonusValue / dayData.selItems_.Count;
+                        if (dayData.selItems_.Count > 0)
+                        {
+                            data.nTradeCount_++;
+                        }
                     }
                 }
             }
             data.refrestStatistics();
             return data;
+        }
+        public bool collectRateItemHistory(RegressResult re,
+            out Dictionary<String, HistoryData> strategyRateItemHistoryData,
+            out List<HistoryData> dataList,
+            out List<String> rateItemList
+            )
+        {
+            Dictionary<String, List<SelectItem>> rateItemDict = RegressResult.ToRateItemDict(re.selItems_);
+            var sortDict = from objDic in rateItemDict orderby objDic.Key select objDic;
+            dataList = new List<HistoryData>();
+            rateItemList = new List<string>();
+            strategyRateItemHistoryData = new Dictionary<string, HistoryData>();
+            foreach (var kv in sortDict)
+            {
+                if (kv.Value.Count < 20)
+                {
+                    continue;
+                }
+                rateItemList.Add(kv.Key);
+                List<DateSelectItem> items = RegressResult.ToDaySelectItemList(kv.Value, re.dateRangeList_);
+                HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
+                dataList.Add(data);
+            }
+            if (dataList.Count == 0)
+            {
+                return false;
+            }
+            for (int i = 0; i < rateItemList.Count; ++i)
+            {
+                strategyRateItemHistoryData[rateItemList[i]] = dataList[i];
+            }
+            return true;
+        }
+        public bool writeAssetForAllSingleStrategy(String dateRangeName)
+        {
+            DB.Global().Execute(String.Format("Delete From stra_his"));
+            DB.Global().Execute(String.Format("Delete From stra_opt"));
+            foreach (var item in App.autoSolutionSettingList_)
+            {
+                if (item.name_ == "$All" || item.name_ == "$Tmp")
+                {
+                    continue;
+                }
+                RegressResult re = new RegressResult();
+                re.runMode_ = RunMode.RM_Raw;
+                re.name_ = item.name_+"-"+dateRangeName;
+                re.solutionName_ = item.name_;
+                re.dateRangeName_ = dateRangeName;
+                re.dateRangeList_ = App.DateRange(dateRangeName).rangeList_;
+                re.strategyList_ = App.Solution(item.name_).straList_;
+
+                if (re.EndDate >= Utils.LastTradeDay())
+                {
+                    if (!App.ds_.prepareForSelect())
+                    {
+                        MessageBox.Show("准备数据工作失败，无法继续执行！");
+                        return false;
+                    }
+                }
+                RegressManager regressManager = new RegressManager();
+                regressManager.regress(re);
+
+                List<DateSelectItem> items = RegressResult.ToDaySelectItemList(re.selItems_, re.dateRangeList_);
+                re.reHistory_ = StrategyAsset.GetHistoryData(items, 0, items.Count, re.runMode_);
+
+                Dictionary<String, HistoryData> strategyRateItemHistoryData;
+                List<HistoryData> dataList;
+                List<String> rateItemList;
+                App.asset_.collectRateItemHistory(re, out strategyRateItemHistoryData, out dataList, out rateItemList);
+                StrategyAsset.WriteStrategyAsset(re.strategyList_[0], re.reHistory_, strategyRateItemHistoryData);
+
+                Dictionary<String, Object> straDataDict = re.reHistory_.toDictionary("");
+                straDataDict["straname"] = re.solutionName_;
+                DB.Global().Insert("stra_opt", straDataDict);
+            }
+            App.asset_.readAssetFromDB();
+            App.host_.uiSetMsg("Write asset completed.");
+            return true;
         }
         public void createStraTable(SQLiteHelper sh)
         {
@@ -252,24 +381,36 @@ namespace SelectImpl
                                 rateItemKey               VARCHAR( 200 )   PRIMARY KEY
                                                                         UNIQUE,
                                 tradeSucProbility      NUMERIC( 5, 2 )  NOT NULL,
+                                tradeAllSucProbility      NUMERIC( 5, 2 )  NOT NULL,
                                 selectSucProbility     NUMERIC( 5, 2 )  NOT NULL,
-                                bonusValue             NUMERIC( 5, 2 )  NOT NULL,
-                                backBonusValue     NUMERIC( 5, 2 )  NOT NULL,
+                                tradeBonusValue             NUMERIC( 5, 2 )  NOT NULL,
+                                bTerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
                                 antiRate               NUMERIC( 5, 2 )  NOT NULL,
                                 tradeDayRate           NUMERIC( 5, 2 )  NOT NULL,
                                 startDate              INT              NOT NULL,
                                 endDate                INT              NOT NULL,
                                 nDayCount              INT              NOT NULL,
                                 nTradeCount            INT              NOT NULL,
-                                nGoodSampleSelectCount INT              NOT NULL,
-                                nAllSampleSelectCount INT              NOT NULL,
                                 nAntiEnvCount          INT              NOT NULL,
                                 nAntiEnvCheckCount  INT              NOT NULL,
                                 nSelectSucCount        INT              NOT NULL,
                                 nTradeSucCount         INT              NOT NULL,
-                                nHoldStockDays         INT              NOT NULL,
-                                allBonusValue         NUMERIC( 5, 2 )              NOT NULL,
+                                nTradeAllSucCount            INT  NOT NULL,  
+
                                 bPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
+                                backBonusValue     NUMERIC( 5, 2 )  NOT NULL,
+                                allBonusValue         NUMERIC( 5, 2 )              NOT NULL,
+                                nHoldStockDays         INT              NOT NULL,
+                                nAllSampleSelectCount INT              NOT NULL,
+
+                                bGPerTradeDay           NUMERIC( 5, 2 )  NOT NULL,  
+                                gbackBonusValue     NUMERIC( 5, 2 )  NOT NULL,
+                                allGoodBonusValue         NUMERIC( 5, 2 )              NOT NULL,
+                                nGoodHoldStockDays         INT              NOT NULL,
+                                nGoodSampleSelectCount INT              NOT NULL,
+
+                                nDayMaxSelectCount INT              NOT NULL,
+                                nDayPerSelectCount   INT              NOT NULL,
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 
 

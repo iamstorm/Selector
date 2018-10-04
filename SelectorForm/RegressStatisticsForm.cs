@@ -144,7 +144,7 @@ namespace SelectorForm
                 xDescList.Add(SUtils.ToXDesc(xUnit, item.startDate_, item.endDate_));
             }
             SUtils.FillHistoryDataToChart(chart, dataList, xDescList);
-            re_.reHistory_ = HistoryData.MergeHistory(dataList);
+            re_.reHistory_ = StrategyAsset.GetHistoryData(items, 0, items.Count, re_.runMode_);
         }
 
         public void fillHistoryDataChart()
@@ -215,36 +215,18 @@ namespace SelectorForm
             }
             SUtils.FillBonusChart(chart_, bonusRangeList);
         }
+
         void fillRateItemChart()
         {
             if (re_.runMode_ != RunMode.RM_Raw)
             {
                 return;
             }
-            Dictionary<String, List<SelectItem>> rateItemDict = RegressResult.ToRateItemDict(re_.selItems_);
-            var sortDict = from objDic in rateItemDict orderby objDic.Key select objDic;
-            List<HistoryData> dataList = new List<HistoryData>();
-            List<String> rateItemList = new List<string>();
-            foreach (var kv in sortDict)
+            List<HistoryData> dataList;
+            List<String> rateItemList;
+            if (App.asset_.collectRateItemHistory(re_, out strategyRateItemHistoryData_, out dataList, out rateItemList))
             {
-                if (kv.Value.Count < 20)
-                {
-                    continue;   
-                }
-                rateItemList.Add(kv.Key);
-                List<DateSelectItem> items = RegressResult.ToDaySelectItemList(kv.Value, re_.dateRangeList_);
-                HistoryData data = StrategyAsset.GetHistoryData(items, 0, items.Count, RunMode.RM_Raw);
-                dataList.Add(data);
-            }
-            if (dataList.Count == 0)
-            {
-                return;
-            }
-            SUtils.FillHistoryDataToChart(chart_, dataList, rateItemList);
-            strategyRateItemHistoryData_ = new Dictionary<string, HistoryData>();
-            for (int i = 0; i < rateItemList.Count; ++i )
-            {
-                strategyRateItemHistoryData_[rateItemList[i]] = dataList[i];
+                SUtils.FillHistoryDataToChart(chart_, dataList, rateItemList);
             }
         }
         void fillStrategyDataChart()

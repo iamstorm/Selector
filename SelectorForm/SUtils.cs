@@ -142,7 +142,7 @@ namespace SelectorForm
             Dictionary<String, WantedRange> valueDict = new Dictionary<String, WantedRange>();
             Dictionary<String, Color> colorDict = new Dictionary<String, Color>();
             dt.Columns.Add("xDesc");
-            dt.Columns.Add("bonusValue"); valueDict["bonusValue"] = new WantedRange(0, -2, 2); colorDict["bonusValue"] = Color.Red;
+            dt.Columns.Add("bGPerTradeDay"); valueDict["bGPerTradeDay"] = new WantedRange(0, -2, 2); colorDict["bGPerTradeDay"] = Color.Red;
             dt.Columns.Add("tradeSucProbility"); valueDict["tradeSucProbility"] = new WantedRange(0.5, 0, 1); colorDict["tradeSucProbility"] = Color.Orange;
             dt.Columns.Add("selectSucProbility"); valueDict["selectSucProbility"] = new WantedRange(0.5, 0, 1); colorDict["selectSucProbility"] = Color.Blue;
             dt.Columns.Add("tradeDayRate"); valueDict["tradeDayRate"] = new WantedRange(0.1, 0, 1); colorDict["tradeDayRate"] = Color.BurlyWood;
@@ -153,8 +153,8 @@ namespace SelectorForm
             {
                 var item = dataList[i];
                 DataRow row = dt.NewRow();
-                row["xDesc"] = xDescList[i]; 
-                row["bonusValue"] = item.bPerTradeDay_;
+                row["xDesc"] = xDescList[i];
+                row["bGPerTradeDay"] = item.bGPerTradeDay_;
                 row["tradeSucProbility"] = item.tradeSucProbility_;
                 row["selectSucProbility"] = item.selectSucProbility_;
                 row["tradeDayRate"] = item.tradeDayRate_;
@@ -177,7 +177,7 @@ namespace SelectorForm
                 series.ToolTip = col.ColumnName;
                 chart.Series.Add(series);
                 series.Color = colorDict[col.ColumnName];
-                if (col.ColumnName == "bonusValue")
+                if (col.ColumnName == "bGPerTradeDay")
                 {
                     infoLegend.CustomItems.Add(series.Color, String.Format("{0}: {1}% - {2}%", col.ColumnName, dRealMinValue.ToString("F2"), dRealMaxValue.ToString("F2")));
                 }

@@ -15,11 +15,11 @@ namespace SelectImpl
             AllreadyBanedCodeDict["601268"] = "";
             AllreadyBanedCodeDict["600087"] = "";
         }
-        public static bool DebugMode
+        public static bool DataMode
         {
             get
             {
-                return Utils.GetSysInfo(DB.Global(), "DebugMode", "0") == "1";
+                return Utils.GetSysInfo(DB.Global(), "DataMode", "0") == "1";
             }
         }
         public static bool IsAcceptableRuntimeCode(String code)
@@ -37,9 +37,6 @@ namespace SelectImpl
                 return true;
             }
         }
-        public static float MyGoodSampleEnvBounsMin = -0.005f;
-        public static float MyGoodSampleEnvBounsMax = 0.005f;
-        public static float MyGoodSampleUpRateThreshold = 0.5f;
         public static float MyBuyRateLimit = 0.7f;
         public static float MyNewStockLimit = 100;
     }

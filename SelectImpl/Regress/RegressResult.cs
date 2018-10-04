@@ -154,46 +154,36 @@ namespace SelectImpl
             }
             return nUpCount * 1.0f / nTotalValidCount;
         }
-        public static List<SelectItem> GetGoodSampleSelectItems(float totalUpRate, List<SelectItem> dayItems)
+        public static List<SelectItem> GetGoodSampleSelectItems(List<SelectItem> dayItems)
         {
-            String envBonus = "";
-            foreach (var item in dayItems)
+            dayItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
-                 envBonus = item.getColumnVal("envbonus");
-                 if (envBonus != "")
-                     break;
-            }
-            if (envBonus == "")
-            {
-                return dayItems;
-            }
-            float envBonusValue = Utils.GetBonusValue(envBonus);
-            if (envBonusValue < Setting.MyGoodSampleEnvBounsMax && envBonusValue > Setting.MyGoodSampleEnvBounsMin)
-            {
-                return dayItems;
-            }
-            float dayUpRate = GetUpRate(dayItems);
-            if (Math.Abs(dayUpRate - totalUpRate) < Setting.MyGoodSampleUpRateThreshold)
-            {
-                return dayItems;
-            }
-            bool bGetUpItem = dayUpRate < totalUpRate;
-            List<SelectItem> goodSamplesItems = new List<SelectItem>();
-            foreach (var item in dayItems)
-            {
-                var bonus = item.getColumnVal("bonus");
-                if (bonus == "")
+                var lhsBonus = lhs.getColumnVal("bonus");
+                var rhsBonus = rhs.getColumnVal("bonus");
+                if (lhsBonus == "")
                 {
-                    continue;
+                    return 1;
                 }
-                float bonusValue = Utils.GetBonusValue(bonus);
-                if (bonusValue >= 0 && bGetUpItem)
+                if (rhsBonus == "")
                 {
-                    goodSamplesItems.Add(item);
+                    return -1;
                 }
-                else if (bonusValue <= 0 && !bGetUpItem)
+                float lhsBonusValue = Utils.GetBonusValue(lhsBonus);
+                float rhsBonusValue = Utils.GetBonusValue(rhsBonus);
+                return lhsBonusValue.CompareTo(rhsBonusValue);
+            });
+            List<SelectItem> goodSamplesItems;
+            if (dayItems.Count <= 10)
+            {
+                goodSamplesItems = dayItems;
+            }
+            else
+            {
+                goodSamplesItems  = new List<SelectItem>();
+                int delta = dayItems.Count / 10;
+                for (int i = 0; i < 10; ++i )
                 {
-                    goodSamplesItems.Add(item);
+                    goodSamplesItems.Add(dayItems[i*delta]);
                 }
             }
             return goodSamplesItems;
@@ -203,7 +193,6 @@ namespace SelectImpl
             List<DateSelectItem> retList = new List<DateSelectItem>();
             List<int> dateList = Utils.TraverTimeDay(dateRangeList);
             dateList.Reverse();
-            float totalUpRate = GetUpRate(selItems);
             foreach (int date in dateList)
             {
                 if (!Utils.IsTradeDay(date))
@@ -212,8 +201,19 @@ namespace SelectImpl
                 }
                 DateSelectItem item = new DateSelectItem();
                 item.date_ = date;
-                item.selItems_ = SelectResult.OfDate(date, selItems);
-                item.goodSampleSelItems_ = GetGoodSampleSelectItems(totalUpRate, item.selItems_);
+                var rawitems = SelectResult.OfDate(date, selItems, true);
+                Dictionary<String, int> uniqueItemDict = new Dictionary<String, int>();
+                item.selItems_ = new List<SelectItem>();
+                foreach (var ritem in rawitems)
+                {
+                    if (!uniqueItemDict.ContainsKey(ritem.code_))
+                    {
+                        item.selItems_.Add(ritem);
+                        uniqueItemDict[ritem.code_] = 0;
+                    }
+                }
+
+                item.goodSampleSelItems_ = GetGoodSampleSelectItems(item.selItems_);
                 retList.Add(item);
             }
             return retList;

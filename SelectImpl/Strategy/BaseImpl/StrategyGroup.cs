@@ -10,7 +10,7 @@ namespace SelectImpl
         public List<IStrategy> strategyList_ = new List<IStrategy>();
         public StrategyGroup()
         {
-            strategyList_.Add(new LStopUpStrategy());
+            strategyList_.Add(new TmpStrategy());
             strategyList_.Add(new UStopDownStrategy());
             strategyList_.Add(new UUDownStrategy());
             strategyList_.Add(new EveryThreeUpStategy());
@@ -24,6 +24,7 @@ namespace SelectImpl
             strategyList_.Add(new EveryDownUpStrategy());
             strategyList_.Add(new EnvUpStrategy());
             strategyList_.Add(new SigEnvDownStrategy());
+            strategyList_.Add(new UpDownDownUpStrategy());
         }
         public IStrategy strategy(String straName)
         {
@@ -78,7 +79,8 @@ namespace SelectImpl
                     }
                     buyitems.Add(buyItem);
                 }
-                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，Buy：{5}",
+                App.host_.uiSetProcessBar(String.Format("{0}:正在回归{1}-{2}，购买阶段：完成{3}的购买, 选择总数：{4}，当前MissBuy：{5}，Buy：{6}",
+                    re.solutionName_,
                     dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nTradeCount),
                     nFinishCount * 100 / nTotalCount);
             }
@@ -132,7 +134,8 @@ namespace SelectImpl
                     buyitems.Add(maxBonusItem);
                 }
                 ++nTradeCount;
-                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，可能最佳购买阶段：完成{2}的购买, 选择总数：{3}，当前MissBuy：{4}，Buy：{5}",
+                App.host_.uiSetProcessBar(String.Format("{0}:正在回归{1}-{2}，可能最佳购买阶段：完成{3}的购买, 选择总数：{4}，当前MissBuy：{5}，Buy：{6}",
+                re.solutionName_,
                 dateList.Last(), dateList.First(), date, re.selItems_.Count, nMissCount, nTradeCount),
                 nFinishCount * 100 / nTotalCount);
             }

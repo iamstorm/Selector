@@ -28,7 +28,8 @@ namespace SelectImpl
             {
                 SelectResult re = selManager.select(dsh, SelectMode.SM_Regress, date, regressRe.strategyList_, hint);
                 regressRe.selItems_.AddRange(re.selItems_);
-                App.host_.uiSetProcessBar(String.Format("正在回归{0}-{1}，选择阶段：完成{2}的选择，当前选中记录数：{3}",
+                App.host_.uiSetProcessBar(String.Format("{0}:正在回归{1}-{2}，选择阶段：完成{3}的选择，当前选中记录数：{4}",
+                    regressRe.solutionName_,
                     dateList.Last(), dateList.First(), date, regressRe.selItems_.Count), 
                     nFinishCount * 100 / nTotalCount);
                 ++nFinishCount;

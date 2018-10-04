@@ -43,13 +43,13 @@ namespace SelectorForm
             }
 
             msgText.Text = "";
-            toolStripStatusLabel1_.Text = Setting.DebugMode ? "Debug" : "Release";
+            toolStripStatusLabel1_.Text = Setting.DataMode ? "Partial" : "Full";
             toolStripStatusLabel2_.Text = "";
 
             App.host_ = this;
             LUtils.InitItemListView(selectListView_);
 
- //           autoSelectModeToolStripMenuItem.Checked = true;
+            autoSelectModeToolStripMenuItem.Checked = true;
             startupTime_ = DateTime.Now;
             timer_.Start();
             SelectTask.Init();
@@ -253,12 +253,12 @@ namespace SelectorForm
 
         private void startWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (Setting.DebugMode)
+            if (Setting.DataMode)
 	        {
-                toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks", App.ds_.stockList_.Count);
+                toolStripStatusLabel1_.Text = String.Format("Partial: {0} Stocks", App.ds_.stockList_.Count);
 	        } else 
             {
-                toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks", App.ds_.stockList_.Count);
+                toolStripStatusLabel1_.Text = String.Format("Full: {0} Stocks", App.ds_.stockList_.Count);
             }
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -368,14 +368,14 @@ namespace SelectorForm
                     }
                 }
                 String envBonus = App.ds_.envBonus(Utils.NowDate());
-                if (Setting.DebugMode)
+                if (Setting.DataMode)
                 {
-                    toolStripStatusLabel1_.Text = String.Format("Debug: {0} Stocks, {1}, {2} Up, {3} Down, {4} Zero {5} ",
+                    toolStripStatusLabel1_.Text = String.Format("Partial: {0} Stocks, {1}, {2} Up, {3} Down, {4} Zero {5} ",
                         App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
                 else
                 {
-                    toolStripStatusLabel1_.Text = String.Format("Release: {0} Stocks, {1}, ,{2} Up, {3} Down, {4} Zero {5} ",
+                    toolStripStatusLabel1_.Text = String.Format("Full: {0} Stocks, {1}, ,{2} Up, {3} Down, {4} Zero {5} ",
                         App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
                 }
                 if (Utils.GetBonusValue(envBonus) > 0)
@@ -556,13 +556,13 @@ namespace SelectorForm
 
         private void swichmodeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Setting.DebugMode)
+            if (Setting.DataMode)
             {
-                Utils.SetSysInfo(DB.Global(), "DebugMode", "0");
+                Utils.SetSysInfo(DB.Global(), "DataMode", "0");
             }
             else
             {
-                Utils.SetSysInfo(DB.Global(), "DebugMode", "1");
+                Utils.SetSysInfo(DB.Global(), "DataMode", "1");
             }
             Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
             Close();
@@ -619,6 +619,34 @@ namespace SelectorForm
         private void autoSelectModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             autoSelectModeToolStripMenuItem.Checked = !autoSelectModeToolStripMenuItem.Checked;
+        }
+
+        private void writeAssetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            WriteAssetForm form = new WriteAssetForm();
+            if (form.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            writeAssetWorker.RunWorkerAsync(form.sDatarangeName_);
+        }
+
+        private void writeAssetWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            isBusy_ = true;
+            try
+            {
+                if (App.asset_.writeAssetForAllSingleStrategy((String)e.Argument))
+                    e.Result = true;
+            }
+            catch (Exception ex)
+            {
+                e.Result = null;
+                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                isBusy_ = false;
+                throw;
+            }
+            isBusy_ = false;
         }
 
     }

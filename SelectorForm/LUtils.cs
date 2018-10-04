@@ -36,12 +36,12 @@ namespace SelectorForm
         public int Compare(object x, object y)
         {
             int returnVal = -1;
-            float a = 0, b = 0;
+            double a = 0, b = 0;
             ListViewItem xlvi = (ListViewItem)x;
             ListViewItem ylvi = (ListViewItem)y;
             string xStr = GetValue(xlvi.SubItems[col].Text);
             string yStr = GetValue(ylvi.SubItems[col].Text);
-            if (float.TryParse(xStr, out a) && float.TryParse(yStr, out b))
+            if (double.TryParse(xStr, out a) && double.TryParse(yStr, out b))
             {
                 returnVal = a >= b ? (a == b ? 0 : 1) : -1;
                 if (order == SortOrder.Descending)

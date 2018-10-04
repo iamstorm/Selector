@@ -16,7 +16,7 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        override public float bonusLimit()
+        public override float bonusLimit()
         {
             return 0.095f;
         }
@@ -48,6 +48,8 @@ namespace SelectImpl
                 float hf = dsh.Ref(Info.HF);
                 float lf = dsh.Ref(Info.LF);
                 float zf = dsh.Ref(Info.ZF);
+
+     //           dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, dsh.Date());
 
                 var limit = nBuySpan == 0 ? firstDayBonusL : bonusL;
                 float wantedC = buyC * (1 + limit);

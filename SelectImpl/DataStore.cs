@@ -110,7 +110,7 @@ namespace SelectImpl
         void readStocks()
         {
             DataTable stocks;
-            if (Setting.DebugMode)
+            if (Setting.DataMode)
             {
                 stocks = DB.Global().Select("Select * From Stock Order by symbol limit 50");
             }
@@ -379,7 +379,7 @@ namespace SelectImpl
                 string code = row["code"].ToString();
                 if (!stockDict_.ContainsKey(code))
                 {
-                    if (Setting.DebugMode)
+                    if (Setting.DataMode)
                     {
                         continue;
                     }
@@ -815,6 +815,24 @@ namespace SelectImpl
                 accZF += Ref(Info.ZF, i + dayCount);
             }
             return accZF;
+        }
+        public float Acc(Info info, int count, int dayCount = 0, int upOrDown = 0)
+        {
+            float acc = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                var curZF = Ref(Info.ZF, i);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
+                acc += Ref(info, i + dayCount);
+            }
+            return acc;
         }
         public int EveryDown(int dayCount = 0)
         {

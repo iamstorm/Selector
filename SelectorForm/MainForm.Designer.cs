@@ -36,6 +36,7 @@
             this.dateRangeSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoSelectModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.writeAssetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,6 +59,7 @@
             this.skinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
+            this.writeAssetWorker = new System.ComponentModel.BackgroundWorker();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -85,7 +87,8 @@
             this.solutionSettingToolStripMenuItem,
             this.dateRangeSettingToolStripMenuItem,
             this.addUserToolStripMenuItem,
-            this.autoSelectModeToolStripMenuItem});
+            this.autoSelectModeToolStripMenuItem,
+            this.writeAssetToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -117,6 +120,13 @@
             this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autoSelectModeToolStripMenuItem.Text = "AutoSelectMode";
             this.autoSelectModeToolStripMenuItem.Click += new System.EventHandler(this.autoSelectModeToolStripMenuItem_Click);
+            // 
+            // writeAssetToolStripMenuItem
+            // 
+            this.writeAssetToolStripMenuItem.Name = "writeAssetToolStripMenuItem";
+            this.writeAssetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.writeAssetToolStripMenuItem.Text = "WriteAsset";
+            this.writeAssetToolStripMenuItem.Click += new System.EventHandler(this.writeAssetToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -295,6 +305,10 @@
             this.timer_.Interval = 1000;
             this.timer_.Tick += new System.EventHandler(this.timer__Tick);
             // 
+            // writeAssetWorker
+            // 
+            this.writeAssetWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.writeAssetWorker_DoWork);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -354,6 +368,8 @@
         private System.Windows.Forms.Timer timer_;
         private System.Windows.Forms.ToolStripMenuItem addUserToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoSelectModeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem writeAssetToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker writeAssetWorker;
     }
 }
 

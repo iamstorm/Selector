@@ -124,10 +124,6 @@ namespace SelectImpl
                 return null;
             }
     //        sigInfo = dsh.Date(iSigDateIndex).ToString();
-            if (otherMinZF > 0.02)
-            {
-                return null;
-            }
             if (totalDown + totalUp < -0.01)
             {
                 return null;

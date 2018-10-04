@@ -307,11 +307,19 @@ namespace SelectImpl
     {
         public List<SelectItem> selItems_ = new List<SelectItem>();
       
-        public static List<SelectItem> OfDate(int date, List<SelectItem> selItems)
+        public static List<SelectItem> OfDate(int date, List<SelectItem> selItems, bool bMustHasBonus = false)
         {
             List<SelectItem> retList = new List<SelectItem>();
             foreach (SelectItem item in selItems)
             {
+                if (bMustHasBonus)
+                {
+                    var bonus = item.getColumnVal("bonus");
+                    if (bonus == "")
+                    {
+                        continue;
+                    }
+                }
                 if (item.date_ == date)
                 {
                     retList.Add(item);
