@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class TmpStrategy : CloseBuyStrategy, IStrategy
+    public class UpDownUpStrategy : CloseBuyStrategy, IStrategy
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,7 +14,7 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "Tmp";
+            return "UpDownUp";
         }
         public override float bonusLimit()
         {

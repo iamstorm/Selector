@@ -25,6 +25,7 @@ namespace SelectImpl
             strategyList_.Add(new EnvUpStrategy());
             strategyList_.Add(new SigEnvDownStrategy());
             strategyList_.Add(new UpDownDownUpStrategy());
+            strategyList_.Add(new UpDownUpStrategy());
         }
         public IStrategy strategy(String straName)
         {
