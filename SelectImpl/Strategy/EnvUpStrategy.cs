@@ -38,10 +38,18 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.SZRef(Info.ZF, dsh.SZHH(Info.ZF, 10, 1)) < 0.005)
+            var recentMaxSZZF = dsh.SZRef(Info.ZF, dsh.SZHH(Info.ZF, 10, 1));
+            if (recentMaxSZZF < 0.005)
             {
                 return null;
             }
+            var minSZZFIndex = dsh.SZLL(Info.ZF, 8, 1);
+            if (dsh.SZRef(Info.ZF, minSZZFIndex) > -0.005)
+            {
+                return null;
+            }
+            
+  
             if (!dsh.IsReal())
             {
                 return null;

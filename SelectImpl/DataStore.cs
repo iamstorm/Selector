@@ -612,13 +612,22 @@ namespace SelectImpl
             return Math.Abs(Ref(Info.C, dayCount) - Ref(Info.O, dayCount));
         }
 
-        public int SZLL(Info info, int count, int dayCount = 0)
+        public int SZLL(Info info, int count, int dayCount = 0, int upOrDown = 0)
         {
             float minVal = float.MaxValue;
             int iLastDay = dayCount + count;
             int iMinIndex = -1;
             for (int i = dayCount; i < iLastDay; i++)
             {
+                var curZF = SZRef(Info.ZF, i);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
                 float val = SZRef(info, i);
                 if (val < minVal)
                 {
@@ -628,13 +637,22 @@ namespace SelectImpl
             }
             return iMinIndex;
         }
-        public int SZHH(Info info, int count, int dayCount = 0)
+        public int SZHH(Info info, int count, int dayCount = 0, int upOrDown = 0)
         {
             float maxVal = float.MinValue;
             int iLastDay = dayCount + count;
             int iMaxIndex = -1;
             for (int i = dayCount; i < iLastDay; i++)
             {
+                var curZF = SZRef(Info.ZF, i);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
                 float val = SZRef(info, i);
                 if (val > maxVal)
                 {
@@ -881,6 +899,71 @@ namespace SelectImpl
                 ++i;
             } while (true);
             return nCount;
+        }
+        public bool IsRed(int dayCount = 0)
+        {
+            return Ref(Info.O, dayCount) < Ref(Info.C, dayCount);
+        }
+        public bool IsGreen(int dayCount = 0)
+        {
+            return Ref(Info.O, dayCount) > Ref(Info.C, dayCount);
+        }
+        public int RedCount(int count, int dayCount = 0)
+        {
+            int nRedCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                if (IsRed(i+dayCount))
+                {
+                    ++nRedCount;
+                }
+            }
+            return nRedCount;
+        }
+        public int GreenCount(int count, int dayCount = 0)
+        {
+            int nGreenCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                if (IsGreen(i + dayCount))
+                {
+                    ++nGreenCount;
+                }
+            }
+            return nGreenCount;
+        }
+
+        public bool IsSZRed(int dayCount = 0)
+        {
+            return SZRef(Info.O, dayCount) < SZRef(Info.C, dayCount);
+        }
+        public bool IsSZGreen(int dayCount = 0)
+        {
+            return SZRef(Info.O, dayCount) > SZRef(Info.C, dayCount);
+        }
+        public int SZRedCount(int count, int dayCount = 0)
+        {
+            int nRedCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                if (IsSZRed(i + dayCount))
+                {
+                    ++nRedCount;
+                }
+            }
+            return nRedCount;
+        }
+        public int SZGreenCount(int count, int dayCount = 0)
+        {
+            int nGreenCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                if (IsSZGreen(i + dayCount))
+                {
+                    ++nGreenCount;
+                }
+            }
+            return nGreenCount;
         }
     }
 }
