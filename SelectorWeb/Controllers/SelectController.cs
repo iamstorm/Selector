@@ -124,6 +124,11 @@ namespace SelectorWeb.Controllers
         }
         //
         // GET: /Select/
+
+        String GetTimePart(String dateTime)
+        {
+            return dateTime.Split(' ')[1];
+        }
         [HttpGet]
         [HandlerAjaxOnly]
         public ActionResult GetSelectInfo()
@@ -137,7 +142,11 @@ namespace SelectorWeb.Controllers
                 DateTime curTime = DateTime.Now;
                 if (time == "")
                 {
-                    time = U.ToTimeDesc(curTime);
+                    time = "Current: " + U.ToTimeDesc(curTime);
+                }
+                else
+                {
+                    time = "SelectAt: " + time + " Current: " + GetTimePart(U.ToTimeDesc(curTime));
                 }
                 if (U.IsOpenTime(curTime.Hour, curTime.Minute))
                 {

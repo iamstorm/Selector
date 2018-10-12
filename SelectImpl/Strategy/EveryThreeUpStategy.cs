@@ -196,6 +196,10 @@ namespace SelectImpl
             {
                 return null;
             }
+            if (!selectBySZ(dsh))
+            {
+                return null;
+            }
             ret[String.Format("TwoDownMode/0")] = "";
             return ret;
         }

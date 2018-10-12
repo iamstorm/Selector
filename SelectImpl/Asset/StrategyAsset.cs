@@ -221,7 +221,7 @@ namespace SelectImpl
                 data.nGoodSampleSelectCount_ += dayData.goodSampleSelItems_.Count;
                 data.nAllSampleSelectCount_ += dayData.selItems_.Count;
                 data.nDayMaxSelectCount_ = Math.Max(data.nDayMaxSelectCount_, dayData.selItems_.Count);
-                foreach (var selItem in dayData.selItems_)
+                foreach (var selItem in dayData.goodSampleSelItems_)
                 {
                     var bonus = selItem.getColumnVal("bonus");
                     if (bonus == "")
@@ -272,7 +272,7 @@ namespace SelectImpl
                     if (dayData.selItems_.Count > 0)
                     {
                         float dayAllBonusValue = 0;
-                        foreach (var item in dayData.selItems_)
+                        foreach (var item in dayData.goodSampleSelItems_)
                         {
                             var bonus = item.getColumnVal("bonus");
                             if (bonus != "")
@@ -286,8 +286,8 @@ namespace SelectImpl
                             data.nTradeSucCount_++;
                             data.nTradeAllSucCount_++;
                         }
-                        data.tradeBonusValue_ += dayAllBonusValue / dayData.selItems_.Count;
-                        if (dayData.selItems_.Count > 0)
+                        data.tradeBonusValue_ += dayAllBonusValue / dayData.goodSampleSelItems_.Count;
+                        if (dayData.goodSampleSelItems_.Count > 0)
                         {
                             data.nTradeCount_++;
                         }

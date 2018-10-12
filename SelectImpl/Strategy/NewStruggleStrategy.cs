@@ -175,6 +175,7 @@ namespace SelectImpl
             {
                 return null;
             }
+
             return selectForHStrugle(dsh, topMostC, maxUpZF);
         }
     }

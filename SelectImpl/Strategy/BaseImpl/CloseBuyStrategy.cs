@@ -85,6 +85,7 @@ namespace SelectImpl
                         continue;
                     }
                     sellC = c;
+
                     if (zf >= 0.01 || h >= wantedMinC || nBuySpan >= nBuySpanLimit - 1)
                     {
                         ++nBuySpan;

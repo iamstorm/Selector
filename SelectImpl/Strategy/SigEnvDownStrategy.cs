@@ -238,6 +238,7 @@ namespace SelectImpl
             {
                 return null;
             }
+
             var ret = new Dictionary<String, String>();
             ret[String.Format("delta/{0}", delta < -0.02 ? "1" : "0")] = "";
             ret[String.Format("maxUp/{0}", maxUpF > 0.02 ? "1" : "0")] = "";

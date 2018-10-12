@@ -26,5 +26,35 @@ namespace SelectImpl
             return 0.095f;
         }
         public static Dictionary<String, String> EmptyRateItemButSel = new Dictionary<string, string>();
+
+        public bool selectBySZ(DataStoreHelper dsh)
+        {
+            float minSZZF = float.MaxValue;
+            float maxSZZF = float.MinValue;
+            int iSigIndex = -1;
+            for (int i = 1; i <= 3; ++i)
+            {
+                var szzf = dsh.SZRef(Info.ZF, i);
+                if (minSZZF > szzf)
+                {
+                    minSZZF = szzf;
+                    if (minSZZF < -0.02)
+                    {
+                        iSigIndex = i;
+                        break;
+                    }
+                }
+                maxSZZF = Math.Max(maxSZZF, szzf);
+            }
+            if (iSigIndex != -1 && maxSZZF < 0.01)
+            {
+                var acc = dsh.SZAcc(Info.ZF, 3, iSigIndex + 1);
+                if (acc > 0.02)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

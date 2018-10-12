@@ -29,6 +29,7 @@ namespace SelectImpl
             {
                 return null;
             }
+
             if (!dsh.IsReal())
             {
                 return null;
@@ -109,6 +110,10 @@ namespace SelectImpl
                 return null;
             }
             if (maxUpVol > maxDownVol * 2)
+            {
+                return null;
+            }
+            if (!selectBySZ(dsh))
             {
                 return null;
             }

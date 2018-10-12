@@ -83,6 +83,10 @@ namespace SelectImpl
                 return null;
             }
 
+            if (!selectBySZ(dsh))
+            {
+                return null;
+            }
             return EmptyRateItemButSel;
         }
     }

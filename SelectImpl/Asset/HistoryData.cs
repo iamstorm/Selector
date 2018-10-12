@@ -153,7 +153,7 @@ namespace SelectImpl
         {
             Dictionary<String, Object> dict = new Dictionary<String, Object>();
             dict["tradeSucProbility"] = tradeSucProbility_;
-            dict["tradeAllSucProbility"] = tradeSucProbility_;
+            dict["tradeAllSucProbility"] = tradeAllSucProbility_;
             dict["selectSucProbility"] = selectSucProbility_;
 
             dict["tradeBonusValue"] = tradeBonusValue_;
@@ -204,13 +204,13 @@ namespace SelectImpl
                 bTerTradeDay_ = tradeBonusValue_ / nTradeCount_;
                 nDayPerSelectCount_ = (int)Math.Ceiling(nGoodSampleSelectCount_ * 1.0 / nTradeCount_);
             }
-            if (nAllSampleSelectCount_ == 0)
+            if (nGoodSampleSelectCount_ == 0)
             {
                 selectSucProbility_ = -1;
             }
             else
             {
-                selectSucProbility_ = nSelectSucCount_ * 1.0f / nAllSampleSelectCount_;
+                selectSucProbility_ = nSelectSucCount_ * 1.0f / nGoodSampleSelectCount_;
             }
             if (nAntiEnvCheckCount_ == 0)
             {

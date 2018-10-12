@@ -71,72 +71,29 @@ namespace SelectImpl
         }
         SelectItem IBuyDesider.makeDeside(List<SelectItem> selItems)
         {
-            var straDict = descomposeByStrategy(selItems);
-            List<SelectItem> priCompeteSucList = new List<SelectItem>();
-            foreach (var kv in straDict)
+            if (selItems.Count == 0)
             {
-                float maxPriRate;
-                SelectItem item = priCompete(kv.Value, out maxPriRate);
-                priCompeteSucList.Add(item);
+                return null;
             }
-            SelectItem maxRankItem = null;
-            int maxRank = int.MinValue;
-            float maxRankC = 0;
-            foreach (var item in priCompeteSucList)
+            selItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
-                int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
-                if (item.strategyName_.StartsWith("LF_"))
+                var lhsPubrank = Utils.ToType<int>(lhs.getColumnVal("pubrank"));
+                var rhsPubrank = Utils.ToType<int>(rhs.getColumnVal("pubrank"));
+                if (lhsPubrank != rhsPubrank)
                 {
-                    rank += 100;
+                    return rhsPubrank.CompareTo(lhsPubrank);
                 }
-                if (rank > maxRank)
+                var lhsPrirank = Utils.ToType<int>(lhs.getColumnVal("prirank"));
+                var rhsPrirank = Utils.ToType<int>(rhs.getColumnVal("prirank"));
+                if (lhsPrirank != rhsPrirank)
                 {
-                    maxRank = rank;
-                    maxRankItem = item;
-                    maxRankC = Utils.ToType<float>(item.getColumnVal("close"));
+                    return rhsPrirank.CompareTo(lhsPrirank);
                 }
-                else if (rank == maxRank)
-                {
-                    float curC = Utils.ToType<float>(item.getColumnVal("close"));
-                    if (curC > maxRankC)
-                    {
-                        maxRank = rank;
-                        maxRankItem = item;
-                        maxRankC = curC;
-                    }
-                }
-            }
-             return maxRankItem;
-
-
-//             SelectItem maxRankItem = null;
-//             int maxRank = int.MinValue;
-//             float maxRankC = 0;
-//             foreach (var item in selItems)
-//             {
-//                 int rank = Utils.ToType<int>(item.getColumnVal("pubrank"));
-//                 if (item.strategyName_.StartsWith("LF_"))
-//                 {
-//                     rank += 100;
-//                 }
-//                 if (rank > maxRank)
-//                 {
-//                     maxRank = rank;
-//                     maxRankItem = item;
-//                     maxRankC = Utils.ToType<float>(item.getColumnVal("close"));
-//                 }
-//                 else if (rank == maxRank)
-//                 {
-//                     float curC = Utils.ToType<float>(item.getColumnVal("close"));
-//                     if (curC > maxRankC)
-//                     {
-//                         maxRank = rank;
-//                         maxRankItem = item;
-//                         maxRankC = curC;
-//                     }
-//                 }
-//             }
-//             return maxRankItem;
+                var lhsClose = Utils.ToType<float>(lhs.getColumnVal("close"));
+                var rhsClose = Utils.ToType<float>(rhs.getColumnVal("close"));
+                return rhsClose.CompareTo(lhsClose);
+            });
+            return selItems[0];
         }
     }
 }

@@ -106,6 +106,11 @@ namespace SelectImpl
             {
                 return null;
             }
+
+            if (!selectBySZ(dsh))
+            {
+                return null;
+            }
             var ret = new Dictionary<String, String>();
             ret[String.Format("of/{0}", dsh.Ref(Info.OF) > 0 ? "1" : "-1")] = "";
             ret[String.Format("hf/{0}", dsh.Ref(Info.HF) > 0.02 ? "1" : "-1")] = "";

@@ -821,7 +821,7 @@ namespace SelectImpl
             float acc = 0;
             for (int i = 0; i < count; ++i)
             {
-                var curZF = Ref(Info.ZF, i);
+                var curZF = Ref(Info.ZF, i + dayCount);
                 if (upOrDown == 1 && curZF <= 0)
                 {
                     continue;
@@ -831,6 +831,24 @@ namespace SelectImpl
                     continue;
                 }
                 acc += Ref(info, i + dayCount);
+            }
+            return acc;
+        }
+        public float SZAcc(Info info, int count, int dayCount = 0, int upOrDown = 0)
+        {
+            float acc = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                var curZF = SZRef(Info.ZF, i + dayCount);
+                if (upOrDown == 1 && curZF <= 0)
+                {
+                    continue;
+                }
+                else if (upOrDown == -1 && curZF >= 0)
+                {
+                    continue;
+                }
+                acc += SZRef(info, i + dayCount);
             }
             return acc;
         }

@@ -27,12 +27,16 @@ namespace SelectImpl
         {
             return Utils.ToType<int>(DateTime.Now.ToString("HHmmss")); 
         }
-        public static String DateSpan(int startDate, int endDate)
+        public static int DateSpanInt(int startDate, int endDate)
         {
             DateTime start = new DateTime(Year(startDate), Month(startDate), Day(startDate));
             DateTime end = new DateTime(Year(endDate), Month(endDate), Day(endDate));
-            TimeSpan span =  end - start;
-            return span.TotalDays.ToString() + "days";
+            TimeSpan span = end - start;
+            return (int)span.TotalDays;
+        }
+        public static String DateSpan(int startDate, int endDate)
+        {
+            return DateSpanInt(startDate, endDate).ToString() + "days";
         }
         public static float GetBonusValue(String bonus)
         {
@@ -68,6 +72,10 @@ namespace SelectImpl
         public static int LastTradeDay()
         {
             return DB.Global().ExecuteScalar<int>(String.Format("SELECT cal_date from trade_date where cal_date < {0}  order by cal_date desc limit 1", NowDate()));
+        }
+        public static int NextTradeDay(int date)
+        {
+            return DB.Global().ExecuteScalar<int>(String.Format("SELECT cal_date from trade_date where cal_date > {0} order by cal_date limit 1", date));
         }
         public static bool IsTradeTime(int hour, int minute)
         {

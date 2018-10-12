@@ -47,21 +47,8 @@ namespace SelectorForm
                     return;
                 }
                 daySelectItems_ = SelectResult.OfDate(selDate, re_.selItems_);
-                daySelectItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
-                {
-                    var lhsBonus = lhs.getColumnVal("bonus");
-                    var rhsBonus = rhs.getColumnVal("bonus");
-                    if (lhsBonus == "")
-                    {
-                        return 1;
-                    }
-                    if (rhsBonus == "")
-                    {
-                        return -1;
-                    }
-                    return Utils.GetBonusValue(rhsBonus).CompareTo(
-                               Utils.GetBonusValue(lhsBonus));
-                });
+                App.grp_.makeDeside(daySelectItems_, selDate, RankBuyDesider.buyer_);
+
                 LUtils.FillListViewData(subListView_, daySelectItems_);
             }
             else

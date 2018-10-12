@@ -56,7 +56,7 @@
             this.chart_.Legends.Add(legend1);
             this.chart_.Location = new System.Drawing.Point(0, 0);
             this.chart_.Name = "chart_";
-            this.chart_.Size = new System.Drawing.Size(767, 360);
+            this.chart_.Size = new System.Drawing.Size(767, 350);
             this.chart_.TabIndex = 0;
             this.chart_.Text = "test";
             // 
@@ -65,7 +65,7 @@
             this.straListView_.Dock = System.Windows.Forms.DockStyle.Fill;
             this.straListView_.Location = new System.Drawing.Point(0, 25);
             this.straListView_.Name = "straListView_";
-            this.straListView_.Size = new System.Drawing.Size(767, 35);
+            this.straListView_.Size = new System.Drawing.Size(767, 45);
             this.straListView_.TabIndex = 1;
             this.straListView_.UseCompatibleStateImageBehavior = false;
             this.straListView_.SelectedIndexChanged += new System.EventHandler(this.straListView__SelectedIndexChanged);
@@ -87,7 +87,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.chart_);
             this.splitContainer1.Size = new System.Drawing.Size(767, 424);
-            this.splitContainer1.SplitterDistance = 60;
+            this.splitContainer1.SplitterDistance = 70;
             this.splitContainer1.TabIndex = 2;
             // 
             // historyView
@@ -95,7 +95,7 @@
             this.historyView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.historyView.Location = new System.Drawing.Point(0, 25);
             this.historyView.Name = "historyView";
-            this.historyView.Size = new System.Drawing.Size(767, 35);
+            this.historyView.Size = new System.Drawing.Size(767, 45);
             this.historyView.TabIndex = 2;
             this.historyView.UseCompatibleStateImageBehavior = false;
             this.historyView.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.historyView_ColumnClick);

@@ -105,7 +105,6 @@ namespace SelectImpl
             {
                 return null;
             }
-
             return EmptyRateItemButSel;
         }
     }

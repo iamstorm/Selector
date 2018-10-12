@@ -215,7 +215,10 @@ namespace SelectImpl
             {
                 return null;
             }
-            
+            if (!selectBySZ(dsh))
+            {
+                return null;
+            }
             
             var ret = new Dictionary<String, String>();
             ret[String.Format("sumSig/{0}", sumOfSigDateZF > 0.12 ? "1" : "0")] = "";
