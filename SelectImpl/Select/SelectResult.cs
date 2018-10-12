@@ -64,12 +64,15 @@ namespace SelectImpl
             }
         }
         Dictionary<String, String> colValCacheDict_ = new Dictionary<string, string>();
-        public String getColumnVal(String colName, Stock stock, HistoryData straData)
+        public String getColumnVal(String colName, Stock stock, HistoryData straData, bool bSearchCache = true)
         {
-            String cacheVal;
-            if (colValCacheDict_.TryGetValue(colName, out cacheVal))
+            if (bSearchCache)
             {
-                return cacheVal;
+                String cacheVal;
+                if (colValCacheDict_.TryGetValue(colName, out cacheVal))
+                {
+                    return cacheVal;
+                }
             }
             IStrategy stra = App.grp_.strategy(strategyName_);
             if (colName == "date")
@@ -257,9 +260,14 @@ namespace SelectImpl
         }
         public String getColumnVal(String colName)
         {
+            String cacheVal;
+            if (colValCacheDict_.TryGetValue(colName, out cacheVal))
+            {
+                return cacheVal;
+            }
             Stock stock = code_ == null ? null : App.ds_.sk(code_);
             HistoryData straData = App.asset_.straData(strategyName_);
-            return getColumnVal(colName, stock, straData);
+            return getColumnVal(colName, stock, straData, false);
         }
        
         public ListViewItem toListViewItem(ListView lv, int iItemIndex, int nCount)
@@ -312,6 +320,10 @@ namespace SelectImpl
             List<SelectItem> retList = new List<SelectItem>();
             foreach (SelectItem item in selItems)
             {
+                if (item.date_ != date)
+                {
+                    continue;
+                }
                 if (bMustHasBonus)
                 {
                     var bonus = item.getColumnVal("bonus");
@@ -320,10 +332,7 @@ namespace SelectImpl
                         continue;
                     }
                 }
-                if (item.date_ == date)
-                {
-                    retList.Add(item);
-                }
+                retList.Add(item);
             }
             return retList;
         }
