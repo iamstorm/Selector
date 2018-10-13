@@ -136,6 +136,11 @@ namespace SelectImpl
                 }
             }
 
+            var szZF = dsh.SZRef(Info.ZF);
+            if (szZF > 0 && szZF < 0.011 && dsh.SZAcc(Info.ZF, 7, 1) > 0.03)
+            {
+                return null;
+            }
             if (!selectBySZ(dsh))
             {
                 return null;

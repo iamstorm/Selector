@@ -590,6 +590,16 @@ namespace SelectImpl
             float minCO = Math.Min(Ref(Info.C, dayCount), Ref(Info.O, dayCount));
             return (Ref(Info.L, dayCount) - minCO) / Ref(Info.C, dayCount + 1);
         }
+        public float SZUpShadow(int dayCount = 0)
+        {
+            float maxCO = Math.Max(SZRef(Info.C, dayCount), SZRef(Info.O, dayCount));
+            return (SZRef(Info.H, dayCount) - maxCO) / SZRef(Info.C, dayCount + 1);
+        }
+        public float SZDownShadow(int dayCount = 0)
+        {
+            float minCO = Math.Min(SZRef(Info.C, dayCount), SZRef(Info.O, dayCount));
+            return (SZRef(Info.L, dayCount) - minCO) / SZRef(Info.C, dayCount + 1);
+        }
         public bool CrossMA(Info info, int count, int beCrossCount, int dayCount = 0)
         {
             float curMA = ds_.MA(info, count, dataList_, iIndex_, dayCount);

@@ -237,7 +237,7 @@ namespace SelectImpl
                 bGPerTradeDay_ = allGoodSampleBonusValue_ / nGoodSampleHoldStockDays_;
             }
             float probility = tradeSucProbility_ < 0 ? selectSucProbility_ : tradeSucProbility_;
-            rank_ = (int)(100 * probility * priority());
+            rank_ = (int)(100 * /*probility * */priority());
         }
         public float priority()
         {

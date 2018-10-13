@@ -59,11 +59,15 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (zf > 0 && zf < -0.01)
+            if (zf > -0.08)
             {
                 return null;
             }
             if (dsh.SZRef(Info.ZF) > -0.03)
+            {
+                return null;
+            }
+            if (dsh.AccZF(5, 1) > -0.2)
             {
                 return null;
             }

@@ -34,7 +34,12 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.SZRef(Info.ZF) < 0.01)
+            var szZF = dsh.SZRef(Info.ZF);
+            if (szZF < 0.01)
+            {
+                return null;
+            }
+            if (szZF < 0.011 && dsh.SZAcc(Info.ZF, 7, 1) > 0.03)
             {
                 return null;
             }

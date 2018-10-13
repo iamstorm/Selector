@@ -61,7 +61,12 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.AccZF(3, 3) > 0.095)
+            var accZF3 = dsh.AccZF(3, 3);
+            if (accZF3 > 0.02 && accZF3 < 0.05)
+            {
+                return null;
+            }
+            if (accZF3 > 0.1)
             {
                 return null;
             }

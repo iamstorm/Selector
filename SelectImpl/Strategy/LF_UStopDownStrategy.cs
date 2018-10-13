@@ -240,7 +240,6 @@ namespace SelectImpl
              {
                  return null;
             }
-
              var ret = new Dictionary<String, String>();
              ret[String.Format("vol/{0}", sigDateVol < otherMaxVol*1.5 ? "1" : "0")] = "";
    //          ret[String.Format("maxUp/{0}", maxUpF > 0.03 ? "1" : "0")] = "";
