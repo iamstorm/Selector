@@ -18,38 +18,14 @@ namespace SelectImpl
         }
         public override float bonusLimit()
         {
-            return 0.052f;
+            return 0.095f;
         }
         public override float firstDayBonusLimit()
         {
             return 0.095f;
         }
-        public override int buySpan()
-        {
-            return 1;
-        }
         #endregion
 
-        bool isSigDate(DataStoreHelper dsh, int iIndex)
-        {
-            if (dsh.Ref(Info.ZF, iIndex) < 0)
-            {
-                return false;
-            }
-            if (dsh.AccZF(8, iIndex) < 0.15)
-            {
-                return false;
-            }
-            for (int i = 0; i < 8; ++i )
-            {
-                if (dsh.Ref(Info.ZF, i+iIndex) > 0.095)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
