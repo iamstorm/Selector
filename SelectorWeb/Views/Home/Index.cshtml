@@ -54,6 +54,7 @@
 <body>
     <div class="container">
         <h1 id="msg">Select:</h1>
+        <h2 id="msgTime"></h2>
         <p></p>
         <table id="table_result">
         </table>
@@ -85,6 +86,7 @@
 </script>
 <script>
     var $msg = $('#msg');
+    var $msgTime = $('#msgTime');
     var $tableResult = $('#table_result');
     var $tableTask = $('#table_task');
     var $tableErrTask = $('#table_errorTask');
@@ -107,6 +109,7 @@
     }
 
     $msg.text("");
+    $msgTime.text("");
     $tableResult.bootstrapTable({
         columns: InitResultColumn(),
         data: [],
@@ -171,6 +174,7 @@
 
     function refresh(showLayerMsg) {
         $msg.text("");
+        $msgTime.text("");
         $tableResult.bootstrapTable('load', []);
         $tableTask.bootstrapTable('load', []);
         $tableErrTask.bootstrapTable('load', []);
@@ -194,6 +198,7 @@
                     $msg.removeClass("error");
                 }
                 $msg.text(data.msg);
+                $msgTime.text(data.time);
                 $tableResult.bootstrapTable('load', data.selItems);
                 $tableTask.bootstrapTable('load', data.taskItems);
                 $tableErrTask.bootstrapTable('load', data.errTaskItems);

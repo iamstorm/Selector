@@ -135,19 +135,16 @@ namespace SelectorWeb.Controllers
         {
             using (SH sh = new SH())
             {
-                String time;
-                var selItems = querySelectItems(sh, out time);
+                String selTime, time;
+                var selItems = querySelectItems(sh, out selTime);
                 var taskItems = queryTaskItems(sh);
                 var errTaskItems = queryErrTaskItems(sh);
                 DateTime curTime = DateTime.Now;
-                if (time == "")
+                if (selTime != "")
                 {
-                    time = "Current: " + U.ToTimeDesc(curTime);
+                    selTime = "SelectAt: " + selTime + ": ";
                 }
-                else
-                {
-                    time = "SelectAt: " + time + " Current: " + GetTimePart(U.ToTimeDesc(curTime));
-                }
+                time = U.ToTimeDesc(curTime);
                 if (U.IsOpenTime(curTime.Hour, curTime.Minute))
                 {
                     time = "O " + time;
@@ -175,7 +172,7 @@ namespace SelectorWeb.Controllers
                         sSelectMsg += " Elapse: " + span.TotalSeconds.ToString("F0") + "s";
                     }
                 }
-                String sMsg = String.Format("{0}: {1} items, {2}", time, selItems.Count, sSelectMsg);
+                String sMsg = String.Format("{0}{1} items, {2}", selTime, selItems.Count, sSelectMsg);
                 if (!U.NowIsTradeDay(sh))
                 {
                     sMsg = "Holiday " + sMsg;
@@ -189,6 +186,7 @@ namespace SelectorWeb.Controllers
                     selItems = selItems,
                     taskItems = taskItems,
                     errTaskItems = errTaskItems,
+                    time = time,
                     finshTaskCount = sh.ExecuteScalar<int>("Select Count(*) From select_task Where finishTime is not null")
                 };
                 return Content(data.ToJson());

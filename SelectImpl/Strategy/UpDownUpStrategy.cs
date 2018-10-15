@@ -87,7 +87,6 @@ namespace SelectImpl
             {
                 return null;
             }
-
             if (dsh.Ref(Info.V) > dsh.Ref(Info.V, 1)*2)
             {
                 return null;

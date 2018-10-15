@@ -29,6 +29,16 @@ namespace SelectImpl
 
         public bool selectBySZ(DataStoreHelper dsh)
         {
+            {
+                var szzf = dsh.SZRef(Info.ZF);
+                if (dsh.SZRef(Info.ZF, dsh.SZLL(Info.ZF, 3)) < -0.03 &&
+                    szzf < 0.005 && szzf > -0.005 &&
+        dsh.SZUpShadow() > 0.005 && dsh.SZDownShadow() < -0.005)
+                {
+                    return false;
+                }
+            }
+
             float minSZZF = float.MaxValue;
             float maxSZZF = float.MinValue;
             int iSigIndex = -1;
