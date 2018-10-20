@@ -552,7 +552,7 @@ namespace SelectImpl
             ret.iIndex_ = iIndex_ + dayCount;
             ret.dataList_ = dataList_;
             ret.szListData_ = szListData_;
-            ret.iSZIndex_ = iSZIndex_;
+            ret.iSZIndex_ = ds_.index(szListData_, ret.Date());
             return ret;
         }
         public void setStock(Stock stock)

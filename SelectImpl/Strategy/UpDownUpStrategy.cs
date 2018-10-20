@@ -26,8 +26,7 @@ namespace SelectImpl
         }
         #endregion
 
-
-        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
+        public virtual Dictionary<String, String> selectFor(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
             var zf = dsh.Ref(Info.ZF);
 
@@ -63,17 +62,17 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.V) > dsh.Ref(Info.V, 1)*2)
+            if (dsh.Ref(Info.V) > dsh.Ref(Info.V, 1) * 2)
             {
                 return null;
             }
-            for (int i = 0; i < 4; ++i )
+            for (int i = 0; i < 4; ++i)
             {
                 if (dsh.DownShadow(i) < -0.04)
                 {
                     return null;
                 }
-                if ((dsh.Ref(Info.CO, i) / dsh.Ref(Info.C, i+1)) < 0.005)
+                if ((dsh.Ref(Info.CO, i) / dsh.Ref(Info.C, i + 1)) < 0.005)
                 {
                     return null;
                 }
@@ -98,6 +97,12 @@ namespace SelectImpl
 
             return EmptyRateItemButSel;
         }
-   
+
+        Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
+        {
+            return selectFor(dsh, selectMode, ref sigInfo);
+        }
+
+ 
     }
 }

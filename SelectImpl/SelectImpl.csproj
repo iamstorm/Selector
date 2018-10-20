@@ -140,7 +140,6 @@
     <Compile Include="Strategy\DownUpStrategy.cs" />
     <Compile Include="Strategy\EveryDownUpStrategy.cs" />
     <Compile Include="Strategy\EnvUpStrategy.cs" />
-    <Compile Include="Strategy\SigEnvDownStrategy.cs" />
     <Compile Include="Strategy\UpDownDownUpStrategy.cs" />
     <Compile Include="Strategy\UpDownUpStrategy.cs" />
     <Compile Include="Utils.cs" />

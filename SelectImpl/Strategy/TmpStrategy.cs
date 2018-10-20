@@ -59,19 +59,30 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (zf > -0.08)
+            if ( zf < 0.01 || zf > 0.08)
             {
                 return null;
             }
-            if (dsh.SZRef(Info.ZF) > -0.03)
+            if (dsh.Ref(Info.ZF, 1) > -0.02 || dsh.Ref(Info.ZF, 1) < -0.05)
             {
                 return null;
             }
-            if (dsh.AccZF(5, 1) > -0.2)
+            if (dsh.AccZF(2) < 0)
             {
                 return null;
             }
-
+            if (dsh.EveryUp(2) < 3)
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.ZF, dsh.HH(Info.ZF, 3, 2)) > 0.095)
+            {
+                return null;
+            }
+            if (dsh.HH(Info.C, 120) == 0)
+            {
+                return null;
+            }
             return EmptyRateItemButSel;
         }
    

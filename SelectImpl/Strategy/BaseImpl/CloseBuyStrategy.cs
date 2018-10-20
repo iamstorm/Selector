@@ -38,6 +38,7 @@ namespace SelectImpl
             int nBuySpan = 0;
             int nBuySpanLimit = buySpan();
             float sellC = 0;
+            bool bUpTopMode = false;
             for (; dsh.iIndex_ >= 0; --dsh.iIndex_, ++nBuySpan)
             {
                 float o = dsh.Ref(Info.O);
@@ -54,6 +55,10 @@ namespace SelectImpl
                 var limit = nBuySpan == 0 ? firstDayBonusL : bonusL;
                 float wantedC = buyC * (1 + limit);
                 float wantedMinC = buyC * (1 + bonusL);
+                if (bUpTopMode)
+                {
+                    wantedC = dsh.Ref(Info.C, 1) * 1.05f;
+                }
 // 
 //                 if (lf < -0.111 || hf > 0.111)
 //                 {//除权了
@@ -67,6 +72,24 @@ namespace SelectImpl
                 //今天没一直跌停，大概率能卖出
                 if (info.bSellWhenMeetMyBounusLimit_)
                 {
+                    if (of > 0.095)
+                    {
+                        if (zf > 0.095)
+                        {
+                            bUpTopMode = true;
+                            continue;
+                        }
+                        else if (c > wantedC || nBuySpan >= nBuySpanLimit - 1)
+                        {
+                            sellC = c;
+                            ++nBuySpan;
+                            break;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
                     if (o > wantedC)//开盘超出盈利顶额
                     {
                         sellC = o;

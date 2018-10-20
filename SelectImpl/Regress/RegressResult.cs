@@ -173,15 +173,15 @@ namespace SelectImpl
                 return lhsBonusValue.CompareTo(rhsBonusValue);
             });
             List<SelectItem> goodSamplesItems;
-            if (dayItems.Count <= 10)
+            if (dayItems.Count <= 5)
             {
                 goodSamplesItems = dayItems;
             }
             else
             {
                 goodSamplesItems  = new List<SelectItem>();
-                int delta = dayItems.Count / 10;
-                for (int i = 0; i < 10; ++i )
+                int delta = dayItems.Count / 5;
+                for (int i = 0; i < 5; ++i)
                 {
                     goodSamplesItems.Add(dayItems[i*delta]);
                 }

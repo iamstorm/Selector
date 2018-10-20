@@ -48,7 +48,7 @@ namespace SelectImpl
                 return null;
             }
 
-            if (dsh.Ref(Info.ZF, 2) < 0.005/* || !dsh.IsReal(2)*/)
+            if (dsh.Ref(Info.ZF, 2) < 0.005 || !dsh.IsReal(2))
             {
                 return null;
             }
