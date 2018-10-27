@@ -77,6 +77,16 @@ namespace SelectImpl
             }
             selItems.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
+                bool bLhsIsNN = lhs.strategyName_.StartsWith("NN");
+                bool bRhsIsNN = rhs.strategyName_.StartsWith("NN");
+                if (bLhsIsNN && !bRhsIsNN)
+                {
+                    return 1;
+                }
+                if (!bLhsIsNN && bRhsIsNN)
+                {
+                    return -1;
+                }
                 var lhsPubrank = Utils.ToType<int>(lhs.getColumnVal("pubrank"));
                 var rhsPubrank = Utils.ToType<int>(rhs.getColumnVal("pubrank"));
                 if (lhsPubrank != rhsPubrank)

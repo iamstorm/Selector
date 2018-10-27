@@ -173,14 +173,15 @@ namespace SelectImpl
             {
                 SelectItem item = allItems[i];
                 var bonus = item.getColumnVal("bonus");
-                if (bonus == "")
+                var strNsh = item.getColumnVal("nsh");
+                if (bonus == "" || strNsh == "")
                 {
                     continue;
                 }
                 data.nGoodSampleHoldStockDays_ += Utils.ToType<int>(item.getColumnVal("tradespan"));
                 float bonusValue = Utils.GetBonusValue(bonus);
                 data.allGoodSampleBonusValue_ += bonusValue;
-                float nsh = Utils.GetBonusValue(item.getColumnVal("nsh"));
+                float nsh = Utils.GetBonusValue(strNsh);
                 if (nsh > 0.5)
                 {
                     data.nPlusCount_++;
@@ -188,6 +189,10 @@ namespace SelectImpl
                 else if (nsh < -1.5)
                 {
                     data.nMinusCount_++;
+                    if (nsh < -0.095)
+                    {
+                        data.nDeadCount_++;
+                    }
                 }
             }
 
@@ -422,8 +427,10 @@ namespace SelectImpl
                                 nDayPerSelectCount   INT              NOT NULL,
                                 plusRate                           NUMERIC( 5, 2 )  NOT NULL,
                                 minusRate                           NUMERIC( 5, 2 )  NOT NULL,
+                                deadRate                           NUMERIC( 5, 2 )  NOT NULL,
                                 nPlusCount                           INT  NOT NULL,
                                 nMinusCount                           INT  NOT NULL,
+                                nDeadCount                           INT  NOT NULL,
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 
 

@@ -57,7 +57,7 @@ namespace SelectorForm
                     {
                         return 1;
                     }
-                    return rhs.getColumnVal("bonus").CompareTo(lhs.getColumnVal("bonus"));
+                    return rhs.getColumnVal("nsl").CompareTo(lhs.getColumnVal("nsl"));
                 });
                 LUtils.FillListViewData(subListView_, daySelectItems_);
             }

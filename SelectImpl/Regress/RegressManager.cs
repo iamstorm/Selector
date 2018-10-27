@@ -36,8 +36,8 @@ namespace SelectImpl
             }
             regressRe.selItems_.Sort(delegate(SelectItem lhs, SelectItem rhs)
             {
-                var lhsBonus = lhs.getColumnVal("bonus");
-                var rhsBonus = rhs.getColumnVal("bonus");
+                var lhsBonus = lhs.getColumnVal("nsl");
+                var rhsBonus = rhs.getColumnVal("nsl");
                 if (lhsBonus == "")
                 {
                     return 1;

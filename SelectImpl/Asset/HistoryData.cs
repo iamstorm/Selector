@@ -41,8 +41,10 @@ namespace SelectImpl
         public int nDayPerSelectCount_;
         public int nPlusCount_;
         public int nMinusCount_;
+        public int nDeadCount_;
         public float plusRate_;
         public float minusRate_;
+        public float deadRate_;
         public static ColumnInfo[] ShowColumnInfos
         {
             get {
@@ -51,6 +53,7 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "rank", width_ = 60 },
                     new ColumnInfo() { name_ = "prate", width_ = 60 },
                     new ColumnInfo() { name_ = "mrate", width_ = 60 },
+                    new ColumnInfo() { name_ = "drate", width_ = 60 },
                     new ColumnInfo() { name_ = "tsp", width_ = 60 },
                     new ColumnInfo() { name_ = "tasp", width_ = 60 },
                     new ColumnInfo() { name_ = "ssp", width_ = 60 },
@@ -86,8 +89,9 @@ namespace SelectImpl
         {
             ListViewItem lvi = new ListViewItem(slnName);
             lvi.SubItems.Add(rank_.ToString());
-            lvi.SubItems.Add(plusRate_.ToString("F2"));
-            lvi.SubItems.Add(minusRate_.ToString("F2"));
+            lvi.SubItems.Add(plusRate_.ToString("F5"));
+            lvi.SubItems.Add(minusRate_.ToString("F5"));
+            lvi.SubItems.Add(deadRate_.ToString("F5"));
             lvi.SubItems.Add(tradeSucProbility_.ToString("F2"));
             lvi.SubItems.Add(tradeAllSucProbility_.ToString("F2"));
             lvi.SubItems.Add(selectSucProbility_.ToString("F2"));
@@ -123,8 +127,10 @@ namespace SelectImpl
             HistoryData data = new HistoryData();
             data.plusRate_ = Utils.ToType<float>(row["plusRate"]);
             data.minusRate_ = Utils.ToType<float>(row["minusRate"]);
+            data.deadRate_ = Utils.ToType<float>(row["deadRate"]);
             data.nPlusCount_ = Utils.ToType<int>(row["nPlusCount"]);
             data.nMinusCount_ = Utils.ToType<int>(row["nMinusCount"]);
+            data.nDeadCount_ = Utils.ToType<int>(row["nDeadCount"]);
             data.tradeSucProbility_ = Utils.ToType<float>(row["tradeSucProbility"]);
             data.tradeAllSucProbility_ = Utils.ToType<float>(row["tradeAllSucProbility"]);
             data.selectSucProbility_ = Utils.ToType<float>(row["selectSucProbility"]);
@@ -166,8 +172,10 @@ namespace SelectImpl
             Dictionary<String, Object> dict = new Dictionary<String, Object>();
             dict["plusRate"] = plusRate_;
             dict["minusRate"] = minusRate_;
+            dict["deadRate"] = deadRate_;
             dict["nPlusCount"] = nPlusCount_;
             dict["nMinusCount"] = nMinusCount_;
+            dict["nDeadCount"] = nDeadCount_;
             dict["tradeSucProbility"] = tradeSucProbility_;
             dict["tradeAllSucProbility"] = tradeAllSucProbility_;
             dict["selectSucProbility"] = selectSucProbility_;
@@ -225,12 +233,14 @@ namespace SelectImpl
                 selectSucProbility_ = -1;
                 plusRate_ = -1;
                 minusRate_ = -1;
+                deadRate_ = -1;
             }
             else
             {
                 selectSucProbility_ = nSelectSucCount_ * 1.0f / nGoodSampleSelectCount_;
                 plusRate_ = nPlusCount_ * 1.0f / nGoodSampleSelectCount_;
                 minusRate_ = nMinusCount_ * 1.0f / nGoodSampleSelectCount_;
+                deadRate_ = nDeadCount_ * 1.0f / nGoodSampleSelectCount_;
             }
             if (nAntiEnvCheckCount_ == 0)
             {
@@ -261,10 +271,11 @@ namespace SelectImpl
         }
         public float priority()
         {
-            int plusRank/*50*/, minusRank/*50*/;
-            plusRank = (int)(plusRate_ * 50);
-            minusRank = (int)((1 - minusRate_) * 50);
-            return plusRank + minusRank;
+            int plusRank/*25*/, minusRank/*25*/, deadRank/*50*/;
+            plusRank = (int)(plusRate_ * 25);
+            minusRank = (int)((1 - minusRate_) * 25);
+            deadRank = (int)((1 - deadRate_) * 50);
+            return (plusRank + minusRank + deadRank) / 100.0f;
 //             int bonusValueRank/*40*/, gbackBonusValueRank/*30*/, antiRateRank/*15*/, tradeDayRateRank/*15*/;
 //             bonusValueRank = (int)(bGPerTradeDay_ / 2.0f * 40);
 //             if (gbackBonusValue_ >= 0)

@@ -24,7 +24,7 @@ namespace SelectImpl
         {
             IStrategy stra = (IStrategy)this;
             float firstDayBonusL = firstDayBonusLimit();
-            float bonusL= bonusLimit();
+            float bonusL = bonusLimit();
             DataStoreHelper dsh = new DataStoreHelper();
             dsh.setStock(stock);
             dsh.iIndex_ = App.ds_.index(stock, buyDate);
@@ -38,32 +38,27 @@ namespace SelectImpl
             int nBuySpan = 0;
             int nBuySpanLimit = buySpan();
             float sellC = 0;
-            bool bUpTopMode = false;
             for (; dsh.iIndex_ >= 0; --dsh.iIndex_, ++nBuySpan)
             {
                 float o = dsh.Ref(Info.O);
                 float h = dsh.Ref(Info.H);
                 float c = dsh.Ref(Info.C);
-                
+
                 float of = dsh.Ref(Info.OF);
                 float hf = dsh.Ref(Info.HF);
                 float lf = dsh.Ref(Info.LF);
                 float zf = dsh.Ref(Info.ZF);
 
-     //           dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, dsh.Date());
+                //           dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, dsh.Date());
 
                 var limit = nBuySpan == 0 ? firstDayBonusL : bonusL;
                 float wantedC = buyC * (1 + limit);
                 float wantedMinC = buyC * (1 + bonusL);
-                if (bUpTopMode)
-                {
-                    wantedC = dsh.Ref(Info.C, 1) * 1.05f;
-                }
-// 
-//                 if (lf < -0.111 || hf > 0.111)
-//                 {//除权了
-//                     return "";
-//                 }
+                // 
+                //                 if (lf < -0.111 || hf > 0.111)
+                //                 {//除权了
+                //                     return "";
+                //                 }
                 if (Utils.IsDownStop(hf))//一直跌停
                 {
                     info.bSellWhenMeetMyBounusLimit_ = false;
@@ -72,24 +67,6 @@ namespace SelectImpl
                 //今天没一直跌停，大概率能卖出
                 if (info.bSellWhenMeetMyBounusLimit_)
                 {
-                    if (of > 0.095)
-                    {
-                        if (zf > 0.095)
-                        {
-                            bUpTopMode = true;
-                            continue;
-                        }
-                        else if (c > wantedC || nBuySpan >= nBuySpanLimit - 1)
-                        {
-                            sellC = c;
-                            ++nBuySpan;
-                            break;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
                     if (o > wantedC)//开盘超出盈利顶额
                     {
                         sellC = o;
@@ -124,7 +101,7 @@ namespace SelectImpl
                         break;
                     }
                     //开盘跌停但因为没一直跌停，所以肯定可以以跌停价卖出
-                    sellC = dsh.Ref(Info.C, 1)*(1-0.095f);
+                    sellC = dsh.Ref(Info.C, 1) * (1 - 0.095f);
                     ++nBuySpan;
                     break;
                 }

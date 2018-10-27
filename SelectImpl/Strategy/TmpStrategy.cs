@@ -59,30 +59,62 @@ namespace SelectImpl
             {
                 return null;
             }
-            if ( zf < 0.01 || zf > 0.08)
+            if (zf < 0.02 || zf > 0.03)
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF, 1) > -0.02 || dsh.Ref(Info.ZF, 1) < -0.05)
+            if (dsh.IsLikeSTStop())
             {
                 return null;
             }
-            if (dsh.AccZF(2) < 0)
+            if (dsh.Ref(Info.ZF, 1) > -0.02)
             {
                 return null;
             }
-            if (dsh.EveryUp(2) < 3)
+            if (dsh.UpShadow() > 0.04)
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF, dsh.HH(Info.ZF, 3, 2)) > 0.095)
+            if (dsh.AccZF(8) > -0.1)
             {
                 return null;
             }
-            if (dsh.HH(Info.C, 120) == 0)
+            if (dsh.HH(Info.V, 8) == 0)
             {
                 return null;
             }
+            if (dsh.DownShadow() < -0.04)
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.ZF, 2) < -0.02)
+            {
+                return null;
+            }
+            if (!dsh.IsReal())
+            {
+                return null;
+            }
+            if (dsh.AccZF(2) > 0)
+            {
+                return null;
+            }
+            
+            
+            for (int i = 1; i < 8; ++i )
+            {
+                var curZF = dsh.Ref(Info.ZF, i);
+                var curOF = dsh.Ref(Info.OF, i);
+                if (curZF < -0.095 || curZF > 0.095)
+                {
+                    return null;
+                }
+                if (curOF > 0.04 && dsh.IsGreen(i))
+                {
+                    return null;
+                }
+            }
+
             return EmptyRateItemButSel;
         }
    

@@ -142,6 +142,7 @@
     <Compile Include="Strategy\EnvUpStrategy.cs" />
     <Compile Include="Strategy\UpDownDownUpStrategy.cs" />
     <Compile Include="Strategy\UpDownUpStrategy.cs" />
+    <Compile Include="Strategy\NNDownUp.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
