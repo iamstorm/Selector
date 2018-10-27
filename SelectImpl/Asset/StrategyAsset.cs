@@ -180,6 +180,15 @@ namespace SelectImpl
                 data.nGoodSampleHoldStockDays_ += Utils.ToType<int>(item.getColumnVal("tradespan"));
                 float bonusValue = Utils.GetBonusValue(bonus);
                 data.allGoodSampleBonusValue_ += bonusValue;
+                float nsh = Utils.GetBonusValue(item.getColumnVal("nsh"));
+                if (nsh > 0.5)
+                {
+                    data.nPlusCount_++;
+                }
+                else if (nsh < -1.5)
+                {
+                    data.nMinusCount_++;
+                }
             }
 
 
@@ -411,6 +420,10 @@ namespace SelectImpl
 
                                 nDayMaxSelectCount INT              NOT NULL,
                                 nDayPerSelectCount   INT              NOT NULL,
+                                plusRate                           NUMERIC( 5, 2 )  NOT NULL,
+                                minusRate                           NUMERIC( 5, 2 )  NOT NULL,
+                                nPlusCount                           INT  NOT NULL,
+                                nMinusCount                           INT  NOT NULL,
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 
 

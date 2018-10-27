@@ -40,6 +40,7 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "zf", width_ = 60 },
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
+                    new ColumnInfo() { name_ = "nsl", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
                     new ColumnInfo() { name_ = "envbonus", width_ = 60 },
@@ -118,6 +119,19 @@ namespace SelectImpl
                     return "";
                 }
                 String bonus = Utils.ToBonus(stock.hf(info.sellDate_));
+                colValCacheDict_[colName] = bonus;
+                return bonus;
+            }
+            else if (colName == "nsl")
+            {
+                BuySellInfo info;
+                stra.computeBonus(stock, date_, out info);
+                if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
+                {
+                    colValCacheDict_[colName] = "";
+                    return "";
+                }
+                String bonus = Utils.ToBonus(stock.lf(info.sellDate_));
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
