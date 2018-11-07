@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "US30";
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selector</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="~/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/bootstrap-table/dist/bootstrap-table.min.css">
+    <script src="~/assets/jquery.min.js"></script>
+    <script src="~/assets/nfine/js/cookie/jquery.cookie.js"></script>
+    <script src="~/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/assets/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script src="~/assets/layer-v3.1.1/layer/layer.js"></script>
+    <style type="text/css">
+        .container 
+        {
+            width: 500px;
+            height: 500px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .btn
+        {
+            margin: 30px;
+            padding: 32px 32px;
+            font-size: 32px;
+            line-height: 2.66;
+            border-radius: 12px;
+            display:block;
+        }
+        .complete
+        {
+            color: blue
+        }
+        .error
+        {
+            color: red
+        }
+        .right
+        {
+            float: right
+        }
+        .clear
+        {
+            clear: both
+        }
+        .line 
+        {
+            margin-top: 10px;
+        }
+        input, #count
+        {
+            margin-left: 10px;
+        }
+        .inputtitle 
+        {
+            width: 100px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>US30</h2>
+        <p></p>
+        <div id="inputq">
+            <div class="line">
+            <span class="inputtitle">All money:</span><input id="allmoney"/>
+            </div>
+            <div class="line">
+                <span class="inputtitle">Defense Point:</span><input id="point"/>
+            </div>
+            <div class="line">
+                <span>Buy Count:</span><span id="count"></span>
+            </div>
+        </div>
+        <div id="compute">
+         <button type="button" class="btn btn-primary">Compute</button>
+        </div>
+     </div>
+<script>
+    String.format = function() {
+        var s = arguments[0];
+        for (var i = 0; i < arguments.length - 1; i++) {       
+            var reg = new RegExp("\\{" + i + "\\}", "gm");             
+            s = s.replace(reg, arguments[i + 1]);
+        }
+
+        return s;
+    }
+</script>
+<script>
+    var $allmoney = $('#allmoney');
+    var $point = $('#point');
+    var $count = $('#count');
+   
+    function compute() {
+        var allmoney = parseFloat($allmoney.val());
+        var point = parseFloat($point.val());
+        $.cookie('allmoney', allmoney);
+        $.cookie('point', point);
+        $count.text(parseInt(10 * allmoney / (point + 140)));
+    }
+    $(function () {
+        $allmoney.val($.cookie('allmoney'));
+        $point.val($.cookie('point'));
+
+        $('#compute button').click(function () {
+            compute();
+        });
+
+        $('input').bind('keypress', function (event) {
+            if (event.keyCode == "13") {
+                event.preventDefault();
+                $('#compute button').click();
+            }
+        });
+        $allmoney.focus();
+    });
+    
+</script>
+</body>
+</html>

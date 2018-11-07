@@ -66,6 +66,10 @@ namespace SelectImpl
                             default:
                                 throw new ArgumentException("Unknown focusOn");
                         }
+                        if (dsh.MA(Info.A,5, 1) < 20000)
+                        {
+                            continue;
+                        }
 
                         rateItemDict = stra.select(dsh, selectMode, ref sigInfo);
                         if (rateItemDict == null)

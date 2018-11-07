@@ -194,6 +194,10 @@ namespace SelectImpl
                         data.nDeadCount_++;
                     }
                 }
+                else if (bonusValue < 0.2)
+                {
+                    data.nPartialMinusCount_++;
+                }
             }
 
 
@@ -428,9 +432,11 @@ namespace SelectImpl
                                 plusRate                           NUMERIC( 5, 2 )  NOT NULL,
                                 minusRate                           NUMERIC( 5, 2 )  NOT NULL,
                                 deadRate                           NUMERIC( 5, 2 )  NOT NULL,
+                                partialMinusRate                           NUMERIC( 5, 2 )  NOT NULL,
                                 nPlusCount                           INT  NOT NULL,
                                 nMinusCount                           INT  NOT NULL,
                                 nDeadCount                           INT  NOT NULL,
+                                nPartialMinusCount                           INT  NOT NULL,
                                 rank                   INT              NOT NULL  ,
                                 verTag                   VARCHAR( 100 )              NOT NULL 
 

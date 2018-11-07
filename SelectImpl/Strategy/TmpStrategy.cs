@@ -59,62 +59,31 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (zf < 0.02 || zf > 0.03)
+            if (dsh.Ref(Info.OF) > 0.095)
             {
                 return null;
             }
-            if (dsh.IsLikeSTStop())
+            if (dsh.Ref(Info.ZF, 1) < 0.095)
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF, 1) > -0.02)
+            int iSigIndex = -1;
+            for (int i = 1; i < 22; ++i )
             {
-                return null;
-            }
-            if (dsh.UpShadow() > 0.04)
-            {
-                return null;
-            }
-            if (dsh.AccZF(8) > -0.1)
-            {
-                return null;
-            }
-            if (dsh.HH(Info.V, 8) == 0)
-            {
-                return null;
-            }
-            if (dsh.DownShadow() < -0.04)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.ZF, 2) < -0.02)
-            {
-                return null;
-            }
-            if (!dsh.IsReal())
-            {
-                return null;
-            }
-            if (dsh.AccZF(2) > 0)
-            {
-                return null;
-            }
-            
-            
-            for (int i = 1; i < 8; ++i )
-            {
-                var curZF = dsh.Ref(Info.ZF, i);
-                var curOF = dsh.Ref(Info.OF, i);
-                if (curZF < -0.095 || curZF > 0.095)
+                if (dsh.IsDownStopEveryDay(3, i))
                 {
-                    return null;
+                    iSigIndex = i;
+                    break;
                 }
-                if (curOF > 0.04 && dsh.IsGreen(i))
+                if (i != 1 && dsh.Ref(Info.ZF, i) > 0.095)
                 {
                     return null;
                 }
             }
-
+            if (iSigIndex == -1)
+            {
+                return null;
+            }
             return EmptyRateItemButSel;
         }
    

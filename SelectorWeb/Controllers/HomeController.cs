@@ -13,5 +13,9 @@ namespace SelectorWeb.Controllers
         {
             return View();
         }
+        public ActionResult US30()
+        {
+            return View();
+        }
     }
 }

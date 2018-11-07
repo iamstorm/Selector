@@ -148,7 +148,7 @@ namespace SelectorForm
             dt.Columns.Add("tradeDayRate"); valueDict["tradeDayRate"] = new WantedRange(0.1, 0, 1); colorDict["tradeDayRate"] = Color.BurlyWood;
             dt.Columns.Add("antiRate"); valueDict["antiRate"] = new WantedRange(0.2, 0, 1); colorDict["antiRate"] = Color.Violet;
             dt.Columns.Add("goodSamples"); valueDict["goodSamples"] = new WantedRange(0, 0, 10); colorDict["goodSamples"] = Color.Black;
-            dt.Columns.Add("rank"); valueDict["rank"] = new WantedRange(0, 0, 100); colorDict["rank"] = Color.DeepSkyBlue;
+            dt.Columns.Add("rank"); valueDict["rank"] = new WantedRange(50, 0, 100); colorDict["rank"] = Color.DeepSkyBlue;
             for (int i = 0; i < dataList.Count; ++i)
             {
                 var item = dataList[i];

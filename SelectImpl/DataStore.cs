@@ -617,6 +617,15 @@ namespace SelectImpl
             }
             return true;
         }
+        public bool IsDownStopEveryDay(int count, int dayCount = 0)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (Ref(Info.ZF, i + dayCount) > -0.095)
+                    return false;
+            }
+            return true;
+        }
         public float AbsCO(int dayCount=0)
         {
             return Math.Abs(Ref(Info.C, dayCount) - Ref(Info.O, dayCount));
@@ -886,7 +895,7 @@ namespace SelectImpl
             int i = 0;
             do 
             {
-                if (Ref(Info.ZF, dayCount+i) >= 0)
+                if (Ref(Info.ZF, dayCount+i) > 0)
                 {
                     break;
                 }
@@ -901,7 +910,7 @@ namespace SelectImpl
             int i = 0;
             do
             {
-                if (Ref(Info.ZF, dayCount + i) <= 0)
+                if (Ref(Info.ZF, dayCount + i) < 0)
                 {
                     break;
                 }
