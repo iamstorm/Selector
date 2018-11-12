@@ -144,43 +144,46 @@ namespace SelectImpl
         void readDayData(Stock sk, List<AdjFactor> factors)
         {
             string fileName = Dist.dayPath_+ sk.code_+".day";
-            try
+            if (File.Exists(fileName))
             {
-                int iCurFactorIndex = 0;
-                using (FileStream fs = new FileStream(fileName, FileMode.Open))
-                using (BinaryReader reader = new BinaryReader(fs))
+                try
                 {
-                    while(true)
+                    int iCurFactorIndex = 0;
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open))
+                    using (BinaryReader reader = new BinaryReader(fs))
                     {
-                        Data d = new Data();
-                        d.date_ = reader.ReadInt32();
-                        
-                        float factor = 1;
-                        if (factors != null)
-	                    {
-                            do
+                        while (true)
+                        {
+                            Data d = new Data();
+                            d.date_ = reader.ReadInt32();
+
+                            float factor = 1;
+                            if (factors != null)
                             {
-                                if (d.date_ >= factors[iCurFactorIndex+1].date_)
-                                    ++iCurFactorIndex;
-                                else
-                                    break;
-                            } while (true);
+                                do
+                                {
+                                    if (d.date_ >= factors[iCurFactorIndex + 1].date_)
+                                        ++iCurFactorIndex;
+                                    else
+                                        break;
+                                } while (true);
 
-                            factor = factors[iCurFactorIndex].factor_;
-	                    }
+                                factor = factors[iCurFactorIndex].factor_;
+                            }
 
-                        d.open_ = (int)(reader.ReadInt32() * factor);
-                        d.high_ = (int)(reader.ReadInt32() * factor);
-                        d.low_ = (int)(reader.ReadInt32() * factor);
-                        d.close_ = (int)(reader.ReadInt32() * factor);
-                        d.vol_ = reader.ReadInt32();
-                        d.amount_ = reader.ReadInt32();
-                        sk.dataList_.Add(d);
+                            d.open_ = (int)(reader.ReadInt32() * factor);
+                            d.high_ = (int)(reader.ReadInt32() * factor);
+                            d.low_ = (int)(reader.ReadInt32() * factor);
+                            d.close_ = (int)(reader.ReadInt32() * factor);
+                            d.vol_ = reader.ReadInt32();
+                            d.amount_ = reader.ReadInt32();
+                            sk.dataList_.Add(d);
+                        }
                     }
                 }
-            }
-            catch (System.IO.EndOfStreamException )
-            {
+                catch (System.IO.EndOfStreamException)
+                {
+                }
             }
             if (Utils.NowIsTradeDay())
             {

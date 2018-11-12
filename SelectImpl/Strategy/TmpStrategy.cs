@@ -50,6 +50,19 @@ namespace SelectImpl
 
             return true;
         }
+        bool IsNearRange(DataStoreHelper dsh, int iLhsIndex, int iRhsIndex)
+        {
+            if (Math.Abs((dsh.Ref(Info.H, iLhsIndex) - dsh.Ref(Info.H, iRhsIndex)) / dsh.Ref(Info.C, iLhsIndex)) > 0.01)
+            {
+                return false;
+            }
+
+            if (Math.Abs((dsh.Ref(Info.L, iLhsIndex) - dsh.Ref(Info.L, iRhsIndex)) / dsh.Ref(Info.C, iLhsIndex)) > 0.01)
+            {
+                return false;
+            }
+            return true;
+        }
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
@@ -59,28 +72,34 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.OF) > 0.095)
+            if (zf > 0)
             {
                 return null;
             }
-            if (dsh.Ref(Info.ZF, 1) < 0.095)
+            if (dsh.Ref(Info.HL) / dsh.Ref(Info.C, 1) < 0.04)
             {
                 return null;
             }
-            int iSigIndex = -1;
-            for (int i = 1; i < 22; ++i )
+            if (dsh.Ref(Info.HL, 1) / dsh.Ref(Info.C, 2) < 0.04)
             {
-                if (dsh.IsDownStopEveryDay(3, i))
-                {
-                    iSigIndex = i;
-                    break;
-                }
-                if (i != 1 && dsh.Ref(Info.ZF, i) > 0.095)
-                {
-                    return null;
-                }
+                return null;
             }
-            if (iSigIndex == -1)
+            if (dsh.Ref(Info.HL, 2) / dsh.Ref(Info.C, 3) < 0.04)
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.HL, 3) / dsh.Ref(Info.C, 4) < 0.04)
+            {
+                return null;
+            }
+            if (dsh.Ref(Info.ZF, 3) > 0 && dsh.Ref(Info.ZF, 2) < 0 && dsh.Ref(Info.ZF, 1) > 0)
+            {
+            }
+            else
+            {
+                return null;
+            }
+            if (!IsNearRange(dsh, 3, 2) || !IsNearRange(dsh, 2, 1) || !IsNearRange(dsh, 1, 0))
             {
                 return null;
             }
