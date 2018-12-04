@@ -16,14 +16,6 @@ namespace SelectImpl
         {
             return "UpDownUp";
         }
-        public override float bonusLimit()
-        {
-            return 0.095f;
-        }
-        public override float firstDayBonusLimit()
-        {
-            return 0.095f;
-        }
         #endregion
 
         public virtual Dictionary<String, String> selectFor(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
