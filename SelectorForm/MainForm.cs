@@ -145,6 +145,10 @@ namespace SelectorForm
                 reportSelectMsg(msg, bImportant);
             }, msgIn, bImportantIn);
         }
+        DialogResult IHost.uiMessageBox(String msgIn, MessageBoxButtons buttons)
+        {
+            return MessageBox.Show(MainForm.Me, msgIn, "Selector", buttons);
+        }
         bool autoSelectMode()
         {
             return selectTask_ != null && selectTask_.bHasStart_;
@@ -243,7 +247,7 @@ namespace SelectorForm
             runWatch_.Start();
             if (!App.ds_.start())
             {
-                MessageBox.Show("初始化失败！");
+                MessageBox.Show(MainForm.Me, "初始化失败！");
                 Close();
                 return;
             }
@@ -271,7 +275,7 @@ namespace SelectorForm
             isBusy_ = true;
             if (!App.ds_.end())
             {
-                MessageBox.Show("结束时做整理工作失败！");
+                MessageBox.Show(MainForm.Me, "结束时做整理工作失败！");
             }
             isBusy_ = false;
         }
@@ -285,10 +289,10 @@ namespace SelectorForm
         {
             if (isBusy_)
             {
-                MessageBox.Show("正忙，请稍微。", "Selector");
+                MessageBox.Show(MainForm.Me, "正忙，请稍微。", "Selector");
                 return;
             }
-            if (DialogResult.Yes != MessageBox.Show("Are you want to select now?", "Selector", MessageBoxButtons.YesNo))
+            if (DialogResult.Yes != MessageBox.Show(MainForm.Me, "Are you want to select now?", "Selector", MessageBoxButtons.YesNo))
             {
                 return;
             }
@@ -307,7 +311,7 @@ namespace SelectorForm
             }
             else
             {
-                MessageBox.Show(sMsg);
+                MessageBox.Show(MainForm.Me, sMsg);
             }
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -450,7 +454,7 @@ namespace SelectorForm
         {
             if (isBusy_)
             {
-                MessageBox.Show("正忙，请稍微。", "Selector");
+                MessageBox.Show(MainForm.Me, "正忙，请稍微。", "Selector");
                 return;
             }
             NewRegressForm form = new NewRegressForm();
@@ -472,7 +476,7 @@ namespace SelectorForm
                 {
                     if (!App.ds_.prepareForSelect())
                     {
-                        MessageBox.Show("准备数据工作失败，无法继续执行！");
+                        MessageBox.Show(MainForm.Me, "准备数据工作失败，无法继续执行！");
                         isBusy_ = false;
                         return;
                     }
@@ -484,7 +488,7 @@ namespace SelectorForm
             catch (Exception ex)
             {
                 e.Result = null;
-                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                MessageBox.Show(MainForm.Me, String.Format("执行发生异常：{0}", ex.Message));
                 isBusy_ = false;
                 throw;
             }
@@ -642,7 +646,7 @@ namespace SelectorForm
             catch (Exception ex)
             {
                 e.Result = null;
-                MessageBox.Show(String.Format("执行发生异常：{0}", ex.Message));
+                MessageBox.Show(MainForm.Me, String.Format("执行发生异常：{0}", ex.Message));
                 isBusy_ = false;
                 throw;
             }

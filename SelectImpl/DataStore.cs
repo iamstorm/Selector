@@ -309,7 +309,7 @@ namespace SelectImpl
             {
                 if (Utils.NowIsTradeDay())
                 {
-                    MessageBox.Show("The history is not full!", "Selector");
+                    App.host_.uiMessageBox("The history is not full!", MessageBoxButtons.OK);
                 }
             }
 
@@ -349,7 +349,7 @@ namespace SelectImpl
                     var span = DateTime.Now - lastUpdateTime;
                     if (span.TotalMinutes < 2)
                     {
-                        if (DialogResult.No == MessageBox.Show("Update runtime Now?", "Selector", MessageBoxButtons.YesNo))
+                        if (DialogResult.No == App.host_.uiMessageBox("Update runtime Now?", MessageBoxButtons.YesNo))
                         {
                             return true;
                         }

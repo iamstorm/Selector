@@ -76,33 +76,7 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (dsh.Ref(Info.HL) / dsh.Ref(Info.C, 1) < 0.04)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.HL, 1) / dsh.Ref(Info.C, 2) < 0.04)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.HL, 2) / dsh.Ref(Info.C, 3) < 0.04)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.HL, 3) / dsh.Ref(Info.C, 4) < 0.04)
-            {
-                return null;
-            }
-            if (dsh.Ref(Info.ZF, 3) > 0 && dsh.Ref(Info.ZF, 2) < 0 && dsh.Ref(Info.ZF, 1) > 0)
-            {
-            }
-            else
-            {
-                return null;
-            }
-            if (!IsNearRange(dsh, 3, 2) || !IsNearRange(dsh, 2, 1) || !IsNearRange(dsh, 1, 0))
-            {
-                return null;
-            }
+   
             return EmptyRateItemButSel;
         }
    
