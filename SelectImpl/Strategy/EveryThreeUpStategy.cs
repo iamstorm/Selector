@@ -49,6 +49,7 @@ namespace SelectImpl
             int iFirstMinus5PercentIndex = -1;
             int iTwoMinus5PercentIndex = -1;
             int nPlus5PercentCount = 0;
+            bool bDanger = false;
             for (int i = iIndex + 1; i < SearchDayCount; ++i)
             {
                 var curOf = dsh.Ref(Info.OF, i);
@@ -63,6 +64,10 @@ namespace SelectImpl
                     sigDateVol = vol;
                     sigZF = curZf;
                     break;
+                }
+                if (curHf > 0.095 && curZf < 0)
+                {
+                    bDanger = true;
                 }
             }
             for (int i = iSigDateIndex + EveryUpCount; i < iSigDateIndex + EveryUpCount + SearchDayCount; i++)
@@ -164,6 +169,11 @@ namespace SelectImpl
             if (preZF > 0.02)
             {
                 isTwoDownMode = true;
+                return null;
+            }
+
+            if (bDanger)
+            {
                 return null;
             }
 //             if (dsh.Ref(Info.C, iIndex) > dsh.Ref(Info.O, iIndex))
