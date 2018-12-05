@@ -90,7 +90,23 @@ namespace SelectImpl
                     re.selItems_.Add(selItem);
                 }
             }
-
+            Dictionary<String, int> strategySelCountDict = new Dictionary<String, int>();
+            foreach (var item in re.selItems_)
+            {
+                if (strategySelCountDict.ContainsKey(item.strategyName_))
+                {
+                    ++strategySelCountDict[item.strategyName_];
+                }
+                else
+                {
+                    strategySelCountDict.Add(item.strategyName_, 1);
+                }
+            }
+            foreach (var item in re.selItems_)
+            {
+                item.sameDayStrategySelCount_ = strategySelCountDict[item.strategyName_];
+                item.sameDaySelCount_ = re.selItems_.Count;
+            }
             return re;
         }
         public SelectResult selectNow()
@@ -149,6 +165,7 @@ namespace SelectImpl
                 }
                 return Utils.ToType<int>(lhs.getColumnVal("prirank")).CompareTo(Utils.ToType<int>(rhs.getColumnVal("prirank")));
             });
+   
 
             return re;
         }

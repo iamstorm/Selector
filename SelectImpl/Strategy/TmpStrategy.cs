@@ -16,52 +16,55 @@ namespace SelectImpl
         {
             return "Tmp";
         }
-        public override float bonusLimit()
-        {
-            return 0.052f;
-        }
-        public override float firstDayBonusLimit()
-        {
-            return 0.095f;
-        }
-        public override int buySpan()
-        {
-            return 1;
-        }
         #endregion
-
-        bool isSigDate(DataStoreHelper dsh, int iIndex)
+        Dictionary<String, String> selectFor(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
-            if (dsh.Ref(Info.ZF, iIndex) < 0)
+            var zf = dsh.Ref(Info.ZF);
+
+            if (zf > 0.095 || zf < -0.095)
             {
-                return false;
+                return null;
             }
-            if (dsh.AccZF(8, iIndex) < 0.15)
+            if (dsh.IsLikeSTStop())
             {
-                return false;
+                return null;
             }
-            for (int i = 0; i < 8; ++i )
+            if (zf > 0)
             {
-                if (dsh.Ref(Info.ZF, i+iIndex) > 0.095)
+                return null;
+            }
+            var c = dsh.Ref(Info.C);
+            int iSigIndex = -1;
+            for (int i = 1; i < 15; ++i )
+            {
+                var curZF = dsh.Ref(Info.ZF, i);
+                if (curZF > 0.095)
                 {
-                    return false;
+                    for (int j = 1; j < 8; ++j )
+                    {
+                        if (dsh.Ref(Info.ZF, j+i) > 0.095)
+                        {
+                            return null;
+                        }
+                    }
+
+                    iSigIndex = i;
+                    break;
+                }
+                if (c > dsh.Ref(Info.L, i))
+                {
+                    return null;
                 }
             }
-
-            return true;
-        }
-        bool IsNearRange(DataStoreHelper dsh, int iLhsIndex, int iRhsIndex)
-        {
-            if (Math.Abs((dsh.Ref(Info.H, iLhsIndex) - dsh.Ref(Info.H, iRhsIndex)) / dsh.Ref(Info.C, iLhsIndex)) > 0.01)
+            if (iSigIndex == -1)
             {
-                return false;
+                return null;
             }
-
-            if (Math.Abs((dsh.Ref(Info.L, iLhsIndex) - dsh.Ref(Info.L, iRhsIndex)) / dsh.Ref(Info.C, iLhsIndex)) > 0.01)
+            if (Math.Min(dsh.Ref(Info.L, iSigIndex), dsh.Ref(Info.C, iSigIndex+1)) < c)
             {
-                return false;
+                return null;
             }
-            return true;
+            return EmptyRateItemButSel;
         }
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
@@ -72,13 +75,35 @@ namespace SelectImpl
             {
                 return null;
             }
-            if (zf > 0)
+            if (zf > 0.02 && zf < 0.025)
+            {
+                return EmptyRateItemButSel;
+            }
+            return null;
+            if (dsh.IsLikeSTStop())
             {
                 return null;
             }
-   
-            return EmptyRateItemButSel;
+            if (dsh.IsGreen())
+            {
+                return null;
+            }
+            int iIndex = 1;
+            do 
+            {
+                if (dsh.IsRed(iIndex))
+                {
+                    return null;
+                }
+                var ret = selectFor(dsh.newDsh(iIndex), selectMode, ref sigInfo);
+                if (ret != null)
+                {
+                    return EmptyRateItemButSel;
+                }
+                ++iIndex;
+            } while (iIndex < 40);
+
+            return null;
         }
-   
     }
 }

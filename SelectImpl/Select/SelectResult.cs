@@ -16,18 +16,14 @@ namespace SelectImpl
         public Dictionary<String, String> rateItemDict_;
         public List<SelectItem> allSelectItems_;
         public bool iamBuyItem_;
+        public int sameDayStrategySelCount_;
+        public int sameDaySelCount_;
 
         public SelectItem()
         {
 
         }
-        public SelectItem(SelectItem item)
-        {
-            date_ = item.date_;
-            code_ = item.code_;
-            strategyName_ = item.strategyName_;
-            rateItemDict_ = item.rateItemDict_;
-        }
+        
         public static ColumnInfo[] ShowColumnInfos
         {
             get {
@@ -105,14 +101,14 @@ namespace SelectImpl
             else if (colName == "bonus")
             {
                 BuySellInfo info;
-                String bonus = stra.computeBonus(stock, date_, out info);
+                String bonus = stra.computeBonus(this, stock, date_, out info);
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
             else if (colName == "nsh")
             {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
                 {
                     colValCacheDict_[colName] = "";
@@ -125,7 +121,7 @@ namespace SelectImpl
             else if (colName == "nsl")
             {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
                 {
                     colValCacheDict_[colName] = "";
@@ -138,7 +134,7 @@ namespace SelectImpl
             else if (colName == "nsc")
             {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
                 {
                     colValCacheDict_[colName] = "";
@@ -181,7 +177,7 @@ namespace SelectImpl
             else if (colName == "envbonus")
 	        {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 String ret = info.sellDate_ == -1 ? "" : App.ds_.envBonus(info.sellDate_);
                 colValCacheDict_[colName] = ret;
                 return ret;
@@ -189,7 +185,7 @@ namespace SelectImpl
             else if (colName == "sellspan")
             {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 String ret;
                 if (info.sellDate_ == -1)
                 {
@@ -205,7 +201,7 @@ namespace SelectImpl
             else if (colName == "tradespan")
             {
                 BuySellInfo info;
-                stra.computeBonus(stock, date_, out info);
+                stra.computeBonus(this, stock, date_, out info);
                 String ret;
                 if (info.tradeSpan_ == -1)
                 {

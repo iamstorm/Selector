@@ -38,7 +38,7 @@ namespace SelectImpl
 
 
         Dictionary<String, String> select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo);
-        String computeBonus(Stock stock, int buyDate, out BuySellInfo info);
+        String computeBonus(SelectItem item, Stock stock, int buyDate, out BuySellInfo info);
         float bonusLimit();
     }
 

@@ -20,7 +20,7 @@ namespace SelectImpl
         {
             return 0.095f;
         }
-        public String computeBonus(Stock stock, int buyDate, out BuySellInfo info)
+        public String computeBonus(SelectItem item, Stock stock, int buyDate, out BuySellInfo info)
         {
             IStrategy_LF stra = (IStrategy_LF)this;
             float firstDayBonusL = firstDayBonusLimit();
