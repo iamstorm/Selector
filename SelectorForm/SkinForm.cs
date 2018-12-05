@@ -26,7 +26,7 @@ namespace SelectorForm
             {
                 bWantedSkinEngineIsActive = MainForm.Me.skinEngine_.Active;
             }
-            FileInfo[] infos = new DirectoryInfo("Skins").GetFiles();
+            FileInfo[] infos = new DirectoryInfo(Dist.binPath_ + "Skins").GetFiles();
             skinList_.DataSource = infos;
             skinList_.DisplayMember = "Name";
 
