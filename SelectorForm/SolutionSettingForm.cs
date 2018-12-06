@@ -138,7 +138,7 @@ namespace SelectorForm
                 Dictionary<String, Object> row = new Dictionary<string, Object>();
                 row["solution"] = setting.name_;
                 row["strategy"] = name;
-                DB.Global().Insert("SolutionSetting", row);
+                DB.Global().Insert("solution_setting", row);
             }
             BindingSource bs = (BindingSource)(nameListBox_.DataSource);
             bs.Add(setting);
@@ -151,7 +151,7 @@ namespace SelectorForm
             SolutionSetting setting = (SolutionSetting)nameListBox_.SelectedItem;
             setting.straList_.Clear();
             cmbBox_.Visible = false;
-            DB.Global().Execute(String.Format("Delete From SolutionSetting Where solution = '{0}'", setting.name_));
+            DB.Global().Execute(String.Format("Delete From solution_setting Where solution = '{0}'", setting.name_));
             DataTable dt = (DataTable)straGrid_.DataSource;
             List<String> straNameList = toStraNameList(dt);
             foreach (var name in straNameList)
@@ -160,7 +160,7 @@ namespace SelectorForm
                 Dictionary<String, Object> row = new Dictionary<string, Object>();
                 row["solution"] = setting.name_;
                 row["strategy"] = name;
-                DB.Global().Insert("SolutionSetting", row);
+                DB.Global().Insert("solution_setting", row);
             }
             App.ReadSolutionSetting();
             MessageBox.Show("Save success", "Selector");
@@ -187,7 +187,7 @@ namespace SelectorForm
             {
                 return;
             }
-            DB.Global().Execute(String.Format("Delete From SolutionSetting Where solution = '{0}'", setting.name_));
+            DB.Global().Execute(String.Format("Delete From solution_setting Where solution = '{0}'", setting.name_));
             BindingSource bs = (BindingSource)(nameListBox_.DataSource);
             bs.Remove(setting);
         }

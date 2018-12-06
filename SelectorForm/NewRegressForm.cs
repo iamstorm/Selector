@@ -20,7 +20,7 @@ namespace SelectorForm
 
             AcceptButton = btnOk;
 
-            List<SolutionSetting> allSolutionSetting = new List<SolutionSetting>();
+            List<  SolutionSetting> allSolutionSetting = new List<SolutionSetting>();
             allSolutionSetting.AddRange(App.customSolutionSettingList_);
             allSolutionSetting.AddRange(App.autoSolutionSettingList_);
 

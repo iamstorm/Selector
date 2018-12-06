@@ -121,7 +121,7 @@ namespace SelectImpl
         public static void ReadSolutionSetting()
         {
             customSolutionSettingList_ = new List<SolutionSetting>();
-            DataTable dt = DB.Global().Select("Select * From SolutionSetting Order by solution, strategy");
+            DataTable dt = DB.Global().Select("Select * From solution_setting Order by solution, strategy");
             foreach (DataRow row in dt.Rows)
             {
                 var setting = (from item in customSolutionSettingList_
@@ -146,7 +146,7 @@ namespace SelectImpl
         public static void ReadDateRangeSetting()
         {
             dateRangeSettingList_ = new List<DateRangeSetting>();
-            DataTable dt = DB.Global().Select("Select * From DateRangeSetting Order by name, start");
+            DataTable dt = DB.Global().Select("Select * From daterange_setting Order by name, start");
             foreach (DataRow row in dt.Rows)
             {
                 var setting = (from item in dateRangeSettingList_

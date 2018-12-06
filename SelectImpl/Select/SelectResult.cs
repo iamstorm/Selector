@@ -19,10 +19,6 @@ namespace SelectImpl
         public int sameDayStrategySelCount_;
         public int sameDaySelCount_;
 
-        public SelectItem()
-        {
-
-        }
         
         public static ColumnInfo[] ShowColumnInfos
         {

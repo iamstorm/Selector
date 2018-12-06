@@ -210,7 +210,7 @@ namespace SelectorForm
                 row["name"] = setting.name_;
                 row["start"] = item.startDate_;
                 row["end"] = item.endDate_;
-                DB.Global().Insert("DateRangeSetting", row);
+                DB.Global().Insert("daterange_setting", row);
             }
             BindingSource bs = (BindingSource)(nameListBox_.DataSource);
             bs.Add(setting);
@@ -227,14 +227,14 @@ namespace SelectorForm
             }
             DateRangeSetting setting = (DateRangeSetting)nameListBox_.SelectedItem;
             setting.rangeList_ = dateRangeList;
-            DB.Global().Execute(String.Format("Delete From DateRangeSetting Where name = '{0}'", setting.name_));
+            DB.Global().Execute(String.Format("Delete From daterange_setting Where name = '{0}'", setting.name_));
             foreach (var item in dateRangeList)
             {
                 Dictionary<String, Object> row = new Dictionary<string, Object>();
                 row["name"] = setting.name_;
                 row["start"] = item.startDate_;
                 row["end"] = item.endDate_;
-                DB.Global().Insert("DateRangeSetting", row);
+                DB.Global().Insert("daterange_setting", row);
             }
             Utils.SetSysInfo(DB.Global(), "DateRangeSettingForm.daterange", nameListBox_.SelectedItem.ToString());
 
@@ -280,7 +280,7 @@ namespace SelectorForm
             {
                 return;
             }
-            DB.Global().Execute(String.Format("Delete From DateRangeSetting Where name = '{0}'", setting.name_));
+            DB.Global().Execute(String.Format("Delete From daterange_setting Where name = '{0}'", setting.name_));
             BindingSource bs = (BindingSource)(nameListBox_.DataSource);
             bs.Remove(setting);
         }
