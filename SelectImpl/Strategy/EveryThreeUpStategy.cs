@@ -171,6 +171,10 @@ namespace SelectImpl
                 isTwoDownMode = true;
                 return null;
             }
+            if (dsh.AccZF(3, iIndex+1) > 0.02 && dsh.EveryUp(iIndex+1)>=3)
+            {
+                isTwoDownMode = true;
+            }
 
             if (bDanger)
             {
@@ -194,7 +198,7 @@ namespace SelectImpl
             if (zf < -0.04 && zf > -0.095)
             {
                 ret = selectFor(dsh, selectMode, ref sigInfo, 1, out bIsTwoDownMode);
-                if (ret == null && bIsTwoDownMode)
+                if (bIsTwoDownMode)
                 {
                     var retDict = new Dictionary<String, String>();
                     retDict[String.Format("TwoDownMode/1")] = "";
