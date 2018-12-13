@@ -311,7 +311,7 @@ namespace SelectorForm
             }
             else
             {
-                MessageBox.Show(MainForm.Me, sMsg);
+                MessageBox.Show(MainForm.Me, sMsg, "Selector");
             }
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
