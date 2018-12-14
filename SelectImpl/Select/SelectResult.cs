@@ -33,6 +33,7 @@ namespace SelectImpl
                     new ColumnInfo() { name_ = "bonus", width_ = 60 },
                     new ColumnInfo() { name_ = "nsh", width_ = 60 },
                     new ColumnInfo() { name_ = "nsl", width_ = 60 },
+                    new ColumnInfo() { name_ = "nso", width_ = 60 },
                     new ColumnInfo() { name_ = "nsc", width_ = 60 },
                     new ColumnInfo() { name_ = "hrate", width_ = 60 },
                     new ColumnInfo() { name_ = "envbonus", width_ = 60 },
@@ -105,7 +106,7 @@ namespace SelectImpl
             {
                 BuySellInfo info;
                 stra.computeBonus(this, stock, date_, out info);
-                if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
+                if (info.sellDate_ == -1)
                 {
                     colValCacheDict_[colName] = "";
                     return "";
@@ -118,12 +119,26 @@ namespace SelectImpl
             {
                 BuySellInfo info;
                 stra.computeBonus(this, stock, date_, out info);
-                if (info.sellDate_ == -1 || !info.bSellWhenMeetMyBounusLimit_)
+                if (info.sellDate_ == -1)
                 {
                     colValCacheDict_[colName] = "";
                     return "";
                 }
                 String bonus = Utils.ToBonus(stock.lf(info.sellDate_));
+                colValCacheDict_[colName] = bonus;
+                return bonus;
+            }
+
+            else if (colName == "nso")
+            {
+                BuySellInfo info;
+                stra.computeBonus(this, stock, date_, out info);
+                if (info.sellDate_ == -1)
+                {
+                    colValCacheDict_[colName] = "";
+                    return "";
+                }
+                String bonus = Utils.ToBonus(stock.of(info.sellDate_));
                 colValCacheDict_[colName] = bonus;
                 return bonus;
             }
@@ -261,7 +276,7 @@ namespace SelectImpl
             }
             else
             {
-                throw new ArgumentException("想要显示无效的列值！");
+                throw new ArgumentException("想要显示无效的列值: " + colName);
             }
         }
         public String getColumnVal(String colName)
