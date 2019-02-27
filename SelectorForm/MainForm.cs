@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using SelectImpl;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 
 namespace SelectorForm
 {
@@ -241,13 +242,21 @@ namespace SelectorForm
             startWorker.RunWorkerAsync();
         }
 
+        private void asynRestart()
+        {
+            Thread.Sleep(5000);
+            Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
+            Close();
+        }
+
         private void startWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             isBusy_ = true;
             runWatch_.Start();
             if (!App.ds_.start())
             {
-                MessageBox.Show(MainForm.Me, "初始化失败！");
+                new Thread(asynRestart).Start();
+                MessageBox.Show(MainForm.Me, "初始化失败, 5秒后自动重新启动程序！");
                 Close();
                 return;
             }
