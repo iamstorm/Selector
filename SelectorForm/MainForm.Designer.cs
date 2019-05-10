@@ -43,7 +43,6 @@
             this.regressLisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startWorker = new System.ComponentModel.BackgroundWorker();
             this.selectWorker = new System.ComponentModel.BackgroundWorker();
-            this.endWorker = new System.ComponentModel.BackgroundWorker();
             this.regressWorker = new System.ComponentModel.BackgroundWorker();
             this.msgText = new System.Windows.Forms.Label();
             this.mainLayout = new System.Windows.Forms.TableLayoutPanel();
@@ -60,6 +59,8 @@
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
             this.writeAssetWorker = new System.ComponentModel.BackgroundWorker();
+            this.removeMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.readMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -88,7 +89,9 @@
             this.dateRangeSettingToolStripMenuItem,
             this.addUserToolStripMenuItem,
             this.autoSelectModeToolStripMenuItem,
-            this.writeAssetToolStripMenuItem});
+            this.writeAssetToolStripMenuItem,
+            this.removeMinuteSelectToolStripMenuItem,
+            this.readMinuteSelectToolStripMenuItem});
             this.basicToolStripMenuItem.Name = "basicToolStripMenuItem";
             this.basicToolStripMenuItem.Size = new System.Drawing.Size(50, 21);
             this.basicToolStripMenuItem.Text = "Basic";
@@ -96,35 +99,35 @@
             // solutionSettingToolStripMenuItem
             // 
             this.solutionSettingToolStripMenuItem.Name = "solutionSettingToolStripMenuItem";
-            this.solutionSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.solutionSettingToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.solutionSettingToolStripMenuItem.Text = "SolutionSetting";
             this.solutionSettingToolStripMenuItem.Click += new System.EventHandler(this.solutionSettingToolStripMenuItem_Click);
             // 
             // dateRangeSettingToolStripMenuItem
             // 
             this.dateRangeSettingToolStripMenuItem.Name = "dateRangeSettingToolStripMenuItem";
-            this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.dateRangeSettingToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.dateRangeSettingToolStripMenuItem.Text = "DateRangeSetting";
             this.dateRangeSettingToolStripMenuItem.Click += new System.EventHandler(this.dateRangeSettingToolStripMenuItem_Click);
             // 
             // addUserToolStripMenuItem
             // 
             this.addUserToolStripMenuItem.Name = "addUserToolStripMenuItem";
-            this.addUserToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addUserToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.addUserToolStripMenuItem.Text = "AddUser";
             this.addUserToolStripMenuItem.Click += new System.EventHandler(this.addUserToolStripMenuItem_Click);
             // 
             // autoSelectModeToolStripMenuItem
             // 
             this.autoSelectModeToolStripMenuItem.Name = "autoSelectModeToolStripMenuItem";
-            this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autoSelectModeToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.autoSelectModeToolStripMenuItem.Text = "AutoSelectMode";
             this.autoSelectModeToolStripMenuItem.Click += new System.EventHandler(this.autoSelectModeToolStripMenuItem_Click);
             // 
             // writeAssetToolStripMenuItem
             // 
             this.writeAssetToolStripMenuItem.Name = "writeAssetToolStripMenuItem";
-            this.writeAssetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.writeAssetToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.writeAssetToolStripMenuItem.Text = "WriteAsset";
             this.writeAssetToolStripMenuItem.Click += new System.EventHandler(this.writeAssetToolStripMenuItem_Click);
             // 
@@ -165,10 +168,6 @@
             // 
             this.selectWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.selectWorker_DoWork);
             this.selectWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.selectWorker_RunWorkerCompleted);
-            // 
-            // endWorker
-            // 
-            this.endWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.endWorker_DoWork);
             // 
             // regressWorker
             // 
@@ -309,6 +308,20 @@
             // 
             this.writeAssetWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.writeAssetWorker_DoWork);
             // 
+            // removeMinuteSelectToolStripMenuItem
+            // 
+            this.removeMinuteSelectToolStripMenuItem.Name = "removeMinuteSelectToolStripMenuItem";
+            this.removeMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.removeMinuteSelectToolStripMenuItem.Text = "RemoveMinuteSelect";
+            this.removeMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.removeMinuteSelectToolStripMenuItem_Click);
+            // 
+            // readMinuteSelectToolStripMenuItem
+            // 
+            this.readMinuteSelectToolStripMenuItem.Name = "readMinuteSelectToolStripMenuItem";
+            this.readMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.readMinuteSelectToolStripMenuItem.Text = "ReadMinuteSelect";
+            this.readMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.readMinuteSelectToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -345,7 +358,6 @@
         private System.Windows.Forms.ToolStripMenuItem basicToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker startWorker;
         private System.ComponentModel.BackgroundWorker selectWorker;
-        private System.ComponentModel.BackgroundWorker endWorker;
         private System.Windows.Forms.ToolStripMenuItem regressToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker regressWorker;
         private System.Windows.Forms.ToolStripMenuItem regressLisToolStripMenuItem;
@@ -370,6 +382,8 @@
         private System.Windows.Forms.ToolStripMenuItem autoSelectModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem writeAssetToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker writeAssetWorker;
+        private System.Windows.Forms.ToolStripMenuItem removeMinuteSelectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem readMinuteSelectToolStripMenuItem;
     }
 }
 

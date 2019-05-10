@@ -10,15 +10,16 @@ namespace SelectImpl
     public class SelectItem
     {
         public int date_;
-        public String sigInfo_;
         public String code_;
         public String strategyName_;
+        public int buyNormlizePrice_;
+
+        public String sigInfo_;
         public Dictionary<String, String> rateItemDict_;
         public List<SelectItem> allSelectItems_;
         public bool iamBuyItem_;
         public int sameDayStrategySelCount_;
         public int sameDaySelCount_;
-
         
         public static ColumnInfo[] ShowColumnInfos
         {
@@ -69,6 +70,7 @@ namespace SelectImpl
                 }
             }
             IStrategy stra = App.grp_.strategy(strategyName_);
+
             if (colName == "date")
             {
                 return date_.ToString();

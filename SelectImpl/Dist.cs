@@ -17,6 +17,7 @@ namespace SelectImpl
         public static String assetPath_;
         public static String straPath_;
         public static String manualStraPath_;
+        public static String runtimePath_;
         static Dist()
         {
 
@@ -47,6 +48,7 @@ namespace SelectImpl
             assetPath_ = binPath_ + "asset\\";
             straPath_ = assetPath_ + "strategy\\";
             manualStraPath_ = binPath_ + "manual\\";
+            runtimePath_ = binPath_ + "runtime\\";
         }
         public static String GlobalDBFile()
         {
@@ -69,6 +71,16 @@ namespace SelectImpl
             if (!Directory.Exists(manualStraPath_))
             {
                 Directory.CreateDirectory(manualStraPath_);
+            }
+            if (Directory.Exists(runtimePath_))
+            {
+                var now = DateTime.Now;
+                if (now.Hour < 9 || (now.Hour == 9 && now.Minute < 30)) {
+                    Directory.Delete(runtimePath_);
+                }
+            }
+            if (!Directory.Exists(runtimePath_))  {
+                Directory.CreateDirectory(runtimePath_);
             }
         }
     }

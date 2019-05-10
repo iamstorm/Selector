@@ -23,6 +23,19 @@ namespace SelectImpl
         A,
         CO,
         HL,
+
+        R_O,
+        R_C,
+        R_H,
+        R_L,
+        R_OF,
+        R_ZF,
+        R_HF,
+        R_LF,
+        R_V,
+        R_A,
+        R_CO,
+        R_HL,
     }
     public class Data
     {
@@ -34,6 +47,10 @@ namespace SelectImpl
         public int vol_;
         public int amount_;
 
+        public Data clone()
+        {
+            return (Data)MemberwiseClone();
+        }
         public static Data NowInvalidData = new Data() { date_ = Utils.NowDate() };
     }
     public class Stock
@@ -50,7 +67,7 @@ namespace SelectImpl
         public bool sz50_;//上证50
         public bool zz500_;//中证500
         public List<Data> dataList_ = new List<Data>();
-
+        public List<Data> runtimeDataList_ = new List<Data>();
 
         public String zfSee(int date)
         {
@@ -97,7 +114,63 @@ namespace SelectImpl
         public Dictionary<String, Stock> stockDict_ = new Dictionary<String, Stock>();
         public List<Stock> stockList_ = new List<Stock>();
         public List<Data> szListData_ = new List<Data>();
+        public List<Data> szRuntimeDataList_ = new List<Data>();
         public Dictionary<int, int> tradeDateDict_ = new Dictionary<int,int>();
+        public static Info SamePair(Info info)
+        {
+            switch (info) {
+                case Info.O:
+                    return Info.R_O;
+                case Info.C:
+                    return Info.R_C;
+                case Info.H:
+                    return Info.R_H;
+                case Info.L:
+                    return Info.R_L;
+                case Info.OF:
+                    return Info.R_OF;
+                case Info.ZF:
+                    return Info.R_ZF;
+                case Info.HF:
+                    return Info.R_HF;
+                case Info.LF:
+                    return Info.R_LF;
+                case Info.V:
+                    return Info.R_V;
+                case Info.A:
+                    return Info.R_A;
+                case Info.CO:
+                    return Info.R_CO;
+                case Info.HL:
+                    return Info.R_HL;
+                case Info.R_O:
+                    return Info.O;
+                case Info.R_C:
+                    return Info.C;
+                case Info.R_H:
+                    return Info.H;
+                case Info.R_L:
+                    return Info.L;
+                case Info.R_OF:
+                    return Info.OF;
+                case Info.R_ZF:
+                    return Info.ZF;
+                case Info.R_HF:
+                    return Info.HF;
+                case Info.R_LF:
+                    return Info.LF;
+                case Info.R_V:
+                    return Info.V;
+                case Info.R_A:
+                    return Info.A;
+                case Info.R_CO:
+                    return Info.CO;
+                case Info.R_HL:
+                    return Info.HL;
+                default:
+                    throw new DataException();
+            }
+        }
         void readTradeDate()
         {
             DataTable  tradedays = DB.Global().Select("Select cal_date From trade_date");
@@ -191,6 +264,67 @@ namespace SelectImpl
             }
             sk.dataList_.Reverse();
         }
+        void readRuntimeData(Stock sk)
+        {
+            string fileName = Dist.runtimePath_ + sk.code_ + ".runtime";
+            if (File.Exists(fileName)) {
+                try
+                {
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open))
+                    using (BinaryReader reader = new BinaryReader(fs))
+                    {
+                        while (true)
+                        {
+                            Data d = new Data();
+                            d.date_ = reader.ReadInt32();
+
+                            d.open_ = (int)(reader.ReadInt32());
+                            d.high_ = (int)(reader.ReadInt32());
+                            d.low_ = (int)(reader.ReadInt32());
+                            d.close_ = (int)(reader.ReadInt32());
+                            d.vol_ = reader.ReadInt32();
+                            d.amount_ = reader.ReadInt32();
+                            sk.runtimeDataList_.Add(d);
+                        }
+                    }
+                }
+                catch (System.IO.EndOfStreamException)
+                {
+                }
+            }
+            sk.runtimeDataList_.Reverse();
+        }
+        void writeRuntimeData(Stock sk)
+        {
+            string fileName = Dist.runtimePath_ + sk.code_ + ".runtime";
+            if (File.Exists(fileName)) {
+                File.Delete(fileName);
+            }
+            if (sk.runtimeDataList_.Count == 0) {
+                return;
+            }
+            try
+            {
+                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                using (BinaryWriter writer = new BinaryWriter(fs))
+                {
+                    for (int i = sk.runtimeDataList_.Count - 1; i >= 0; --i)
+                    {
+                        Data d = sk.runtimeDataList_[i];
+                        writer.Write(d.date_);
+                        writer.Write(d.open_);
+                        writer.Write(d.high_);
+                        writer.Write(d.low_);
+                        writer.Write(d.close_);
+                        writer.Write(d.vol_);
+                        writer.Write(d.amount_);
+                    }
+                }
+            }
+            catch (System.IO.EndOfStreamException)
+            {
+            }
+        }
         void readSZZSData()
         {
             DataTable datas;
@@ -216,6 +350,70 @@ namespace SelectImpl
                 d.close_ = Utils.ToType<int>(row["close"]);
                 d.vol_ = Utils.ToType<int>(row["vol"]);
                 szListData_.Add(d);
+            }
+        }
+        void readSZZSRuntimeData()
+        {
+            string fileName = Dist.runtimePath_ + "szzs000001.runtime";
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open))
+                    using (BinaryReader reader = new BinaryReader(fs))
+                    {
+                        while (true)
+                        {
+                            Data d = new Data();
+                            d.date_ = reader.ReadInt32();
+
+                            d.open_ = (int)(reader.ReadInt32());
+                            d.high_ = (int)(reader.ReadInt32());
+                            d.low_ = (int)(reader.ReadInt32());
+                            d.close_ = (int)(reader.ReadInt32());
+                            d.vol_ = reader.ReadInt32();
+                            d.amount_ = reader.ReadInt32();
+                            szRuntimeDataList_.Add(d);
+                        }
+                    }
+                }
+                catch (System.IO.EndOfStreamException)
+                {
+                }
+            }
+            szRuntimeDataList_.Reverse();
+        }
+        void writeSZZSRuntimeData()
+        {
+            string fileName = Dist.runtimePath_ + "szzs000001.runtime";
+            if (File.Exists(fileName))
+            {
+                File.Delete(fileName);
+            }
+
+            if (szRuntimeDataList_.Count == 0) {
+                return;
+            }
+            try
+            {
+                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                using (BinaryWriter writer = new BinaryWriter(fs))
+                {
+                    for (int i = szRuntimeDataList_.Count - 1; i >= 0; --i)
+                    {
+                        Data d = szRuntimeDataList_[i];
+                        writer.Write(d.date_);
+                        writer.Write(d.open_);
+                        writer.Write(d.high_);
+                        writer.Write(d.low_);
+                        writer.Write(d.close_);
+                        writer.Write(d.vol_);
+                        writer.Write(d.amount_);
+                    }
+                }
+            }
+            catch (System.IO.EndOfStreamException)
+            {
             }
         }
         public bool start()
@@ -277,10 +475,12 @@ namespace SelectImpl
                 List<AdjFactor> factors = null;
                 stockFactorDict.TryGetValue(sk.code_, out factors);
                 readDayData(sk, factors);
+                readRuntimeData(sk);
                 ++nFinishCount;
                 App.host_.uiSetProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / nTotalCount);
             }
             readSZZSData();
+            readSZZSRuntimeData();
             int lastTrayDay = Utils.LastTradeDay();
             int iNewestLastTrayDayIndex;
             if (Utils.NowIsTradeDay())
@@ -326,6 +526,17 @@ namespace SelectImpl
         }
         public bool end()
         {
+            int nFinishCount = 0;
+            int nTotalCount = stockList_.Count;
+            App.host_.uiStartProcessBar();
+            foreach (Stock sk in stockList_)
+            {
+                writeRuntimeData(sk);
+                ++nFinishCount;
+                App.host_.uiSetProcessBar(String.Format("已完成写入Rumtime Data：{0}", sk.code_), nFinishCount * 100 / nTotalCount);
+            }
+            writeSZZSRuntimeData();
+            App.host_.uiFinishProcessBar();
             if (!App.RunScript("end"))
             {
                 return false;
@@ -377,6 +588,8 @@ namespace SelectImpl
 
             DataTable dt = DB.Global().Select("Select * From [runtime]");
             int nowDate = Utils.NowDate();
+            int nowMinute = Utils.NowMinute();
+            
             foreach (DataRow row in dt.Rows)
             {
                 string code = row["code"].ToString();
@@ -401,6 +614,9 @@ namespace SelectImpl
                 d.vol_ = Utils.ToType<int>(row["volume"]);
                 d.amount_ = Utils.ToType<int>(row["amount"]);
                 listData(code)[0] = d;
+                var td = d.clone();
+                td.date_ = nowMinute;
+                addSelectRuntimeData(listRuntimeData(code), td);
             }
             dt = DB.Global().Select("Select * From [000001runtime]");
             foreach (DataRow row in dt.Rows)
@@ -413,6 +629,9 @@ namespace SelectImpl
                 d.close_ = Utils.ToType<int>(row["close"]);
                 d.vol_ = Utils.ToType<int>(row["vol"]);
                 szListData_[0] = d;
+                var td = d.clone();
+                td.date_ = nowMinute;
+                addSelectRuntimeData(szRuntimeDataList_, td);
             }
             return true;
         }
@@ -446,6 +665,20 @@ namespace SelectImpl
         public List<Data> listData(String code)
         {
             return stockDict_[code].dataList_;
+        }
+        public List<Data> listRuntimeData(String code)
+        {
+            return stockDict_[code].runtimeDataList_;
+        }
+        public void addSelectRuntimeData(List<Data> rdList, Data d)
+        {
+            if (rdList.Count == 0) {
+                rdList.Add(d);
+            } else if (rdList.First().date_ == d.date_) {
+                rdList[0] = d;
+            } else {
+                rdList.Insert(0, d);
+            }
         }
         public int index(List<Data> dataList, int date, int iDateIndexHint = -1)
         {
@@ -487,28 +720,40 @@ namespace SelectImpl
             switch (info)
             {
                 case Info.ZF:
+                case Info.R_ZF:
                     return F(d.close_, dataList, wantedIndex);
                 case Info.OF:
+                case Info.R_OF:
                     return F(d.open_, dataList, wantedIndex);
                 case Info.HF:
+                case Info.R_HF:
                     return F(d.high_, dataList, wantedIndex);
                 case Info.LF:
+                case Info.R_LF:
                     return F(d.low_, dataList, wantedIndex);
                 case Info.C:
+                case Info.R_C:
                     return d.close_;
                 case Info.O:
+                case Info.R_O:
                     return d.open_;
                 case Info.H:
+                case Info.R_H:
                     return d.high_;
                 case Info.L:
+                case Info.R_L:
                     return d.low_;
                 case Info.V:
+                case Info.R_V:
                     return d.vol_;
                 case Info.A:
+                case Info.R_A:
                     return d.amount_;
                 case Info.CO:
+                case Info.R_CO:
                     return Math.Abs(d.close_ - d.open_);
                 case Info.HL:
+                case Info.R_HL:
                     return d.high_ - d.low_;
                 default:
                     throw new ArgumentException(string.Format("invalid info {0}", info));
@@ -541,47 +786,95 @@ namespace SelectImpl
         public int iIndex_;
         public List<Data> dataList_;
         List<Data> szListData_;
+        public List<Data> runtimeDataList_;
+        List<Data> szRuntimeListData_;
         public int iSZIndex_;
-        public DataStoreHelper()
+        bool bRuntimeMode_;
+        public DataStoreHelper(bool bRuntimeMode = false)
         {
             ds_ = App.ds_;
             szListData_ = App.ds_.szListData_;
+            szRuntimeListData_ = App.ds_.szRuntimeDataList_;
+            bRuntimeMode_ = bRuntimeMode;
         }
-        public DataStoreHelper newDsh(int dayCount)
+        public DataStoreHelper newDsh(int dayCount = 0)
         {
-            var ret = new DataStoreHelper();
-            ret.ds_ = ds_;
-            ret.stock_ = stock_;
+            var ret = (DataStoreHelper)MemberwiseClone();
+            ret.bRuntimeMode_ = false;
             ret.iIndex_ = iIndex_ + dayCount;
-            ret.dataList_ = dataList_;
-            ret.szListData_ = szListData_;
             ret.iSZIndex_ = ds_.index(szListData_, ret.Date());
+            return ret;
+        }
+        public DataStoreHelper newRuntimeDsh(int dayCount = 0)
+        {
+            var ret = (DataStoreHelper)MemberwiseClone();
+            ret.bRuntimeMode_ = true;
+            ret.iIndex_ = iIndex_ + dayCount;
+            ret.iSZIndex_ = ds_.index(szRuntimeListData_, ret.RuntimeDate());
             return ret;
         }
         public void setStock(Stock stock)
         {
             stock_ = stock;
             dataList_ = stock_.dataList_;
+            runtimeDataList_ = stock.runtimeDataList_;
+        }
+        Info toRealInfo(Info info)
+        {
+            if (bRuntimeMode_) {
+                if (info >= Info.R_O) {
+                    return info;
+                }
+            } else {
+                if (info < Info.R_O) {
+                    return info;
+                }
+            }
+            return DataStore.SamePair(info);
         }
         public float Ref(Info info, int dayCount = 0)
         {
-            return ds_.Ref(info, dataList_, iIndex_, dayCount);
+            info = toRealInfo(info);
+            if (info >= Info.R_O) {
+                return ds_.Ref(info, runtimeDataList_, iIndex_, dayCount);
+            } else {
+                return ds_.Ref(info, dataList_, iIndex_, dayCount);
+            }
         }
         public float MA(Info info, int count, int dayCount = 0)
         {
-            return ds_.MA(info, count, dataList_, iIndex_, dayCount);
+            info = toRealInfo(info);
+            if (info >= Info.R_O) {
+                return ds_.MA(info, count, runtimeDataList_, iIndex_, dayCount);
+            } else {
+                return ds_.MA(info, count, dataList_, iIndex_, dayCount);
+            }
         }
         public float SZRef(Info info, int dayCount = 0)
         {
-            return ds_.Ref(info, szListData_, iSZIndex_, dayCount);
+            info = toRealInfo(info);
+            if (info >= Info.R_O) {
+                return ds_.Ref(info, szRuntimeListData_, iSZIndex_, dayCount);
+            } else {
+                return ds_.Ref(info, szListData_, iSZIndex_, dayCount);
+            }
         }
         public float SZMA(Info info, int count, int dayCount = 0)
         {
-            return ds_.MA(info, count, szListData_, iSZIndex_, dayCount);
+            info = toRealInfo(info);
+            if (info >= Info.R_O) {
+                return ds_.MA(info, count, szRuntimeListData_, iSZIndex_, dayCount);
+            } else {
+                return ds_.MA(info, count, szListData_, iSZIndex_, dayCount);
+            }
         }
         public int Date(int dayCount = 0)
         {
             return ds_.Date(dataList_, iIndex_, dayCount);
+        }
+        public int RuntimeDate(int dayCount = 0)
+        {
+            return ds_.Date(runtimeDataList_, iIndex_, dayCount);
         }
         public float UpShadow(int dayCount = 0)
         {
@@ -605,10 +898,10 @@ namespace SelectImpl
         }
         public bool CrossMA(Info info, int count, int beCrossCount, int dayCount = 0)
         {
-            float curMA = ds_.MA(info, count, dataList_, iIndex_, dayCount);
-            float curBeCrossMA = ds_.MA(info, beCrossCount, dataList_, iIndex_, dayCount);
-            float preMA = ds_.MA(info, count, dataList_, iIndex_, dayCount+1);
-            float preBeCrossMA = ds_.MA(info, beCrossCount, dataList_, iIndex_, dayCount+1);
+            float curMA = MA(info, count, dayCount);
+            float curBeCrossMA = MA(info, beCrossCount, dayCount);
+            float preMA = MA(info, count, dayCount+1);
+            float preBeCrossMA = MA(info, beCrossCount, dayCount+1);
             return preBeCrossMA > preMA && curBeCrossMA < curMA;
         }
         public bool IsUpStopEveryDay(int count, int dayCount=0)
@@ -686,50 +979,125 @@ namespace SelectImpl
         }
         public int LL(Info info, int count, int dayCount = 0, int upOrDown = 0)
         {
-            float minVal = float.MaxValue;
             int iLastDay = dayCount + count;
+            if (count  == -1) {
+                iLastDay = int.MaxValue;
+            }
+            float minVal = float.MaxValue;
             int iMinIndex = -1;
-            for (int i = dayCount; i < iLastDay; i++)
-            {
-                var curZF = Ref(Info.ZF, i);
-                if (upOrDown == 1 && curZF <= 0)
-                {
-                    continue;
+            for (int i = dayCount; i < iLastDay; i++) {
+                try {
+                    var curZF = Ref(Info.ZF, i);
+                    if (upOrDown == 1 && curZF <= 0) {
+                        continue;
+                    } else if (upOrDown == -1 && curZF >= 0) {
+                        continue;
+                    }
+                    float val = Ref(info, i);
+                    if (val < minVal) {
+                        minVal = val;
+                        iMinIndex = i;
+                    }
+                } catch (DataException ex) {
+                    if (count == -1) {
+                        break;
+                    } else {
+                        throw;
+                    }
                 }
-                else if (upOrDown == -1 && curZF >= 0)
-                {
-                    continue;
+            }
+            return iMinIndex;
+        }
+
+        public int ReverseLL(Info info, int count, int dayCount = 0, int upOrDown = 0)
+        {
+            int iLastDay = dayCount - count;
+            if (count == -1) {
+                iLastDay = 0;
+            }
+            float minVal = float.MaxValue;
+            int iMinIndex = -1;
+            for (int i = dayCount; i >= iLastDay; i--) {
+                try {
+                    var curZF = Ref(Info.ZF, i);
+                    if (upOrDown == 1 && curZF <= 0) {
+                        continue;
+                    } else if (upOrDown == -1 && curZF >= 0) {
+                        continue;
+                    }
+                    float val = Ref(info, i);
+                    if (val < minVal) {
+                        minVal = val;
+                        iMinIndex = i;
+                    }
+                } catch (DataException ex) {
+                    if (count == -1) {
+                        break;
+                    } else {
+                        throw;
+                    }
                 }
-                float val = Ref(info, i);
-                if (val < minVal)
-	            {
-		            minVal = val;
-                    iMinIndex = i;
-	            }
             }
             return iMinIndex;
         }
         public int HH(Info info, int count, int dayCount = 0, int upOrDown = 0)
         {
-            float maxVal = float.MinValue;
             int iLastDay = dayCount + count;
+            if (count == -1) {
+                iLastDay = int.MaxValue;
+            }
+            float maxVal = float.MinValue;
             int iMaxIndex = -1;
-            for (int i = dayCount; i < iLastDay; i++)
-            {
-                var curZF = Ref(Info.ZF, i);
-                if (upOrDown == 1 && curZF <= 0)
-                {
-                    continue;
+            for (int i = dayCount; i < iLastDay; i++) {
+                try {
+                    var curZF = Ref(Info.ZF, i);
+                    if (upOrDown == 1 && curZF <= 0) {
+                        continue;
+                    } else if (upOrDown == -1 && curZF >= 0) {
+                        continue;
+                    }
+                    float val = Ref(info, i);
+                    if (val > maxVal) {
+                        maxVal = val;
+                        iMaxIndex = i;
+                    }
+                } catch (DataException ex) {
+                    if (count == -1) {
+                        break;
+                    } else {
+                        throw;
+                    }
                 }
-                else if (upOrDown == -1 && curZF >= 0)
-                {
-                    continue;
-                }
-                float val = Ref(info, i);
-                if (val > maxVal)
-                {
-                    maxVal = val;
-                    iMaxIndex = i;
+            }
+            return iMaxIndex;
+        }
+        public int ReverseHH(Info info, int count, int dayCount = 0, int upOrDown = 0)
+        {
+            int iLastDay = dayCount - count;
+            if (count == -1) {
+                iLastDay = 0;
+            }
+            float maxVal = float.MinValue;
+            int iMaxIndex = -1;
+            for (int i = dayCount; i >= iLastDay; i--) {
+                try {
+                    var curZF = Ref(Info.ZF, i);
+                    if (upOrDown == 1 && curZF <= 0) {
+                        continue;
+                    } else if (upOrDown == -1 && curZF >= 0) {
+                        continue;
+                    }
+                    float val = Ref(info, i);
+                    if (val > maxVal) {
+                        maxVal = val;
+                        iMaxIndex = i;
+                    }
+                } catch (DataException ex) {
+                    if (count == -1) {
+                        break;
+                    } else {
+                        throw;
+                    }
                 }
             }
             return iMaxIndex;

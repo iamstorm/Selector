@@ -25,7 +25,6 @@ namespace SelectorForm
         public bool isBusy_;
         public List<TabPage> hideTabPages_ = new List<TabPage>();
         public Stopwatch runWatch_ = new Stopwatch();
-        public bool isClosing_;
         public int sortColumn_;
         DateTime startupTime_;
         public SelectTask selectTask_;
@@ -63,10 +62,6 @@ namespace SelectorForm
         }
         void IHost.uiStartProcessBar()
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action action;
             Invoke(action = () =>
                 {
@@ -76,10 +71,6 @@ namespace SelectorForm
         }
         void IHost.uiSetProcessBar(String msgIn, float percentIn)
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action<String, float> action;
             Invoke(action = (msg, percent) =>
             {
@@ -90,10 +81,6 @@ namespace SelectorForm
         }
         void IHost.uiFinishProcessBar()
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action action;
             Invoke(action = () =>
             {
@@ -106,10 +93,6 @@ namespace SelectorForm
         }
         void IHost.uiSetMsg(string msgIn)
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action<string> action;
             Invoke(action = (msg) =>
             {
@@ -119,10 +102,6 @@ namespace SelectorForm
         }
         void IHost.uiSetTradeDay()
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action action;
             Invoke(action = () =>
                 {
@@ -136,10 +115,6 @@ namespace SelectorForm
         }
         void IHost.uiReportSelectMsg(String msgIn, bool bImportantIn)
         {
-            if (isClosing_)
-            {
-                return;
-            }
             Action<string, bool> action;
             Invoke(action = (msg, bImportant) =>
             {
@@ -276,17 +251,14 @@ namespace SelectorForm
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            isClosing_ = true;
-            endWorker.RunWorkerAsync();
-        }
-        private void endWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            isBusy_ = true;
+            if (isBusy_) {
+                e.Cancel = true;
+                return;
+            }
             if (!App.ds_.end())
             {
                 MessageBox.Show(MainForm.Me, "结束时做整理工作失败！");
             }
-            isBusy_ = false;
         }
         public void doSelectWork()
         {
@@ -315,13 +287,13 @@ namespace SelectorForm
                 if (bSendSms && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
                 {
                     Sms.SendMsgIfTodayNotSend(sMsg);
-                    App.host_.uiSetMsg(sMsg);
                 }
             }
             else
             {
                 MessageBox.Show(MainForm.Me, sMsg, "Selector");
             }
+            App.host_.uiSetMsg(sMsg);
         }
         private void selectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -415,7 +387,7 @@ namespace SelectorForm
                 {
                     var item = reSelect_.selItems_[0];
                     String sSelectMsg = String.Format("验证码: {0}", item.code_);
-                    reportSelectMsg(sSelectMsg, true);
+                    reportSelectMsg(sSelectMsg, /*true*/false);
                 }
                 LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
 
@@ -451,7 +423,7 @@ namespace SelectorForm
 	            }
             }
             showForm("TabSelect");
-            reportSelectMsg("Select completed", false);
+            reportSelectMsg("Select completed at " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss"), false);
             if (autoSelectMode())
             {
                 selectTask_.end();
@@ -660,6 +632,32 @@ namespace SelectorForm
                 throw;
             }
             isBusy_ = false;
+        }
+
+        private void removeMinuteSelectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.No == App.host_.uiMessageBox("Are you sure to remove all miniute select records?", MessageBoxButtons.YesNo)) {
+                return;
+            }
+            DB.Global().Execute("Delete From minute_select");
+        }
+
+        private void readMinuteSelectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<SelectItem> selItems = new List<SelectItem>();
+            var dt = DB.Global().Select("Select * From minute_select");
+            foreach (DataRow row in dt.Rows) {
+                SelectItem item = new SelectItem();
+                item.code_ = row["code"].ToString();
+                item.date_ = Utils.ToType<int>(row["date"].ToString());
+                item.strategyName_ = row["straname"].ToString();
+                item.buyNormlizePrice_ = Utils.ToType<int>(row["buyNormlizePrice"].ToString());
+                item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString() + " at " + row["selecttime"].ToString().Split(' ')[1];
+                item.allSelectItems_ = new List<SelectItem>();
+
+                selItems.Add(item);
+            }
+            LUtils.FillListViewData(selectListView_, selItems);
         }
 
     }

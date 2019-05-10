@@ -16,6 +16,40 @@ namespace SelectorWeb.Utils
         {
             return Date(DateTime.Now);
         }
+        public static int NowMinute()
+        {
+            var dependNow = DateTime.Now;
+            int nowTime = -1;
+            if (dependNow.Hour >= 15)
+            {
+                dependNow = new DateTime(dependNow.Year, dependNow.Month, dependNow.Day, 15, 0, 0);
+                nowTime = 60 * 4;
+            }
+            else if ((dependNow.Hour == 12 || (dependNow.Hour == 11 && dependNow.Minute > 30)))
+            {
+                dependNow = new DateTime(dependNow.Year, dependNow.Month, dependNow.Day, 11, 30, 0);
+                nowTime = 60 * 2;
+            }
+            else if (dependNow.Hour < 9 || (dependNow.Hour == 9 && dependNow.Minute < 30))
+            {
+                dependNow = new DateTime(dependNow.Year, dependNow.Month, dependNow.Day, 9, 30, 0);
+                nowTime = 0;
+            }
+            if (nowTime < 0)
+            {
+                if (dependNow.Hour >= 13)
+                {
+                    var deltaDate = dependNow - new DateTime(dependNow.Year, dependNow.Month, dependNow.Day, 13, 0, 0);
+                    nowTime = (int)deltaDate.TotalMinutes + 60 * 2;
+                }
+                else
+                {
+                    var deltaDate = dependNow - new DateTime(dependNow.Year, dependNow.Month, dependNow.Day, 9, 30, 0);
+                    nowTime = (int)deltaDate.TotalMinutes;
+                }
+            }
+            return nowTime;
+        }
         public static T ToType<T>(object obj)
         {
             return (T)Convert.ChangeType(obj.ToString(), typeof(T));

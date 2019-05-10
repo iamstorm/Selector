@@ -26,6 +26,7 @@ namespace SelectImpl
             strategyList_.Add(new UpDownDownUpStrategy());
             strategyList_.Add(new UpDownUpStrategy());
             strategyList_.Add(new NNDownUpStrategy());
+            strategyList_.Add(new LF_Minute_DownUpDownStrategy());
         }
         public IStrategy strategy(String straName)
         {
@@ -43,6 +44,35 @@ namespace SelectImpl
             if (selectItems.Count == 0)
             {
                 return null;
+            }
+            DateTime curTime = DateTime.Now;
+            foreach (var item in selectItems) {
+                bool bMinuteStrategy = item.strategyName_.StartsWith("LF_Minute_");
+                if (!bMinuteStrategy) {
+                    continue;
+                }
+                var dt = DB.Global().Select(
+                    String.Format("Select buyNormlizePrice From minute_select Where code = '{0}' and date = '{1}'", item.code_, item.date_));
+                if (dt.Rows.Count > 0) {
+                    item.buyNormlizePrice_ = Utils.ToType<int>(dt.Rows[0]["buyNormlizePrice"].ToString());
+                    item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
+                    continue;
+                }
+                var close = item.getColumnVal("close");
+                float fclose;
+                if (!float.TryParse(close, out fclose)) {
+                    continue;
+                }
+                item.buyNormlizePrice_ = (int)(fclose * Setting.NormalizeRate);
+                item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
+                Dictionary<String, Object> selectItem = new Dictionary<string, object>();
+                selectItem["code"] = item.code_;
+                selectItem["date"] = item.date_;
+                selectItem["straname"] = item.strategyName_;
+                selectItem["buyNormlizePrice"] = item.buyNormlizePrice_;
+                selectItem["selecttime"] = Utils.ToTimeDesc(curTime);
+
+                DB.Global().Insert("minute_select", selectItem);
             }
             SelectItem buyItem = desider.makeDeside(selectItems);
             

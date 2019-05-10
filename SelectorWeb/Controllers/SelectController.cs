@@ -7,11 +7,38 @@ using System.Web;
 using System.Web.Mvc;
 using NFine.Code;
 using SelectorWeb.Utils;
+using System.IO;
 
 namespace SelectorWeb.Controllers
 {
     public class SelectController : Controller
     {
+        public ActionResult Test()
+        {
+            Stream stream = Request.InputStream;
+//             using (FileStream fs = new FileStream(@"C:\me\SelectorForm\SelectorWeb\File\1.txt", FileMode.OpenOrCreate))
+//             {
+//                 int numBytesRead = 0;
+//                 byte[] bytes = new byte[stream.Length];
+//                 int n = stream.Read(bytes, numBytesRead, (int)stream.Length);
+//                 fs.Write(bytes, 0, n);
+//             }
+
+
+            StreamReader reader = new StreamReader(stream);
+            string sSQL = reader.ReadToEnd();
+            string[] itemArr = sSQL.Split('_');
+            int iFirst;
+            int.TryParse(itemArr[0], out iFirst);
+            if (iFirst != itemArr[1].Length)
+            {
+                return new HttpStatusCodeResult(404, itemArr[0]);
+            }
+            else
+            {
+                return new HttpStatusCodeResult(200, "ok");
+            }
+        }
         struct SelectItem
         {
             public String Code;

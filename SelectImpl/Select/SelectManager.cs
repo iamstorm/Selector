@@ -13,30 +13,32 @@ namespace SelectImpl
     {
         public SelectResult select(DataStoreHelper dsh, SelectMode selectMode, int date, List<IStrategy> strategyList, SelectHint hint = null)
         {
+            bool bShowProgress = date == Utils.NowDate();
+            if (bShowProgress) {
+                App.host_.uiStartProcessBar();
+            }
             SelectResult re = new SelectResult();
             dsh.iSZIndex_ = App.ds_.index(App.ds_.szListData_, date);
-            foreach (Stock sk in App.ds_.stockList_)
-            {
+            for (int isk = 0; isk < App.ds_.stockList_.Count; ++isk ) {
+                Stock sk = App.ds_.stockList_[isk];
+                if (bShowProgress) {
+                    App.host_.uiSetProcessBar(String.Format("正在检测是否选择{0}", sk.code_), isk * 100 / App.ds_.stockList_.Count);
+                }
                 int iDateIndexHint = -1;
-                if (hint != null)
-                {
+                if (hint != null) {
                     iDateIndexHint = hint.nextWantedIndexHintDict_[sk];
                 }
                 dsh.setStock(sk);
-                for (int i = 0; i < strategyList.Count; ++i)
-                {
+                for (int i = 0; i < strategyList.Count; ++i) {
                     IStrategy stra = strategyList[i];
                     Dictionary<String, String> rateItemDict = null;
                     String sigInfo = "";
-                    try
-                    {
+                    try {
                         int iIndex = App.ds_.index(sk, date, iDateIndexHint);
-                        if (iIndex == -1)
-                        {
+                        if (iIndex == -1) {
                             continue;
                         }
-                        if (hint != null)
-                        {
+                        if (hint != null) {
                             hint.nextWantedIndexHintDict_[sk] = iIndex + 1;
                         }
                         dsh.iIndex_ = iIndex;
@@ -47,38 +49,31 @@ namespace SelectImpl
                         FocusOn fon = stra.focusOn();
                         int beforDateCount = sk.dataList_.Count - iIndex;
                         bool isNewStock = beforDateCount < Setting.MyNewStockLimit;
-                        switch (fon)
-                        {
+                        switch (fon) {
                             case FocusOn.FO_Old:
-                                if (isNewStock)
-                                {
+                                if (isNewStock) {
                                     continue;
                                 }
                                 break;
                             case FocusOn.FO_All:
                                 break;
                             case FocusOn.FO_New:
-                                if (!isNewStock)
-                                {
+                                if (!isNewStock) {
                                     continue;
                                 }
                                 break;
                             default:
                                 throw new ArgumentException("Unknown focusOn");
                         }
-                        if (dsh.MA(Info.A,5, 1) < 20000)
-                        {
+                        if (dsh.MA(Info.A, 5, 1) < 20000) {
                             continue;
                         }
 
                         rateItemDict = stra.select(dsh, selectMode, ref sigInfo);
-                        if (rateItemDict == null)
-                        {
+                        if (rateItemDict == null) {
                             continue;
                         }
-                    }
-                    catch (DataException /*ex*/)
-                    {
+                    } catch (DataException /*ex*/) {
                         continue;
                     }
                     SelectItem selItem = new SelectItem();
@@ -106,6 +101,9 @@ namespace SelectImpl
             {
                 item.sameDayStrategySelCount_ = strategySelCountDict[item.strategyName_];
                 item.sameDaySelCount_ = re.selItems_.Count;
+            }
+            if (bShowProgress) {
+                App.host_.uiFinishProcessBar();
             }
             return re;
         }

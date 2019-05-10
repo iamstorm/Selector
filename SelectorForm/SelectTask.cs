@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SelectImpl;
+using System.Threading;
 
 namespace SelectorForm
 {
@@ -84,7 +85,7 @@ namespace SelectorForm
             Utils.SetSysInfo(DB.Global(), "Select.starttime", sStartTime);
             DB.Global().Execute(String.Format("Update select_task Set msg = '{0}', startTime = '{1}' Where id = '{2}'", sMsg, sStartTime, sSelectingID_));
             bHasStart_ = true;
-            MainForm.Me.doSelectWork(); 
+            new Thread(MainForm.Me.doSelectWork).Start();
         }
         public void reportError(String sError)
         {
