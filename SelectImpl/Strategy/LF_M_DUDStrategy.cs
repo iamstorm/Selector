@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SelectImpl
 {
-    public class LF_Minute_DownUpDownStrategy : LFMinuteBuyStrategy, IStrategy_LF_Minute
+    public class LF_M_DUDStrategy : LFMBuyStrategy, IStrategy_LF_M
     {
         #region meta data
         String IStrategy.verTag()
@@ -14,7 +14,7 @@ namespace SelectImpl
         }
         String IStrategy.name()
         {
-            return "LF_Minute_DownUpDown";
+            return "LF_M_DUD";
         }
         #endregion
 
@@ -22,7 +22,7 @@ namespace SelectImpl
 
         Dictionary<String, String> IStrategy.select(DataStoreHelper dsh, SelectMode selectMode, ref String sigInfo)
         {
-            IStrategy_LF_Minute stra = (IStrategy_LF_Minute)this;
+            IStrategy_LF_M stra = (IStrategy_LF_M)this;
             int nowMiniute = Utils.NowMinute();
             if (nowMiniute < 60) {
                 return null;
@@ -36,6 +36,12 @@ namespace SelectImpl
             if (dsh.Ref(Info.ZF, dsh.LL(Info.ZF, 10)) < -0.095) {
                 return null;
             }
+            if (dsh.Ref(Info.HF) > 0.095) {
+                return null;
+            }
+            if (dsh.Ref(Info.LF) < -0.095) {
+                return null;
+            }
             
             var lastDayC = dsh.Ref(Info.C, 1);
             var rsh = dsh.newRuntimeDsh();
@@ -46,13 +52,22 @@ namespace SelectImpl
             int iReverseHHIndex = rsh.ReverseHH(Info.C, -1, iLLIndex);
 
             var c = rsh.Ref(Info.C);
+            var o = rsh.Ref(Info.O);
             var llc = rsh.Ref(Info.C, iLLIndex);
+            var gllc = rsh.Ref(Info.C, globalLLIndex);
 
-            if (c >= llc) {
+            if (c >= lastDayC) {
+                return null;
+            }
+
+            if (c > gllc) {
                 return null;
             }
             
             var reverseHHc = rsh.Ref(Info.C, iReverseHHIndex);
+            if (reverseHHc < o) {
+                return null;
+            }
             var deltaUp = Utils.DeltaF(reverseHHc - llc, lastDayC);
             if (deltaUp < 0.02) {
                 return null;

@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using System.Configuration;
+using System.Windows.Forms;
 
 namespace SelectImpl
 {
@@ -76,7 +77,15 @@ namespace SelectImpl
             {
                 var now = DateTime.Now;
                 if (now.Hour < 9 || (now.Hour == 9 && now.Minute < 30)) {
-                    Directory.Delete(runtimePath_);
+                    try
+                    {
+                        Directory.Delete(runtimePath_, true);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        throw;
+                    }
                 }
             }
             if (!Directory.Exists(runtimePath_))  {

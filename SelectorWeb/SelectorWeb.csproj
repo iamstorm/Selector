@@ -172,6 +172,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SelectImpl\Setting.cs">
+      <Link>Utils\Setting.cs</Link>
+    </Compile>
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -180,6 +183,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\SelectController.cs" />
+    <Compile Include="Controllers\TodayLFController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -300,6 +304,7 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\Login\Index.cshtml" />
     <Content Include="Views\Home\US30.cshtml" />
+    <Content Include="Views\Home\TodayLF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -15,13 +15,6 @@ namespace SelectImpl
             AllreadyBanedCodeDict["601268"] = "";
             AllreadyBanedCodeDict["600087"] = "";
         }
-        public static bool DataMode
-        {
-            get
-            {
-                return Utils.GetSysInfo(DB.Global(), "DataMode", "0") == "1";
-            }
-        }
         public static bool IsAcceptableRuntimeCode(String code)
         {
             if (code.StartsWith("900"))

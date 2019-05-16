@@ -73,7 +73,7 @@ namespace SelectorForm
             {
                 return false;
             }
-            DateTime canStartTime = s_LastFinishTime_.AddMinutes(1);
+            DateTime canStartTime = s_LastFinishTime_.AddSeconds(30);
             DateTime now = DateTime.Now;
             return now > canStartTime || (now.Hour == 14 && now.Minute == 56 && (now.Second == 10 || now.Second == 11 || now.Second == 20 || now.Second == 21 || now.Second == 30 || now.Second == 31));
         }

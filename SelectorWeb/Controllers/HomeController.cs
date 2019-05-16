@@ -17,5 +17,9 @@ namespace SelectorWeb.Controllers
         {
             return View();
         }
+        public ActionResult TodayLF()
+        {
+            return View();
+        }
     }
 }

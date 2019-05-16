@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace SelectImpl
             strategyList_.Add(new UpDownDownUpStrategy());
             strategyList_.Add(new UpDownUpStrategy());
             strategyList_.Add(new NNDownUpStrategy());
-            strategyList_.Add(new LF_Minute_DownUpDownStrategy());
+            strategyList_.Add(new LF_M_DUDStrategy());
         }
         public IStrategy strategy(String straName)
         {
@@ -46,33 +47,47 @@ namespace SelectImpl
                 return null;
             }
             DateTime curTime = DateTime.Now;
-            foreach (var item in selectItems) {
-                bool bMinuteStrategy = item.strategyName_.StartsWith("LF_Minute_");
-                if (!bMinuteStrategy) {
-                    continue;
-                }
+            if (Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute)) {
                 var dt = DB.Global().Select(
-                    String.Format("Select buyNormlizePrice From minute_select Where code = '{0}' and date = '{1}'", item.code_, item.date_));
-                if (dt.Rows.Count > 0) {
-                    item.buyNormlizePrice_ = Utils.ToType<int>(dt.Rows[0]["buyNormlizePrice"].ToString());
-                    item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
-                    continue;
-                }
-                var close = item.getColumnVal("close");
-                float fclose;
-                if (!float.TryParse(close, out fclose)) {
-                    continue;
-                }
-                item.buyNormlizePrice_ = (int)(fclose * Setting.NormalizeRate);
-                item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
-                Dictionary<String, Object> selectItem = new Dictionary<string, object>();
-                selectItem["code"] = item.code_;
-                selectItem["date"] = item.date_;
-                selectItem["straname"] = item.strategyName_;
-                selectItem["buyNormlizePrice"] = item.buyNormlizePrice_;
-                selectItem["selecttime"] = Utils.ToTimeDesc(curTime);
+                    String.Format("Select code, buyNormlizePrice From minute_select Where date = '{0}'", Utils.Date(curTime)));
 
-                DB.Global().Insert("minute_select", selectItem);
+                Dictionary<String, int> codeBuyNormlizePriceDict = new Dictionary<String, int>();
+                foreach (DataRow row in dt.Rows) {
+                    codeBuyNormlizePriceDict.Add(row["code"].ToString(), Utils.ToType<int>(row["buyNormlizePrice"].ToString()));
+                }
+
+                foreach (var item in selectItems) {
+                    bool bMinuteStrategy = item.strategyName_.StartsWith("LF_");
+                    if (!bMinuteStrategy) {
+                        continue;
+                    }
+                    if (codeBuyNormlizePriceDict.TryGetValue(item.code_, out item.buyNormlizePrice_)) {
+                        item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
+                        continue;
+                    }
+                    var close = item.getColumnVal("close");
+                    float fclose;
+                    if (!float.TryParse(close, out fclose)) {
+                        continue;
+                    }
+                    item.buyNormlizePrice_ = (int)(fclose * Setting.NormalizeRate);
+                    item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString();
+                    Dictionary<String, Object> selectItem = new Dictionary<String, Object>();
+                    selectItem["code"] = item.code_;
+                    selectItem["date"] = item.date_;
+                    selectItem["name"] = item.getColumnVal("name");
+                    selectItem["zf"] = item.getColumnVal("zf");
+                    selectItem["bonus"] = item.getColumnVal("bonus");
+                    selectItem["straname"] = item.strategyName_;
+                    selectItem["buyNormlizePrice"] = item.buyNormlizePrice_;
+                    selectItem["selecttime"] = Utils.ToTimeDesc(curTime);
+
+                    DB.Global().Insert("minute_select", selectItem);
+                }
+                foreach (var code in codeBuyNormlizePriceDict.Keys) {
+                    var close = Utils.ToPrice((int)App.ds_.Ref(Info.C, App.ds_.sk(code).dataList_, 0)).ToString("F3");
+                    DB.Global().Execute(String.Format("Update minute_select Set close = '{0}' Where code = '{1}'", close, code));
+                }
             }
             SelectItem buyItem = desider.makeDeside(selectItems);
             

@@ -28,6 +28,8 @@ namespace SelectorForm
         public int sortColumn_;
         DateTime startupTime_;
         public SelectTask selectTask_;
+        bool bIsSucStart_;
+        bool bIsSetToAutoSelectMode_;
         public MainForm()
         {
             Me = this;
@@ -43,7 +45,7 @@ namespace SelectorForm
             }
 
             msgText.Text = "";
-            toolStripStatusLabel1_.Text = Setting.DataMode ? "Partial" : "Full";
+            toolStripStatusLabel1_.Text = DataStore.DataMode ? "Partial" : "Full";
             toolStripStatusLabel2_.Text = "";
 
             App.host_ = this;
@@ -107,9 +109,9 @@ namespace SelectorForm
                 {
                     if (Utils.NowIsTradeDay())
 	                {
-                        toolStripStatusLabel2_.Text = "tradeday " + DateTime.Now.ToLongDateString();
+                        toolStripStatusLabel2_.Text = "tradeday " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss");
 	                } else {
-                        toolStripStatusLabel2_.Text = "holiday " + DateTime.Now.ToLongDateString();
+                        toolStripStatusLabel2_.Text = "holiday " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss");
                     }
                 });
         }
@@ -127,6 +129,9 @@ namespace SelectorForm
         }
         bool autoSelectMode()
         {
+            if (bIsSetToAutoSelectMode_) {
+                return true;
+            }
             return selectTask_ != null && selectTask_.bHasStart_;
         }
         bool IHost.uiAutoSelectMode()
@@ -235,13 +240,22 @@ namespace SelectorForm
                 Close();
                 return;
             }
+            bIsSetToAutoSelectMode_ = true;
+            if (!App.ds_.prepareForSelect()) {
+                new Thread(asynRestart).Start();
+                MessageBox.Show(MainForm.Me, "初始化失败, 5秒后自动重新启动程序！");
+                Close();
+                return;
+            }
+            bIsSetToAutoSelectMode_ = false;
             ((IHost)this).uiSetMsg("UseTime: " + Utils.ReportWatch(runWatch_));
+            bIsSucStart_ = true;
             isBusy_ = false;
         }
 
         private void startWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (Setting.DataMode)
+            if (DataStore.DataMode)
 	        {
                 toolStripStatusLabel1_.Text = String.Format("Partial: {0} Stocks", App.ds_.stockList_.Count);
 	        } else 
@@ -251,6 +265,9 @@ namespace SelectorForm
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (!bIsSucStart_) {
+                return;
+            }
             if (isBusy_) {
                 e.Cancel = true;
                 return;
@@ -268,6 +285,16 @@ namespace SelectorForm
         }
         private void selectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+//             List<String> skList = new List<String>();
+//             int tryCount = 500;
+//             foreach (var sk in App.ds_.stockList_) {
+//                 skList.Add(sk.sinaStyleCode);
+//                 if (skList.Count > tryCount) {
+//                     break;
+//                 }
+//             }
+// 
+//             String sUrl = String.Format("http://hq.sinajs.cn/list={0}", string.Join(",", skList));
             if (isBusy_)
             {
                 MessageBox.Show(MainForm.Me, "正忙，请稍微。", "Selector");
@@ -353,7 +380,7 @@ namespace SelectorForm
                     }
                 }
                 String envBonus = App.ds_.envBonus(Utils.NowDate());
-                if (Setting.DataMode)
+                if (DataStore.DataMode)
                 {
                     toolStripStatusLabel1_.Text = String.Format("Partial: {0} Stocks, {1}, {2} Up, {3} Down, {4} Zero {5} ",
                         App.ds_.stockList_.Count, envBonus, nUpCount, nDownCount, nZeroCount, DateTime.Now.ToShortTimeString());
@@ -389,7 +416,10 @@ namespace SelectorForm
                     String sSelectMsg = String.Format("验证码: {0}", item.code_);
                     reportSelectMsg(sSelectMsg, /*true*/false);
                 }
-                LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
+                Action action;
+                Invoke(action = () => {
+                    LUtils.FillListViewData(selectListView_, reSelect_.selItems_);
+                });
 
                 DateTime curTime = DateTime.Now;
                 foreach (var item in reSelect_.selItems_)
@@ -541,7 +571,7 @@ namespace SelectorForm
 
         private void swichmodeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Setting.DataMode)
+            if (DataStore.DataMode)
             {
                 Utils.SetSysInfo(DB.Global(), "DataMode", "0");
             }
@@ -583,6 +613,7 @@ namespace SelectorForm
             {
                 return;
             }
+            App.host_.uiSetTradeDay();
             DateTime curTime = DateTime.Now;
             SelectTask.AutoSelect(autoSelectModeToolStripMenuItem.Checked && 
                         Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
@@ -593,6 +624,7 @@ namespace SelectorForm
                 Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
                 Close();
             }
+
         }
 
         private void addUserToolStripMenuItem_Click(object sender, EventArgs e)
@@ -644,7 +676,10 @@ namespace SelectorForm
 
         private void readMinuteSelectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<SelectItem> selItems = new List<SelectItem>();
+            if (isBusy_) {
+                return;
+            }
+            List<SelectItem> selectItems = new List<SelectItem>();
             var dt = DB.Global().Select("Select * From minute_select");
             foreach (DataRow row in dt.Rows) {
                 SelectItem item = new SelectItem();
@@ -654,10 +689,9 @@ namespace SelectorForm
                 item.buyNormlizePrice_ = Utils.ToType<int>(row["buyNormlizePrice"].ToString());
                 item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString() + " at " + row["selecttime"].ToString().Split(' ')[1];
                 item.allSelectItems_ = new List<SelectItem>();
-
-                selItems.Add(item);
+                selectItems.Add(item);
             }
-            LUtils.FillListViewData(selectListView_, selItems);
+            LUtils.FillListViewData(selectListView_, selectItems);
         }
 
     }

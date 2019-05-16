@@ -106,7 +106,7 @@ namespace SelectorWeb.Controllers
 
                 if (bIsTopTask)
                 {
-                    DateTime willStartTime = lastFinishTime.AddMinutes(1);
+                    DateTime willStartTime = lastFinishTime.AddSeconds(30);
                     if (DateTime.Now > willStartTime)
                     {
                         var span = DateTime.Now - willStartTime;

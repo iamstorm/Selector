@@ -64,6 +64,9 @@ namespace SelectImpl
                     return false;
                 }
             }
+            if (dsh.SZAcc(Info.ZF, 6, 1) < -0.06 && dsh.SZRedCount(6, 1) < 3) {
+                return false;
+            }
             return true;
         }
     }

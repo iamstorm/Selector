@@ -56,6 +56,7 @@ namespace SelectImpl
     public class Stock
     {
         public String code_;
+        public String ts_code_;
         public String name_;
         public String is_hs_;
         public String industry_;
@@ -68,6 +69,20 @@ namespace SelectImpl
         public bool zz500_;//中证500
         public List<Data> dataList_ = new List<Data>();
         public List<Data> runtimeDataList_ = new List<Data>();
+
+        public String sinaStyleCode
+        {
+            get
+            {
+                if (ts_code_.EndsWith(".SH")) {
+                    return "sh" + code_;
+                } else if (ts_code_.EndsWith(".SZ")){
+                    return "sz" + code_;
+                } else {
+                    throw  new DataException();
+                }
+            }
+        }
 
         public String zfSee(int date)
         {
@@ -90,6 +105,14 @@ namespace SelectImpl
         {
             return App.ds_.Ref(Info.LF, dataList_, App.ds_.index(this, date, iDateIndexHint));
         }
+        public int prevTradeDate(int date)
+        {
+            int iIndex = App.ds_.index(this, date);
+            if (iIndex == dataList_.Count -1) {
+                return -1;
+            }
+            return dataList_[iIndex + 1].date_;
+        }
         public int nextTradeDate(int date)
         {
             int iIndex = App.ds_.index(this, date);
@@ -98,15 +121,6 @@ namespace SelectImpl
                 return -1;
             }
             return dataList_[iIndex-1].date_;
-        }
-        public int preDate(int date)
-        {
-            int iIndex = App.ds_.index(this, date);
-            if (iIndex == dataList_.Count - 1)
-            {
-                return -1;
-            }
-            return dataList_[iIndex + 1].date_;
         }
     }
     public class DataStore
@@ -171,6 +185,13 @@ namespace SelectImpl
                     throw new DataException();
             }
         }
+        public static bool DataMode
+        {
+            get
+            {
+                return Utils.GetSysInfo(DB.Global(), "DataMode", "0") == "1";
+            }
+        }
         void readTradeDate()
         {
             DataTable  tradedays = DB.Global().Select("Select cal_date From trade_date");
@@ -183,7 +204,7 @@ namespace SelectImpl
         void readStocks()
         {
             DataTable stocks;
-            if (Setting.DataMode)
+            if (DataMode)
             {
                 stocks = DB.Global().Select("Select * From Stock Order by symbol limit 50");
             }
@@ -195,6 +216,7 @@ namespace SelectImpl
             {
                 Stock sk = new Stock();
                 sk.code_ = row["symbol"].ToString();
+                sk.ts_code_ = row["ts_code"].ToString();
                 sk.name_ = row["name"].ToString();
                 sk.is_hs_ = row["is_hs"].ToString();
                 sk.industry_ = row["industry"].ToString();
@@ -526,17 +548,21 @@ namespace SelectImpl
         }
         public bool end()
         {
-            int nFinishCount = 0;
-            int nTotalCount = stockList_.Count;
-            App.host_.uiStartProcessBar();
-            foreach (Stock sk in stockList_)
-            {
-                writeRuntimeData(sk);
-                ++nFinishCount;
-                App.host_.uiSetProcessBar(String.Format("已完成写入Rumtime Data：{0}", sk.code_), nFinishCount * 100 / nTotalCount);
+            var now = DateTime.Now;
+            if (now.Hour < 9 || (now.Hour == 9 && now.Minute < 30)) {
             }
-            writeSZZSRuntimeData();
-            App.host_.uiFinishProcessBar();
+            else {
+                int nFinishCount = 0;
+                int nTotalCount = stockList_.Count;
+                App.host_.uiStartProcessBar();
+                foreach (Stock sk in stockList_) {
+                    writeRuntimeData(sk);
+                    ++nFinishCount;
+                    App.host_.uiSetProcessBar(String.Format("已完成写入Rumtime Data：{0}", sk.code_), nFinishCount * 100 / nTotalCount);
+                }
+                writeSZZSRuntimeData();
+                App.host_.uiFinishProcessBar();
+            }
             if (!App.RunScript("end"))
             {
                 return false;
@@ -595,14 +621,14 @@ namespace SelectImpl
                 string code = row["code"].ToString();
                 if (!stockDict_.ContainsKey(code))
                 {
-                    if (Setting.DataMode)
-                    {
-                        continue;
-                    }
-                    if (Setting.IsAcceptableRuntimeCode(code))
-                    {
-                        App.host_.uiReportSelectMsg(String.Format("{0} is not in history database!", code), false);
-                    }
+//                     if (Setting.DataMode)
+//                     {
+//                         continue;
+//                     }
+//                     if (Setting.IsAcceptableRuntimeCode(code))
+//                     {
+//                         App.host_.uiReportSelectMsg(String.Format("{0} is not in history database!", code), false);
+//                     }
                     continue;
                 }
                 Data d = new Data();
@@ -998,7 +1024,7 @@ namespace SelectImpl
                         minVal = val;
                         iMinIndex = i;
                     }
-                } catch (DataException ex) {
+                } catch (DataException) {
                     if (count == -1) {
                         break;
                     } else {
@@ -1030,7 +1056,7 @@ namespace SelectImpl
                         minVal = val;
                         iMinIndex = i;
                     }
-                } catch (DataException ex) {
+                } catch (DataException) {
                     if (count == -1) {
                         break;
                     } else {
@@ -1061,7 +1087,7 @@ namespace SelectImpl
                         maxVal = val;
                         iMaxIndex = i;
                     }
-                } catch (DataException ex) {
+                } catch (DataException) {
                     if (count == -1) {
                         break;
                     } else {
@@ -1092,7 +1118,7 @@ namespace SelectImpl
                         maxVal = val;
                         iMaxIndex = i;
                     }
-                } catch (DataException ex) {
+                } catch (DataException) {
                     if (count == -1) {
                         break;
                     } else {

@@ -233,6 +233,11 @@ namespace SelectImpl
                 colValCacheDict_[colName] = ret;
                 return ret;
             }
+            else if (colName == "lastClose") {
+                String ret = App.ds_.realVal(Info.C, code_, stock.prevTradeDate(date_)).ToString("F3");
+                colValCacheDict_[colName] = ret;
+                return ret;
+            }
             else if (colName == "pubrank")
             {
                 if (straData == null)

@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "TodayLF";
+    Layout = "";
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TodayLF</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="~/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/bootstrap-table/dist/bootstrap-table.min.css">
+    <script src="~/assets/jquery.min.js"></script>
+    <script src="~/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/assets/bootstrap-table/dist/bootstrap-table.min.js"></script>
+    <script src="~/assets/layer-v3.1.1/layer/layer.js"></script>
+    <style type="text/css">
+        .btn
+        {
+            margin: 20px 0;
+            padding: 32px 32px;
+            font-size: 32px;
+            line-height: 2.66;
+            border-radius: 12px;
+        }
+        .complete
+        {
+            color: blue
+        }
+        .error
+        {
+            color: red
+        }
+        table thead > tr > th > div:first-child
+        {
+            color: white;
+            background-color: #428bca;
+            font-size: 20px;
+        }
+        .right
+        {
+            float: right
+        }
+        .clear
+        {
+            clear: both
+        }
+        .auto
+        {
+            color: red
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="msg">TodayLF:</h1>
+        <h2 id="msgTime"></h2>
+        <p></p>
+        <table id="table_canBuy">
+        </table>
+        <div>
+            <button type="button" class="btn btn-primary" onclick="refresh(true)">Refresh</button>
+        </div>
+        <div  id="autorefresh" class="checkbox"  style="zoom:300%;">
+            <label>
+                <input type="checkbox" name="autorefresh" value="">
+                <span>AutoRefresh</span>
+            </label>
+        </div>
+    </div>
+<script>
+    String.format = function() {
+        var s = arguments[0];
+        for (var i = 0; i < arguments.length - 1; i++) {       
+            var reg = new RegExp("\\{" + i + "\\}", "gm");             
+            s = s.replace(reg, arguments[i + 1]);
+        }
+
+        return s;
+    }
+</script>
+<script>
+    var $msg = $('#msg');
+    var $msgTime = $('#msgTime');
+    var $tableCanBuy = $('#table_canBuy');
+
+    function ColumnInfo(field) {
+        var cellStyleFun = undefined;
+        if (field == 'Bonus') {
+            cellStyleFun = function (value, row, index) {
+                if (parseFloat(value) > 0) {
+                    return { css: { "background-color": "red" } }
+                } else {
+                    return { css: { "background-color": "green" } }
+                }
+            }
+        }
+        return {
+            field: field, title: field,
+            align: 'center',
+            halign: 'center',
+            cellStyle: cellStyleFun
+        }
+    }
+    function InitCanBuyColumn() {
+        var cols = ['ID', 'Code', 'Name', 'ZF', 'Bonus', 'Close', 'Strategy', 'BuyTime'];
+        var colinfos = [];
+        for (var i = 0; i < cols.length; i++) {
+            colinfos.push(ColumnInfo(cols[i]));
+        }
+        return colinfos;
+    }
+
+    $msg.text("");
+    $msgTime.text("");
+    $tableCanBuy.bootstrapTable({
+        columns: InitCanBuyColumn(),
+        data: [],
+        striped: true,
+        cache: false,
+        rowStyle: function rowStyle(row, index) {
+            var zf = parseFloat(row["ZF"]);
+            var color = zf > 0 ? "red" : "green";
+            return {
+                css: { "color": color, "font-size": "20px" }
+            };
+        }
+    });
+
+    function refresh(showLayerMsg) {
+        $msg.text("");
+        $msgTime.text("");
+        $tableCanBuy.bootstrapTable('load', []);
+
+        if (showLayerMsg)
+            layer.msg('Refreshing', { time: 1000 });
+        $.ajax({
+            url: "/TodayLF/GetCanBuy",
+            type: "get",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.isComplete) {
+                    $msg.addClass("complete");
+                } else {
+                    $msg.removeClass("complete");
+                }
+                if (data.isError) {
+                    $msg.addClass("error");
+                } else {
+                    $msg.removeClass("error");
+                }
+                $msg.text(data.msg);
+                $msgTime.text(data.time);
+                $tableCanBuy.bootstrapTable('load', data.canBuyItems);
+            }
+        });
+    }
+    function autoRefresh() {
+        refresh(true);
+    }
+
+    $(function () {
+        refresh(true);
+        var intervalRet = null;
+        $('#autorefresh input').click(function () {
+            if ($('input[name="autorefresh"]').prop("checked")) {
+                $('#autorefresh label span').addClass("auto");
+                intervalRet = setInterval(autoRefresh, 2000);
+            }
+            else {
+                $('#autorefresh label span').removeClass("auto");
+                clearInterval(intervalRet);
+            }
+        });
+    });
+    
+</script>
+</body>
+</html>
+

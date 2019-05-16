@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SelectImpl;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -127,6 +128,14 @@ namespace SelectorWeb.Utils
         public static String ToTimeDesc(DateTime time)
         {
             return time.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+        public static float ToPrice(int normlizedVal)
+        {
+            return normlizedVal * 1.0f / Setting.NormalizeRate;
+        }
+        public static float GetBonusValue(String bonus)
+        {
+            return U.ToType<float>(bonus.TrimEnd('%'));
         }
     }
     public class SH : SQLiteHelper, IDisposable

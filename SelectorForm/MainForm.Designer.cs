@@ -37,6 +37,8 @@
             this.addUserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoSelectModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.writeAssetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.readMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.selectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.regressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,8 +61,6 @@
             this.swichmodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer_ = new System.Windows.Forms.Timer(this.components);
             this.writeAssetWorker = new System.ComponentModel.BackgroundWorker();
-            this.removeMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.readMinuteSelectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menu.SuspendLayout();
             this.mainLayout.SuspendLayout();
             this.mainTab.SuspendLayout();
@@ -130,6 +130,20 @@
             this.writeAssetToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
             this.writeAssetToolStripMenuItem.Text = "WriteAsset";
             this.writeAssetToolStripMenuItem.Click += new System.EventHandler(this.writeAssetToolStripMenuItem_Click);
+            // 
+            // removeMinuteSelectToolStripMenuItem
+            // 
+            this.removeMinuteSelectToolStripMenuItem.Name = "removeMinuteSelectToolStripMenuItem";
+            this.removeMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.removeMinuteSelectToolStripMenuItem.Text = "RemoveMinuteSelect";
+            this.removeMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.removeMinuteSelectToolStripMenuItem_Click);
+            // 
+            // readMinuteSelectToolStripMenuItem
+            // 
+            this.readMinuteSelectToolStripMenuItem.Name = "readMinuteSelectToolStripMenuItem";
+            this.readMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
+            this.readMinuteSelectToolStripMenuItem.Text = "ReadMinuteSelect";
+            this.readMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.readMinuteSelectToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -307,20 +321,6 @@
             // writeAssetWorker
             // 
             this.writeAssetWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.writeAssetWorker_DoWork);
-            // 
-            // removeMinuteSelectToolStripMenuItem
-            // 
-            this.removeMinuteSelectToolStripMenuItem.Name = "removeMinuteSelectToolStripMenuItem";
-            this.removeMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
-            this.removeMinuteSelectToolStripMenuItem.Text = "RemoveMinuteSelect";
-            this.removeMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.removeMinuteSelectToolStripMenuItem_Click);
-            // 
-            // readMinuteSelectToolStripMenuItem
-            // 
-            this.readMinuteSelectToolStripMenuItem.Name = "readMinuteSelectToolStripMenuItem";
-            this.readMinuteSelectToolStripMenuItem.Size = new System.Drawing.Size(197, 22);
-            this.readMinuteSelectToolStripMenuItem.Text = "ReadMinuteSelect";
-            this.readMinuteSelectToolStripMenuItem.Click += new System.EventHandler(this.readMinuteSelectToolStripMenuItem_Click);
             // 
             // MainForm
             // 

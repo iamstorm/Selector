@@ -6,7 +6,7 @@ using System.Data.SQLite;
 
 namespace SelectImpl
 {
-    public abstract class LFMinuteBuyStrategy : BaseStrategyImpl
+    public abstract class LFMBuyStrategy : BaseStrategyImpl
     {
         public virtual int buySpan()
         {
@@ -26,7 +26,7 @@ namespace SelectImpl
             if (item.buyNormlizePrice_ == 0) {
                 return "";
             }
-            IStrategy_LF_Minute stra = (IStrategy_LF_Minute)this;
+            IStrategy_LF_M stra = (IStrategy_LF_M)this;
             DataStoreHelper dsh = new DataStoreHelper();
             dsh.setStock(stock);
             dsh.iIndex_ = App.ds_.index(stock, buyDate);
@@ -43,6 +43,7 @@ namespace SelectImpl
                 info.allBonus_ = Utils.ToBonus(bonus - 0.002f);
                 return info.allBonus_;
             } else {
+                --dsh.iIndex_;
                 int nBuySpan = 0;
                 int nBuySpanLimit = buySpan();
                 float sellC = 0;

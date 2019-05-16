@@ -46,7 +46,7 @@ namespace SelectImpl
     {
         float buyLimit();
     }
-    public interface IStrategy_LF_Minute : IStrategy
+    public interface IStrategy_LF_M : IStrategy
     {
     }
 }
