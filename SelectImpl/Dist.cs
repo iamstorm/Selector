@@ -76,7 +76,7 @@ namespace SelectImpl
             if (Directory.Exists(runtimePath_))
             {
                 var now = DateTime.Now;
-                if (now.Hour < 9 || (now.Hour == 9 && now.Minute < 30)) {
+                if (Utils.NowIsMaintainTime()) {
                     try
                     {
                         Directory.Delete(runtimePath_, true);

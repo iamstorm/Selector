@@ -499,7 +499,7 @@ namespace SelectImpl
                 readDayData(sk, factors);
                 readRuntimeData(sk);
                 ++nFinishCount;
-                App.host_.uiSetProcessBar(String.Format("已完成读入{0}", sk.code_), nFinishCount * 100 / nTotalCount);
+                App.host_.uiSetProcessBar(String.Format("已完成读入{0}({1}/{2})", sk.code_, nFinishCount, nTotalCount), nFinishCount * 100 / nTotalCount);
             }
             readSZZSData();
             readSZZSRuntimeData();
@@ -549,9 +549,7 @@ namespace SelectImpl
         public bool end()
         {
             var now = DateTime.Now;
-            if (now.Hour < 9 || (now.Hour == 9 && now.Minute < 30)) {
-            }
-            else {
+            if (!Utils.NowIsMaintainTime()) {
                 int nFinishCount = 0;
                 int nTotalCount = stockList_.Count;
                 App.host_.uiStartProcessBar();

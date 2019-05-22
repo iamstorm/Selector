@@ -146,7 +146,7 @@ namespace SelectImpl
             {
                 item.allSelectItems_ = re.selItems_;
             }
-            var buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_);
+            var buyItem = App.grp_.makeDeside(re.selItems_, Utils.NowDate(), RankBuyDesider.buyer_, true);
             if (buyItem != null)
             {
                 buyItem.iamBuyItem_ = true;

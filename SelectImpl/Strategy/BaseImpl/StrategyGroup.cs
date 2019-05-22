@@ -40,14 +40,14 @@ namespace SelectImpl
             }
             return null;
         }
-        public SelectItem makeDeside(List<SelectItem> selectItems, int date, IBuyDesider desider)
+        public SelectItem makeDeside(List<SelectItem> selectItems, int date, IBuyDesider desider, bool bIsSelect)
         {
             if (selectItems.Count == 0)
             {
                 return null;
             }
-            DateTime curTime = DateTime.Now;
-            if (Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute)) {
+            if (bIsSelect) {
+                DateTime curTime = DateTime.Now;
                 var dt = DB.Global().Select(
                     String.Format("Select code, buyNormlizePrice From minute_select Where date = '{0}'", Utils.Date(curTime)));
 
@@ -78,15 +78,23 @@ namespace SelectImpl
                     selectItem["name"] = item.getColumnVal("name");
                     selectItem["zf"] = item.getColumnVal("zf");
                     selectItem["bonus"] = item.getColumnVal("bonus");
+                    selectItem["close"] = item.getColumnVal("close");
                     selectItem["straname"] = item.strategyName_;
                     selectItem["buyNormlizePrice"] = item.buyNormlizePrice_;
                     selectItem["selecttime"] = Utils.ToTimeDesc(curTime);
 
                     DB.Global().Insert("minute_select", selectItem);
                 }
-                foreach (var code in codeBuyNormlizePriceDict.Keys) {
-                    var close = Utils.ToPrice((int)App.ds_.Ref(Info.C, App.ds_.sk(code).dataList_, 0)).ToString("F3");
-                    DB.Global().Execute(String.Format("Update minute_select Set close = '{0}' Where code = '{1}'", close, code));
+                foreach (var item in selectItems) {
+                    bool bMinuteStrategy = item.strategyName_.StartsWith("LF_");
+                    if (!bMinuteStrategy) {
+                        continue;
+                    }
+                    if (!codeBuyNormlizePriceDict.ContainsKey(item.code_)) {
+                        continue;
+                    }
+                    var close = item.getColumnVal("close");
+                    DB.Global().Execute(String.Format("Update minute_select Set close = '{0}' Where code = '{1}'", close, item.code_));
                 }
             }
             SelectItem buyItem = desider.makeDeside(selectItems);
@@ -117,7 +125,7 @@ namespace SelectImpl
                 }
                 else
                 {
-                    var buyItem = makeDeside(items, date, RankBuyDesider.buyer_);
+                    var buyItem = makeDeside(items, date, RankBuyDesider.buyer_, false);
                     if (buyItem != null)
                     {
                         buyItem.iamBuyItem_ = true;

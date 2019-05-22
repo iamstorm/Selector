@@ -30,12 +30,11 @@ namespace SelectorForm
         public SelectTask selectTask_;
         bool bIsSucStart_;
         bool bIsSetToAutoSelectMode_;
+        bool bAllowSendSms_ = true;
         public MainForm()
         {
             Me = this;
             InitializeComponent();
-
-
 
             var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
             if (skinName != "")
@@ -306,14 +305,19 @@ namespace SelectorForm
             }
             doSelectWork();
         }
+        Dictionary<String, String> hasSendMsgSet_ = new Dictionary<String, String>();
         public void reportSelectMsg(string sMsg, bool bSendSms)
         {
             if (autoSelectMode())
             {
                 DateTime curTime = DateTime.Now;
-                if (bSendSms && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
+                if (bAllowSendSms_ && bSendSms && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
                 {
-                    Sms.SendMsgIfTodayNotSend(sMsg);
+  //                  Sms.SendMsgIfTodayNotSend(sMsg);
+                    if (!hasSendMsgSet_.ContainsKey(sMsg)) {
+                        App.SendMsgToWeChat(Setting.MyReportUser, sMsg);
+                        hasSendMsgSet_.Add(sMsg, "");
+                    }
                 }
             }
             else
@@ -414,7 +418,7 @@ namespace SelectorForm
                 {
                     var item = reSelect_.selItems_[0];
                     String sSelectMsg = String.Format("验证码: {0}", item.code_);
-                    reportSelectMsg(sSelectMsg, /*true*/false);
+                    reportSelectMsg(sSelectMsg, true);
                 }
                 Action action;
                 Invoke(action = () => {
@@ -689,6 +693,7 @@ namespace SelectorForm
                 item.buyNormlizePrice_ = Utils.ToType<int>(row["buyNormlizePrice"].ToString());
                 item.sigInfo_ = Utils.ToPrice(item.buyNormlizePrice_).ToString() + " at " + row["selecttime"].ToString().Split(' ')[1];
                 item.allSelectItems_ = new List<SelectItem>();
+                item.rateItemDict_ = new Dictionary<string, string>();
                 selectItems.Add(item);
             }
             LUtils.FillListViewData(selectListView_, selectItems);

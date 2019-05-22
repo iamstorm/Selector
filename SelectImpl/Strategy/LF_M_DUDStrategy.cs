@@ -72,6 +72,11 @@ namespace SelectImpl
             if (deltaUp < 0.02) {
                 return null;
             }
+            if ((iLLIndex - rsh.stock_.runtimeDataList_.Count + 1) < 5) {
+                if (c > 0.988*gllc) {
+                    return null;
+                }
+            }
 
             return EmptyRateItemButSel;
         }

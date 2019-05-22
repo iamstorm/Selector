@@ -32,5 +32,6 @@ namespace SelectImpl
         }
         public static float MyBuyRateLimit = 0.7f;
         public static float MyNewStockLimit = 100;
+        public static String MyReportUser = "文件传输助手";
     }
 }

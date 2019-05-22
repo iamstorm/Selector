@@ -170,6 +170,14 @@ namespace SelectImpl
                 return true;
             }
         }
+        public static bool NowIsMaintainTime()
+        {
+            var now = DateTime.Now;
+            if (!IsTradeDay(Date(now))) {
+                return true;
+            }
+            return now.Hour < 9 || (now.Hour == 9 && now.Minute < 30);
+        }
         public static int Year(int date)
         {
             return date / 10000;

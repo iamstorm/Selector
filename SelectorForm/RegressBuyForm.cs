@@ -47,7 +47,7 @@ namespace SelectorForm
                     return;
                 }
                 daySelectItems_ = SelectResult.OfDate(selDate, re_.selItems_);
-                App.grp_.makeDeside(daySelectItems_, selDate, RankBuyDesider.buyer_);
+                App.grp_.makeDeside(daySelectItems_, selDate, RankBuyDesider.buyer_, false);
 
                 LUtils.FillListViewData(subListView_, daySelectItems_);
             }

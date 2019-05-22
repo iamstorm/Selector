@@ -224,11 +224,11 @@ namespace SelectImpl
             p.StartInfo.RedirectStandardError = true;//重定向标准错误输出
             p.StartInfo.CreateNoWindow = true;//不显示程序窗口
             p.Start();//启动程序
+            p.StandardInput.AutoFlush = true;
 
             //向cmd窗口发送输入信息
             p.StandardInput.WriteLine(cmd + "&exit");
 
-            p.StandardInput.AutoFlush = true;
 
             //获取cmd窗口的输出信息
             string output;
@@ -348,6 +348,54 @@ namespace SelectImpl
                 App.host_.uiSetMsg("Script success completed");
                 return true;
             }
+        }
+        static Process s_interopWithWeChatProcess_;
+        public static bool SendMsgToWeChat(string sName, string sMsg)
+        {
+            int nRunCount = 0;
+            do {
+                try {
+                    Process p = s_interopWithWeChatProcess_;
+                    if (p != null && p.HasExited) {
+                        p.Close();
+                        p = s_interopWithWeChatProcess_ = null;
+                    }
+                    if (s_interopWithWeChatProcess_ == null) {
+                        string scriptFilePath = Dist.scriptPath_ + "PromiseData\\SendToWechat.py";
+                        string arguments = String.Format("\"{0}\"", scriptFilePath.Replace("\\", "\\\\"));
+
+                        string cmd = String.Format("python.exe {0}", arguments);
+
+                        p = s_interopWithWeChatProcess_ = new Process();
+                        p.StartInfo.FileName = "cmd.exe";
+                        p.StartInfo.UseShellExecute = false;    //是否使用操作系统shell启动
+                        p.StartInfo.RedirectStandardInput = true;//接受来自调用程序的输入信息
+                        p.StartInfo.RedirectStandardOutput = false;//接受来自调用程序的输出信息
+                        p.StartInfo.RedirectStandardError = false;//重定向标准错误输出
+                        p.StartInfo.CreateNoWindow = false;//显示程序窗口
+                        p.Start();//启动程序
+                        p.StandardInput.AutoFlush = true;
+
+                      p.StandardInput.WriteLine(cmd);
+                    }
+                    //向cmd窗口发送输入信息
+                    p.StandardInput.WriteLine(sName);
+                    p.StandardInput.WriteLine(sMsg);
+//                     String output;
+//                     do {
+//                         output = p.StandardOutput.ReadLine();
+//                     } while (output != "");
+                    break;
+                } catch (System.Exception ex) {
+                    s_interopWithWeChatProcess_ = null;
+                    if (nRunCount > 0) {
+                        s_interopWithWeChatProcess_ = null;
+                        return false;
+                    }
+                    ++nRunCount;
+                }
+            } while (true);
+            return true;
         }
     }
 }
