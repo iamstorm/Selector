@@ -261,6 +261,7 @@ namespace SelectorForm
             {
                 toolStripStatusLabel1_.Text = String.Format("Full: {0} Stocks", App.ds_.stockList_.Count);
             }
+            App.SendMsgToWeChat(Setting.MyReportUser, "Start selector successly at " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss"));
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -305,15 +306,20 @@ namespace SelectorForm
             }
             doSelectWork();
         }
+        public void sendSMS(string sMsg)
+        {
+            if (bAllowSendSms_) {
+                Sms.SendMsgIfTodayNotSend(sMsg);
+            }
+        }
         Dictionary<String, String> hasSendMsgSet_ = new Dictionary<String, String>();
-        public void reportSelectMsg(string sMsg, bool bSendSms)
+        public void reportSelectMsg(string sMsg, bool bSendMsg)
         {
             if (autoSelectMode())
             {
                 DateTime curTime = DateTime.Now;
-                if (bAllowSendSms_ && bSendSms && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
+                if (bSendMsg && Utils.IsInDayTime(curTime.Hour, curTime.Minute))
                 {
-  //                  Sms.SendMsgIfTodayNotSend(sMsg);
                     if (!hasSendMsgSet_.ContainsKey(sMsg)) {
                         App.SendMsgToWeChat(Setting.MyReportUser, sMsg);
                         hasSendMsgSet_.Add(sMsg, "");
@@ -416,9 +422,14 @@ namespace SelectorForm
             {
                 if (autoSelectMode())
                 {
-                    var item = reSelect_.selItems_[0];
-                    String sSelectMsg = String.Format("验证码: {0}", item.code_);
-                    reportSelectMsg(sSelectMsg, true);
+                    var selMsgArr = new List<String>();
+                    foreach (var item in reSelect_.selItems_) {
+                        if (item.strategyName_ == "LF_M_NEW") {
+                            sendSMS(String.Format("验证码: {0}", item.code_));
+                        }
+                        selMsgArr.Add(String.Format("{0}: {1}", item.code_, item.getColumnVal("name")));
+                    }
+                    reportSelectMsg(String.Join("$n", selMsgArr), true);
                 }
                 Action action;
                 Invoke(action = () => {
@@ -460,8 +471,16 @@ namespace SelectorForm
             reportSelectMsg("Select completed at " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss"), false);
             if (autoSelectMode())
             {
-                selectTask_.end();
-                selectTask_ = null;
+                try
+                {
+                    selectTask_.end();
+                    selectTask_ = null;
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
             }
         }
 
@@ -623,7 +642,7 @@ namespace SelectorForm
                         Utils.NowIsTradeDay() && Utils.IsTradeTime(curTime.Hour, curTime.Minute));
             
             if ((curTime.Year != startupTime_.Year || curTime.Month != startupTime_.Month ||
-                                curTime.Day != startupTime_.Day) && curTime.Hour >= 7)
+                                curTime.Day != startupTime_.Day) && curTime.Hour >= 6)
             {
                 Process.Start(Assembly.GetExecutingAssembly().Location, "reset");
                 Close();
@@ -644,6 +663,9 @@ namespace SelectorForm
 
         private void writeAssetToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (isBusy_) {
+                return;
+            }
             WriteAssetForm form = new WriteAssetForm();
             if (form.ShowDialog() != DialogResult.OK)
             {
@@ -672,6 +694,9 @@ namespace SelectorForm
 
         private void removeMinuteSelectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (isBusy_) {
+                return;
+            }
             if (DialogResult.No == App.host_.uiMessageBox("Are you sure to remove all miniute select records?", MessageBoxButtons.YesNo)) {
                 return;
             }

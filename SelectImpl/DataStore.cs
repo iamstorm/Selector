@@ -272,6 +272,9 @@ namespace SelectImpl
                             d.close_ = (int)(reader.ReadInt32() * factor);
                             d.vol_ = reader.ReadInt32();
                             d.amount_ = reader.ReadInt32();
+                            if (sk.dataList_.Count > 0 && sk.dataList_[sk.dataList_.Count - 1].date_ == d.date_) {
+                                continue;
+                            }
                             sk.dataList_.Add(d);
                         }
                     }
@@ -306,6 +309,9 @@ namespace SelectImpl
                             d.close_ = (int)(reader.ReadInt32());
                             d.vol_ = reader.ReadInt32();
                             d.amount_ = reader.ReadInt32();
+                            if (sk.runtimeDataList_.Count > 0 && sk.runtimeDataList_[sk.runtimeDataList_.Count - 1].date_ == d.date_) {
+                                continue;
+                            }
                             sk.runtimeDataList_.Add(d);
                         }
                     }
@@ -316,10 +322,20 @@ namespace SelectImpl
             }
             sk.runtimeDataList_.Reverse();
         }
-        void writeRuntimeData(Stock sk)
+        void writeDataToWriter(BinaryWriter writer, Data d)
+        {
+            writer.Write(d.date_);
+            writer.Write(d.open_);
+            writer.Write(d.high_);
+            writer.Write(d.low_);
+            writer.Write(d.close_);
+            writer.Write(d.vol_);
+            writer.Write(d.amount_);
+        }
+        void writeRuntimeData(Stock sk, Data justThisD = null)
         {
             string fileName = Dist.runtimePath_ + sk.code_ + ".runtime";
-            if (File.Exists(fileName)) {
+            if (justThisD == null && File.Exists(fileName)) {
                 File.Delete(fileName);
             }
             if (sk.runtimeDataList_.Count == 0) {
@@ -327,19 +343,14 @@ namespace SelectImpl
             }
             try
             {
-                using (FileStream fs = new FileStream(fileName, FileMode.Create))
-                using (BinaryWriter writer = new BinaryWriter(fs))
-                {
-                    for (int i = sk.runtimeDataList_.Count - 1; i >= 0; --i)
-                    {
-                        Data d = sk.runtimeDataList_[i];
-                        writer.Write(d.date_);
-                        writer.Write(d.open_);
-                        writer.Write(d.high_);
-                        writer.Write(d.low_);
-                        writer.Write(d.close_);
-                        writer.Write(d.vol_);
-                        writer.Write(d.amount_);
+                using (FileStream fs = new FileStream(fileName, FileMode.Append))
+                using (BinaryWriter writer = new BinaryWriter(fs)) {
+                    if (justThisD == null) {
+                        for (int i = sk.runtimeDataList_.Count - 1; i >= 0; --i) {
+                            writeDataToWriter(writer, sk.runtimeDataList_[i]);
+                        }
+                    } else {
+                        writeDataToWriter(writer, justThisD);
                     }
                 }
             }
@@ -371,6 +382,9 @@ namespace SelectImpl
                 d.low_ = Utils.ToType<int>(row["low"]);
                 d.close_ = Utils.ToType<int>(row["close"]);
                 d.vol_ = Utils.ToType<int>(row["vol"]);
+                if (szListData_.Count > 0 && szListData_[szListData_.Count - 1].date_ == d.date_) {
+                    continue;
+                }
                 szListData_.Add(d);
             }
         }
@@ -395,6 +409,9 @@ namespace SelectImpl
                             d.close_ = (int)(reader.ReadInt32());
                             d.vol_ = reader.ReadInt32();
                             d.amount_ = reader.ReadInt32();
+                            if (szRuntimeDataList_.Count > 0 && szRuntimeDataList_[szRuntimeDataList_.Count - 1].date_ == d.date_) {
+                                continue;
+                            }
                             szRuntimeDataList_.Add(d);
                         }
                     }
@@ -405,10 +422,10 @@ namespace SelectImpl
             }
             szRuntimeDataList_.Reverse();
         }
-        void writeSZZSRuntimeData()
+        void writeSZZSRuntimeData(Data justThisD = null)
         {
             string fileName = Dist.runtimePath_ + "szzs000001.runtime";
-            if (File.Exists(fileName))
+            if (justThisD == null && File.Exists(fileName))
             {
                 File.Delete(fileName);
             }
@@ -418,19 +435,15 @@ namespace SelectImpl
             }
             try
             {
-                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                using (FileStream fs = new FileStream(fileName, FileMode.Append))
                 using (BinaryWriter writer = new BinaryWriter(fs))
                 {
-                    for (int i = szRuntimeDataList_.Count - 1; i >= 0; --i)
-                    {
-                        Data d = szRuntimeDataList_[i];
-                        writer.Write(d.date_);
-                        writer.Write(d.open_);
-                        writer.Write(d.high_);
-                        writer.Write(d.low_);
-                        writer.Write(d.close_);
-                        writer.Write(d.vol_);
-                        writer.Write(d.amount_);
+                    if (justThisD == null) {
+                        for (int i = szRuntimeDataList_.Count - 1; i >= 0; --i) {
+                            writeDataToWriter(writer, szRuntimeDataList_[i]);
+                        }
+                    } else {
+                        writeDataToWriter(writer, justThisD);
                     }
                 }
             }
@@ -449,6 +462,7 @@ namespace SelectImpl
             }
 
             readTradeDate();
+            Dist.PrepareRuntimePath();
             readStocks();
             if (stockDict_.Count == 0)
             {
@@ -617,7 +631,8 @@ namespace SelectImpl
             foreach (DataRow row in dt.Rows)
             {
                 string code = row["code"].ToString();
-                if (!stockDict_.ContainsKey(code))
+                Stock stock;
+                if (!stockDict_.TryGetValue(code, out stock))
                 {
 //                     if (Setting.DataMode)
 //                     {
@@ -640,7 +655,7 @@ namespace SelectImpl
                 listData(code)[0] = d;
                 var td = d.clone();
                 td.date_ = nowMinute;
-                addSelectRuntimeData(listRuntimeData(code), td);
+                addSelectRuntimeData(stock, listRuntimeData(code), td);
             }
             dt = DB.Global().Select("Select * From [000001runtime]");
             foreach (DataRow row in dt.Rows)
@@ -655,7 +670,7 @@ namespace SelectImpl
                 szListData_[0] = d;
                 var td = d.clone();
                 td.date_ = nowMinute;
-                addSelectRuntimeData(szRuntimeDataList_, td);
+                addSelectRuntimeData(null, szRuntimeDataList_, td);
             }
             return true;
         }
@@ -694,13 +709,18 @@ namespace SelectImpl
         {
             return stockDict_[code].runtimeDataList_;
         }
-        public void addSelectRuntimeData(List<Data> rdList, Data d)
+        public void addSelectRuntimeData(Stock sk, List<Data> rdList, Data d)
         {
             if (rdList.Count == 0) {
                 rdList.Add(d);
             } else if (rdList.First().date_ == d.date_) {
                 rdList[0] = d;
             } else {
+                if (sk == null) {
+                    writeSZZSRuntimeData(rdList[0]);
+                } else {
+                    writeRuntimeData(sk, rdList[0]);
+                }
                 rdList.Insert(0, d);
             }
         }

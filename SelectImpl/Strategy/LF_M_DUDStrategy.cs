@@ -36,35 +36,41 @@ namespace SelectImpl
             if (dsh.Ref(Info.ZF, dsh.LL(Info.ZF, 10)) < -0.095) {
                 return null;
             }
-            if (dsh.Ref(Info.HF) > 0.095) {
+            var hf = dsh.Ref(Info.HF);
+            if (hf > 0.05 || hf < 0.01) {
                 return null;
             }
             if (dsh.Ref(Info.LF) < -0.095) {
                 return null;
             }
-            
+            if (dsh.EveryDown() > 2) {
+                return null;
+            }
+
             var lastDayC = dsh.Ref(Info.C, 1);
-            var rsh = dsh.newRuntimeDsh();
-
-            int globalLLIndex = rsh.LL(Info.C, -1);
-            int globalHHIndex = rsh.HH(Info.C, -1);
-            int iLLIndex = rsh.LL(Info.C, -1, startMinuteCount_);
-            int iReverseHHIndex = rsh.ReverseHH(Info.C, -1, iLLIndex);
-
-            var c = rsh.Ref(Info.C);
-            var o = rsh.Ref(Info.O);
-            var llc = rsh.Ref(Info.C, iLLIndex);
-            var gllc = rsh.Ref(Info.C, globalLLIndex);
+            var gllc = dsh.Ref(Info.L);
+            var ghhc = dsh.Ref(Info.H);
+            var c = dsh.Ref(Info.C);
+            var o = dsh.Ref(Info.O);
 
             if (c >= lastDayC) {
                 return null;
             }
 
-            if (c > gllc) {
+            if (ghhc <= lastDayC) {
                 return null;
             }
-            
+            var rsh = dsh.newRuntimeDsh();
+
+            int iLLIndex = rsh.LL(Info.C, -1, startMinuteCount_);
+            int iReverseHHIndex = rsh.ReverseHH(Info.C, -1, iLLIndex);
+
+            var llc = rsh.Ref(Info.C, iLLIndex);
             var reverseHHc = rsh.Ref(Info.C, iReverseHHIndex);
+
+            if (c > llc) {
+                return null;
+            }
             if (reverseHHc < o) {
                 return null;
             }
@@ -73,7 +79,7 @@ namespace SelectImpl
                 return null;
             }
             if ((iLLIndex - rsh.stock_.runtimeDataList_.Count + 1) < 5) {
-                if (c > 0.988*gllc) {
+                if (c > 0.988 * llc) {
                     return null;
                 }
             }

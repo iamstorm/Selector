@@ -28,6 +28,7 @@ namespace SelectImpl
             strategyList_.Add(new UpDownUpStrategy());
             strategyList_.Add(new NNDownUpStrategy());
             strategyList_.Add(new LF_M_DUDStrategy());
+            strategyList_.Add(new LF_M_NEWStrategy());
         }
         public IStrategy strategy(String straName)
         {

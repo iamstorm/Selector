@@ -59,6 +59,23 @@ namespace SelectImpl
         {
             return dataPath_ + "day.data";
         }
+        public static void PrepareRuntimePath()
+        {
+            if (Directory.Exists(runtimePath_)) {
+                var now = DateTime.Now;
+                if (Utils.NowIsMaintainTime()) {
+                    try {
+                        Directory.Delete(runtimePath_, true);
+                    } catch (System.Exception ex) {
+                        MessageBox.Show(ex.Message);
+                        throw;
+                    }
+                }
+            }
+            if (!Directory.Exists(runtimePath_)) {
+                Directory.CreateDirectory(runtimePath_);
+            }
+        }
         public static void Setup()
         {
             if (!Directory.Exists(assetPath_))
@@ -72,24 +89,6 @@ namespace SelectImpl
             if (!Directory.Exists(manualStraPath_))
             {
                 Directory.CreateDirectory(manualStraPath_);
-            }
-            if (Directory.Exists(runtimePath_))
-            {
-                var now = DateTime.Now;
-                if (Utils.NowIsMaintainTime()) {
-                    try
-                    {
-                        Directory.Delete(runtimePath_, true);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        throw;
-                    }
-                }
-            }
-            if (!Directory.Exists(runtimePath_))  {
-                Directory.CreateDirectory(runtimePath_);
             }
         }
     }

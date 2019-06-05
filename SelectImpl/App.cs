@@ -361,7 +361,7 @@ namespace SelectImpl
                         p = s_interopWithWeChatProcess_ = null;
                     }
                     if (s_interopWithWeChatProcess_ == null) {
-                        string scriptFilePath = Dist.scriptPath_ + "PromiseData\\SendToWechat.py";
+                        string scriptFilePath = Dist.scriptPath_ + "SendToWechat.py";
                         string arguments = String.Format("\"{0}\"", scriptFilePath.Replace("\\", "\\\\"));
 
                         string cmd = String.Format("python.exe {0}", arguments);
