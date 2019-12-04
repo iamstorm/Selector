@@ -564,16 +564,16 @@ namespace SelectImpl
         {
             var now = DateTime.Now;
             if (!Utils.NowIsMaintainTime()) {
-                int nFinishCount = 0;
-                int nTotalCount = stockList_.Count;
-                App.host_.uiStartProcessBar();
-                foreach (Stock sk in stockList_) {
-                    writeRuntimeData(sk);
-                    ++nFinishCount;
-                    App.host_.uiSetProcessBar(String.Format("已完成写入Rumtime Data：{0}", sk.code_), nFinishCount * 100 / nTotalCount);
-                }
-                writeSZZSRuntimeData();
-                App.host_.uiFinishProcessBar();
+//                 int nFinishCount = 0;
+//                 int nTotalCount = stockList_.Count;
+//                 App.host_.uiStartProcessBar();
+//                 foreach (Stock sk in stockList_) {
+//                     writeRuntimeData(sk);
+//                     ++nFinishCount;
+//                     App.host_.uiSetProcessBar(String.Format("已完成写入Rumtime Data：{0}", sk.code_), nFinishCount * 100 / nTotalCount);
+//                 }
+//                 writeSZZSRuntimeData();
+//                 App.host_.uiFinishProcessBar();
             }
             if (!App.RunScript("end"))
             {

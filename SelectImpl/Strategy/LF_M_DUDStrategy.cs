@@ -40,10 +40,7 @@ namespace SelectImpl
             if (hf > 0.05 || hf < 0.01) {
                 return null;
             }
-            if (dsh.Ref(Info.LF) < -0.095) {
-                return null;
-            }
-            if (dsh.EveryDown() > 2) {
+            if (dsh.Ref(Info.LF) < -0.06) {
                 return null;
             }
 
@@ -62,28 +59,31 @@ namespace SelectImpl
             }
             var rsh = dsh.newRuntimeDsh();
 
-            int iLLIndex = rsh.LL(Info.C, -1, startMinuteCount_);
-            int iReverseHHIndex = rsh.ReverseHH(Info.C, -1, iLLIndex);
-
-            var llc = rsh.Ref(Info.C, iLLIndex);
-            var reverseHHc = rsh.Ref(Info.C, iReverseHHIndex);
-
-            if (c > llc) {
+            var c5 = rsh.Ref(Info.C, 5);
+            if ((c - c5)/lastDayC > -0.01) {
                 return null;
             }
-            if (reverseHHc < o) {
+            var c10 = rsh.Ref(Info.C, 10);
+            if ((c - c10)/lastDayC > -0.015) {
                 return null;
             }
-            var deltaUp = Utils.DeltaF(reverseHHc - llc, lastDayC);
-            if (deltaUp < 0.02) {
+            var c15 = rsh.Ref(Info.C, 15);
+            if ((c - c15)/lastDayC > -0.02) {
                 return null;
             }
-            if ((iLLIndex - rsh.stock_.runtimeDataList_.Count + 1) < 5) {
-                if (c > 0.988 * llc) {
-                    return null;
-                }
+            var c20 = rsh.Ref(Info.C, 20);
+            if ((c - c20)/lastDayC < -0.025) {
+                return null;
             }
-
+            var c25 = rsh.Ref(Info.C, 25);
+            if ((c - c25)/lastDayC < -0.03) {
+                return null;
+            }
+            var c30 = rsh.Ref(Info.C, 30);
+            if ((c - c30)/lastDayC > -0.035) {
+                return null;
+            }
+       
             return EmptyRateItemButSel;
         }
     }

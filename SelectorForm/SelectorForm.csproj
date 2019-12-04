@@ -108,6 +108,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp">
+      <HintPath>..\ThirdParty\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddManualStraForm.cs">
@@ -197,6 +200,7 @@
       <DependentUpon>SolutionSettingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SUtils.cs" />
+    <Compile Include="WebSocketServer.cs" />
     <Compile Include="WriteAssetForm.cs">
       <SubType>Form</SubType>
     </Compile>

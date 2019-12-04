@@ -31,10 +31,13 @@ namespace SelectorForm
         bool bIsSucStart_;
         bool bIsSetToAutoSelectMode_;
         bool bAllowSendSms_ = true;
+
         public MainForm()
         {
             Me = this;
             InitializeComponent();
+
+         //   TheWebSocketServer.Start();
 
             var skinName = Utils.GetSysInfo(DB.Global(), "SkinName", "");
             if (skinName != "")
@@ -346,7 +349,6 @@ namespace SelectorForm
                     {
                         selectTask_.reportError("prepare work fail");
                     }
-                    isBusy_ = false;
                     return;
                 }
                 SelectManager manager = new SelectManager();
@@ -360,10 +362,8 @@ namespace SelectorForm
                 {
                     selectTask_.reportError("raise exception: " + ex.Message);
                 }
-                isBusy_ = false;
                 throw;
             }
-            isBusy_ = false;
         }
         void showRuntimeInfo()
         {
@@ -424,7 +424,7 @@ namespace SelectorForm
                 {
                     var selMsgArr = new List<String>();
                     foreach (var item in reSelect_.selItems_) {
-                        if (item.strategyName_ == "LF_M_NEW") {
+                        if (item.strategyName_ == "LF_M_T" || item.strategyName_ == "LF_M_NEW") {
                             sendSMS(String.Format("验证码: {0}", item.code_));
                         }
                         selMsgArr.Add(String.Format("{0}: {1}", item.code_, item.getColumnVal("name")));
@@ -469,12 +469,20 @@ namespace SelectorForm
             }
             showForm("TabSelect");
             reportSelectMsg("Select completed at " + DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss"), false);
+            isBusy_ = false;
             if (autoSelectMode())
             {
                 try
                 {
                     selectTask_.end();
                     selectTask_ = null;
+                    DateTime curTime = DateTime.Now;
+                    if (Utils.IsTradeTime(curTime.Hour, curTime.Minute)) {
+                        Action action;
+                        Invoke(action = () => {
+                            readMinuteSelectToolStripMenuItem_Click(null, null);
+                        });
+                    }
                 }
                 catch (System.Exception ex)
                 {
@@ -486,6 +494,9 @@ namespace SelectorForm
 
         private void regressToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!bIsSucStart_) {
+                return;
+            }
             if (isBusy_)
             {
                 MessageBox.Show(MainForm.Me, "正忙，请稍微。", "Selector");
@@ -632,7 +643,7 @@ namespace SelectorForm
 
         private void timer__Tick(object sender, EventArgs e)
         {
-            if (isBusy_)
+            if (bIsSucStart_ || isBusy_)
             {
                 return;
             }
